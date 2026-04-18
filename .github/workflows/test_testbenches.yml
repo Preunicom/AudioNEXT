@@ -1,0 +1,26 @@
+name: TestAllTB
+
+on:
+  push:
+    branches: 
+      - master
+    paths:
+      - 'hw/**'
+      - 'scripts/**'
+      - '.github/workflows/**'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: vivado
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build project
+        run: vivado -mode batch -source "./scripts/create_vivado_project.tcl"
+
+      - name: Test all testbenches
+        run: vivado -mode batch -source "./scripts/test_all_hw_tb.tcl"

@@ -1,0 +1,47 @@
+*
+# Allow GitHub related files
+!.gitignore
+!**/.gitkeep
+!.github
+!.github/**/*
+!README.md
+!CONTRIBUTING.md
+!examples/
+!examples/TB_Example.vhd
+!examples/Example.vhd
+# Allow Doxygen file
+!Doxyfile
+# Allow script files
+!scripts/
+!scripts/**/*
+# Allow hardware related files
+!hw
+!hw/constraints
+!hw/constraints/**/*
+!hw/rtl/
+!hw/rtl/**/*
+!hw/sim/
+!hw/sim/**/*
+!hw/ip/
+!hw/ip/**/*.xci
+!hw/ip_repo/
+!hw/ip_repo/**/*
+# TODO: Filter files in ip_repo if necessary
+!hw/bd/
+!hw/bd/**/*.bd
+# Allow software related files
+!sw
+## Manage Vitis files according to https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Source-Control
+## Manage workspace level Vitis files
+sw/**/_ide
+!sw/**/_ide/version.ini
+sw/**/.rigel_lopper
+## Manage platform component level Vitis files
+sw/**/export
+sw/**/hw/sdt
+sw/**/resources
+sw/**/logs
+## Manage application component level Vitis files
+sw/**/build
+sw/**/compile_commands.json
+# _ide already ignored by workspace level rules
