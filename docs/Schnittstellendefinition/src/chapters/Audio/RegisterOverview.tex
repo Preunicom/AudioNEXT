@@ -1,0 +1,48 @@
+\subsubsection{Registerüberblick}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenword, endianness=big, leftcurly=., rightcurly=., curlyspace=0pt]{32}
+        \bitheader{31,24,16,8,0} \\
+        \begin{leftwordgroup}{0x00}
+            \begin{rightwordgroup}{GSCR}
+                \bitbox{32}{General/Global Status and Control Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x04}
+            \begin{rightwordgroup}{GIER}
+                \bitbox{32}{Global Interrupt Enable Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x08}
+            \begin{rightwordgroup}{IPIER}
+                \bitbox{32}{IP Interrupt Enable Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x0C}
+            \begin{rightwordgroup}{IPISR}
+                \bitbox{32}{IP Interrupt Status Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x10}
+            \begin{rightwordgroup}{IDR}
+                \bitbox{32}{ID Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x14}
+            \begin{rightwordgroup}{VERR}
+                \bitbox{32}{Version Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x18}
+            \begin{rightwordgroup}{ADATLR}
+                \bitbox{32}{Audio Data Left Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+        \begin{leftwordgroup}{0x1C}
+            \begin{rightwordgroup}{ADATRR}
+                \bitbox{32}{Audio Data Right Register}
+            \end{rightwordgroup}
+        \end{leftwordgroup} \\
+    \end{bytefield}
+\end{figure}

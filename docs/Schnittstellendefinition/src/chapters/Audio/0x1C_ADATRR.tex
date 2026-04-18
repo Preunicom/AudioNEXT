@@ -1,0 +1,33 @@
+\subsubsection{Audio Data Right Register (ADATRR)}
+
+Address offset: \textbf{0x1C}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{8}{Reserved} &
+        \bitbox{8}{DATAR} \\
+        \bitbox[]{8}{} &
+        \bitbox[]{8}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{16}{DATAR} \\
+        \bitbox[]{16}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bits 31:24 - Reserved}
+    \item \textbf{Bits 23:0 - DATAR: Right Channel Audio Sample}\\
+    Enthält das 24-Bit Audio-Sample des linken Audio Kanals.
+    Der Wert ist nur gültig, wenn das SLA-Bit im IPISR gesetzt ist.
+    Nach einem Lesezugriff wird das Sample ungültig und bleibt es, bis ein neues Sample bereitsteht.
+\end{itemize}

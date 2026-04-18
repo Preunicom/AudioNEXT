@@ -1,0 +1,42 @@
+\subsubsection{Color Threshold Register (COLR)}
+
+Address offset: \textbf{0x1C}
+\newline
+Reset value: 0x0050 0032
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{9}{RT} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{9}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{9}{YT} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{9}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bits 31:25 - Reserved}
+    \item \textbf{Bits 24:16 - RT: Red Threshold}\\
+    Enthält die Grenze in einem 7.2 Festkommaformat in Prozent ab inklusive der die Lautstärke in rot angezeigt wird.\\
+    Wird ein Wert größer als 0x64 (100) geschrieben, wird nie eine rote Färbung vorgenommen.\\
+    RT hat eine höhere Priorität als YT.
+    Sollte also RT kleiner oder gleich YT gewählt werden, wird nie eine gelbe Färbung vorgenommen.
+    \item \textbf{Bits 15:9 - Reserved}
+    \item \textbf{Bits 8:0 - YT: Yellow Threshold}\\
+    Enthält die Grenze in einem 7.2 Festkommaformat in Prozent ab inklusive der die Lautstärke in gelb angezeigt wird.\\
+    Wird ein Wert größer als 0x64 (100) geschrieben, wird nie eine gelbe Färbung vorgenommen.\\
+    YT hat eine niedrigere Priorität als RT. Also überschreibt RT den Wert YT, wodurch YT größer oder gleich RT zur Folge hat, dass der Balken nie gelb werden kann.
+
+\end{itemize}

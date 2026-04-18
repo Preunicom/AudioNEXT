@@ -39,3 +39,5 @@ sw/**/compile_commands.json
 # Vivado logs
 vivado.jou
 vivado.log
+# Apple Files
+.DS_Store

@@ -1,0 +1,20 @@
+\section{Schnittstellen}
+
+Über den Pmod I2S2 wird ein Stereo-Audiosignal über das I2S-Protokoll empfangen, welches im Audio-IP verarbeitet wird.
+Die verwendeten Ports sind hierbei:
+\begin{enumerate}
+    \item Line In Converter Master Clock \glqq A/D MCLK\grqq
+    \item Line In Converter Word Select \glqq A/D LRCK\grqq
+    \item Line In Converter Serial Clock \glqq A/D SCLK\grqq
+    \item Line In Converter Serial Data Output \glqq A/D SDOUT\grqq
+\end{enumerate}
+Das verarbeitete Signal wird dem MicroBlaze via AXI Lite Interface zur Verfügung gestellt.
+Der MicroBlaze gibt das Ergebnis seiner Lautstärkenberechnung per AXI Lite an den Visualization-IP.
+Das Signal wird vom Visualization-IP nach der Verarbeitung in Form von fünf Signalen an den Pmod VGA übertragen:
+\begin{enumerate}
+    \item roter 4-Bit-Farbkanal
+    \item grüner 4-Bit-Farbkanal
+    \item blauer 4-Bit-Farbkanal
+    \item horizontales Synchronisationssignal \glqq HSync\grqq
+    \item vertikale Synchronisationssignal \glqq VSync\grqq
+\end{enumerate}

@@ -1,0 +1,32 @@
+\subsubsection{IP Interrupt Enable Register (IPIER)}
+
+Address offset: \textbf{0x08}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{15}{Reserved} &
+        \bitbox{1}{FIE} \\
+        \bitbox[]{15}{}
+        \bitbox[]{1}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:1 - Reserved Bits}
+    \item \textbf{Bit 0 - FIE: Frame Data Empty Interrupt Enable}\\
+    Wenn dieses Bit auf 1 gesetzt wird, ist der Frame Data Empty Interrupt aktiviert.
+    Er wird ausgelöst, wenn das FDE Bit in IPISR gesetzt wird.
+    Zusätzlich müssen global die Interrupts aktiviert sein indem das GIE Bit im GIER Register gesetzt ist.
+\end{itemize}

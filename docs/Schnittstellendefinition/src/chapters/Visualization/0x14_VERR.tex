@@ -1,0 +1,28 @@
+\subsubsection{Version Register (VERR)}
+
+Address offset: \textbf{0x14}
+\newline
+Reset value: 0x0000 0001
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{VER} \\
+        \bitbox[]{16}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{16}{VER} \\
+        \bitbox[]{16}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:0 - VER: Version}\\
+    Dieses Register enthält die Version des IPs.
+\end{itemize}

@@ -1,0 +1,38 @@
+\documentclass[
+    a4paper,
+    ngerman,
+    fontsize=11pt,
+    bibliography=totoc,
+    listof=totoc,
+    numbers=noendperiod,
+    DIV=calc
+]{scrartcl}
+
+\input{document_settings} % Sets all format settings and includes packages for the document
+
+% Zeilenabstand für das ganze Dokument
+\onehalfspacing  % 1,5-facher Zeilenabstand
+\setlength{\parindent}{0pt} % kein Einzug am Absatzanfang
+
+
+\title{\Huge AudioNEXT\\[0.5em]\Large Die Audiophilen}
+\author{Felix Knoll, Markus Remy, Maximilian Hafeneder,\\Nicolas Lonthoff, Richard Tuch}
+
+\begin{document}
+
+    \maketitle
+    \thispagestyle{empty}
+    \vspace{15cm}
+    \hrule
+    \newpage
+
+    \pagenumbering{Roman}
+    \tableofcontents
+    \clearpage
+    \pagenumbering{arabic}
+
+    \input{chapters/architecture}
+    \input{chapters/workload}
+    \input{chapters/interfaces}
+
+\end{document}

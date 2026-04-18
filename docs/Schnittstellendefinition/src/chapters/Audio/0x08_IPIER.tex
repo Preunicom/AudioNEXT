@@ -1,0 +1,41 @@
+\subsubsection{IP Interrupt Enable Register (IPIER)}
+
+Address offset: \textbf{0x08}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{SRIE} &
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{SLIE} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R/W} &
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:9 - Reserved Bits}
+    \item \textbf{Bit 8 - SRIE: Sample Right Available Interrupt Enable}\\
+    Wenn dieses Bit auf 1 gesetzt wird, ist der Sample Right Available Interrupt aktiviert.
+    Er wird ausgelöst, wenn das SRA Bit in IPISR gesetzt wird.
+    Zusätzlich müssen global die Interrupts aktiviert sein indem das GIE Bit im GIER Register gesetzt ist.
+    \item \textbf{Bit 7:1 - Reserved Bits}
+    \item \textbf{Bit 0 - SLIE: Sample Left Available Interrupt Enable}\\
+    Wenn dieses Bit auf 1 gesetzt wird, ist der Sample Left Available Interrupt aktiviert.
+    Er wird ausgelöst, wenn das SLA Bit in IPISR gesetzt wird.
+    Zusätzlich müssen global die Interrupts aktiviert sein indem das GIE Bit im GIER Register gesetzt ist.
+\end{itemize}

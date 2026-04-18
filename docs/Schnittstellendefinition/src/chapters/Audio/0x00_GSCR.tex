@@ -1,0 +1,43 @@
+\subsubsection{General/Global Status and Control Register (GSCR)}
+
+Address offset: \textbf{0x00}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{DOR} &
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{DOL} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R} &
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{15}{Reserved} &
+        \bitbox{1}{SEN} \\
+        \bitbox[]{15}{} &
+        \bitbox[]{1}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:25 - Reserved Bits}
+    \item \textbf{Bit 24 - DOR: Data Overrun Right Channel}\\
+    Dieses Bit wird 1 gelesen, wenn seit dem letzten Lesezugriff auf ADATRR Daten des rechten Audio Kanals aufgrund eines vollen Datenpuffers verloren gegangen sind.
+    \item \textbf{Bit 23:17 - Reserved Bits}
+    \item \textbf{Bit 16 - DOL: Data Overrun Left Channel}\\
+    Dieses Bit wird 1 gelesen, wenn seit dem letzten Lesezugriff auf ADATLR Daten des linken Audio Kanals aufgrund eines vollen Datenpuffers verloren gegangen sind.
+    \item \textbf{Bit 15:1 - Reserved Bits}
+    \item \textbf{Bit 0 - SEN: Sampling Enable}\\
+    Wenn dieses Bit auf 1 gesetzt ist, ist das Sampling von Line In aktiv.
+\end{itemize}

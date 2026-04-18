@@ -1,0 +1,31 @@
+\documentclass[
+    a4paper,
+    ngerman,
+    fontsize=11pt,
+    bibliography=totoc,
+    listof=totoc,
+    numbers=noendperiod,
+    DIV=calc
+]{scrartcl}
+
+\input{document_settings} % Sets all format settings and includes packages for the document
+
+\title{\Huge AudioNEXT\\[0.5em]\huge Schnittstellendefinition\\[0.5em]\Large Die Audiophilen}
+\author{Felix Knoll, Markus Remy, Maximilian Hafeneder,\\Nicolas Lonthoff, Richard Tuch}
+
+\begin{document}
+
+    \pagenumbering{gobble}
+    \maketitle
+    \newpage
+
+    \pagenumbering{Roman}
+    \tableofcontents
+    \clearpage
+    \pagenumbering{arabic}
+
+    \input{chapters/Audio}
+    \newpage
+    \input{chapters/Visualization}
+
+\end{document}

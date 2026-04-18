@@ -1,0 +1,63 @@
+\section{Audio-IP}
+
+\subsection{Kurzbeschreibung}
+
+Der Audio-IP empfängt das Audio Signal vom Pmod I2S2 via I2S im Master Modus mit einer Samplingrate von 96 kHz pro Kanal.
+Dazu werden die notwendigen Taktsignale für MCLK, LRCK und SCLK erzeugt.
+Das I2S Signal des Pmods wird empfangen, dekodiert und gepuffert.
+Die Daten werden in der empfangenen Reihenfolge über AXI Lite zur Verfügung gestellt.
+Dazu werden Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
+
+\subsection{Ports zum Pmod I2S2}
+
+Für die Verbindung zum Pmod I2S2 werden folgende Ports zur Verfügung gestellt:
+\begin{enumerate}
+    \item \textbf{o\_mclk}: Line In Converter Master Clock \glqq A/D MCLK\grqq
+    \item \textbf{o\_lrck}: Line In Converter Word Select \glqq A/D LRCK\grqq
+    \item \textbf{o\_sclk}: Line In Converter Serial Clock \glqq A/D SCLK\grqq
+    \item \textbf{i\_data}: Line In Converter Serial Data Output \glqq A/D SDOUT\grqq
+\end{enumerate}
+
+Der Pmod I2S2 ist dabei im Slave Modus zu betreiben.
+Der Audio-IP nimmt den Master Modus ein.
+
+\subsection{AXI Lite Schnittstelle}
+
+Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:audio_register} genauer beschrieben.
+
+Zusammengefasst werden die empfangenen Audio Samples, wenn das Sampling aktiviert ist, im FIFO Prinzip je Kanal in einem Register zur Verfügung gestellt.
+Jeder Audiokanal verfügt über seinen eignen Interrupt.
+Nach dem Lesen des Samples wird der nächste Sample zur Verfügung gestellt, sobald er vorhanden ist.
+Die Gültigkeit des anliegenden Samples ist dem entsprechenden Bit (SLA/SRA) des Registers IPISR zu entnehmen.
+
+Sollten Daten aufgrund eines vollen Puffers verloren gehen wird ein entsprechendes Flag für den jeweiligen Kanal (DOL/DOR) im GSCR Register gesetzt.
+
+\subsection{Registerbeschreibungen}\label{subsec:audio_register}
+
+\begin{registerblock}
+     \input{chapters/Audio/RegisterOverview}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x00_GSCR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x04_GIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x08_IPIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x0C_IPISR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x10_IDR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x14_VERR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x18_ADATLR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x1C_ADATRR}
+\end{registerblock}
