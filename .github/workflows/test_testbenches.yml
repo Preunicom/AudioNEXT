@@ -4,6 +4,8 @@ on:
   push:
     branches: 
       - master
+      - dev/**
+      - fea/**
     paths:
       - 'hw/**'
       - 'scripts/**'
@@ -20,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Build project
-        run: vivado -mode batch -source "./scripts/create_vivado_project.tcl"
+        run: ./scripts/create_all_vivado_projects.sh
 
       - name: Test all testbenches
         run: vivado -mode batch -source "./scripts/test_all_hw_tb.tcl"

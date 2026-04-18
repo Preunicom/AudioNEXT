@@ -1,0 +1,10 @@
+**/*.*
+!**/src/**
+!**/src/**/*
+!**/sim/**
+!**/sim/**/*
+!**/xgui/*.tcl
+!**/component.xml
+# Git
+!.gitignore
+!.gitkeep

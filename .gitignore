@@ -1,7 +1,6 @@
 *
 # Allow GitHub related files
 !.gitignore
-!**/.gitkeep
 !.github
 !.github/**/*
 !README.md
@@ -13,22 +12,11 @@
 !Doxyfile
 # Allow script files
 !scripts/
-!scripts/**/*
+!scripts/**/*.tcl
+!scripts/**/*.sh
 # Allow hardware related files
 !hw
-!hw/constraints
-!hw/constraints/**/*
-!hw/rtl/
-!hw/rtl/**/*
-!hw/sim/
-!hw/sim/**/*
-!hw/ip/
-!hw/ip/**/*.xci
-!hw/ip_repo/
-!hw/ip_repo/**/*
-# TODO: Filter files in ip_repo if necessary
-!hw/bd/
-!hw/bd/**/*.bd
+!hw/**/
 # Allow software related files
 !sw
 ## Manage Vitis files according to https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Source-Control
@@ -45,3 +33,9 @@ sw/**/logs
 sw/**/build
 sw/**/compile_commands.json
 # _ide already ignored by workspace level rules
+# Docs for DAPI
+!docs/
+!docs/**/*
+# Vivado logs
+vivado.jou
+vivado.log

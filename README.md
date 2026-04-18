@@ -22,3 +22,7 @@ To use the CI workflow and the test script all testbenches must follow the same 
 - One rising edge after setting `tb_test_passed` to `true`, `finish` has to be called.
 
 An example testbench is given in `examples/TB_Example.vhd`.
+
+## Note
+
+vivado has to be in the PATH Variable.

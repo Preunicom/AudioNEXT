@@ -1,3 +1,5 @@
+# @author Markus Remy
+
 proc find_files {dir pattern} {
     set result {}
     foreach f [glob -nocomplain -directory $dir -types f $pattern] {
@@ -11,79 +13,46 @@ proc find_files {dir pattern} {
 
 puts "============================================================"
 puts " Testing Project..."
-puts " Searching for TB_*.vhd files..."
+puts " Searching for sub-test-scripts..."
 puts "============================================================"
 
 set script_dir [file dirname [info script]]
 set project_dir [file normalize "$script_dir/.."]
-set sim_dir "$proj_dir/hw/sim"
-set project_file [lindex [find_files $project_dir/xilinx/vivado "*.xpr"] 0]
+
+set test_scripts [find_files $project_dir/hw "test_all_tb.tcl"]
 
 puts "Script directory: $script_dir"
 puts "Project directory: $project_dir"
-puts "Project file: $project_file"
-puts "Simulation directory: $sim_dir"
+puts "Found subscripts: $test_scripts"
 
-set tb_files [find_files $sim_dir "TB_*.vhd"]
-
-if {[llength $tb_files] == 0} {
-    puts "ERROR: No testbench files with filename format TB_*.vhd found under: $sim_dir"
-    exit 1
-}
-
-puts "Found [llength $tb_files] testbench file(s):"
-foreach f $tb_files {
-    puts "  - $f"
-}
-
-if {[llength [get_projects]] > 0} {
-    close_project
-}
-
-open_project "$project_file"
-
-set_property -name {xsim.simulate.runtime} -value {0ns} -objects [get_filesets sim_1] 
 set exit_code 0
 
-puts "============================================================"
-puts " Starting simulations..."
-puts "============================================================"
-
-foreach tb $tb_files {
+foreach tb_script $test_scripts {
 
     puts "------------------------------------------------------------"
-    puts "Running testbench: $tb"
+    puts "Running sub test script: $tb_script"
     puts "------------------------------------------------------------"
 
-    # Reset simulation environment
-    reset_simulation -quiet
+    cd [file dirname $tb_script]
 
-    set top_name [file rootname [file tail $tb]]
-    set_property top $top_name [get_filesets sim_1]
+    catch {source $tb_script} tcl_error_code
 
-    update_compile_order -fileset sim_1 -quiet
-
-    launch_simulation -quiet
-
-    # Restart simulation to also get asserts at the beginning which were already executed by launch_simulation.
-    restart -quiet
-
-    run -all
-
-    set test_passed [get_value /$top_name/tb_test_passed]
-    if {$test_passed eq "TRUE"} {
-        puts "INFO: TEST SUCCESSFULL"
-    } else {
-        puts "ERROR: VHDL Assertion Failure detected for $tb"
+    if {$exit_code_result != 0 || $tcl_error_code != 0 } {
+        puts "ERROR: Sub test script failed: $tb_script"
         set exit_code 1
+    } else {
+        puts "INFO: Sub test script finished successfully"
     }
-
-    # Close simulation
-    close_sim -force -quiet
 }
 
-puts "============================================================"
-puts " All testbenches completed."
-puts "============================================================"
+puts "------------------------------------------------------------"
+puts "All sub test scripts completed!"
+puts "------------------------------------------------------------"
 
-exit $exit_code
+if {$exit_code != 0} {
+    puts "Exited with error!"
+    exit 1
+} else {
+    puts "Exited successfully!"
+    exit 0
+}

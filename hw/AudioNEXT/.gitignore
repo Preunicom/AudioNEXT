@@ -1,0 +1,39 @@
+*
+# Contraints
+!constraints/
+!constraints/**
+constraints/**/*.*
+!constraints/**/*.xdc
+# Block designs
+!bd/
+!bd/**
+bd/**/*.*
+!bd/**/*.bd
+!bd/**/ip/**/*.xci
+# IPs
+!ip/
+!ip/**
+ip/**/*.*
+!ip/**/*.xci
+# RTL
+!rtl/
+!rtl/**
+rtl/**/*.*
+!rtl/**/*.vhd
+!rtl/**/*.v
+!rtl/**/*.sv
+# SIM
+!sim/
+!sim/**
+sim/**/*.*
+!sim/**/*.vhd
+!sim/**/*.v
+!sim/**/*.sv
+# Scripts
+!scripts/
+!script/**
+scripts/**/*.*
+!scripts/**/*.tcl
+# Git
+!.gitignore
+!.gitkeep
