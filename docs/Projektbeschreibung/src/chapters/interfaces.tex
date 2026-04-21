@@ -9,8 +9,8 @@ Die verwendeten Ports sind hierbei:
     \item Line In Converter Serial Data Output \glqq A/D SDOUT\grqq
 \end{enumerate}
 Das verarbeitete Signal wird dem MicroBlaze via AXI Lite Interface zur Verfügung gestellt.
-Der MicroBlaze gibt das Ergebnis seiner Lautstärkenberechnung per AXI Lite an den Visualization-IP.
-Das Signal wird vom Visualization-IP nach der Verarbeitung in Form von fünf Signalen an den Pmod VGA übertragen:
+Der MicroBlaze gibt das Ergebnis seiner Lautstärkenberechnung per AXI Lite mit 32 Bit Datenbreite und 100 MHz AXI Clock an den Visualization-IP.
+Die für den Pmod VGA nötigen Informationen werden nach der Verarbeitung vom Visualization-IP über fünf Ports zur Verfügung gestellt:
 \begin{enumerate}
     \item roter 4-Bit-Farbkanal
     \item grüner 4-Bit-Farbkanal

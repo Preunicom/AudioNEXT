@@ -8,20 +8,43 @@ Das I2S Signal des Pmods wird empfangen, dekodiert und gepuffert.
 Die Daten werden in der empfangenen Reihenfolge über AXI Lite zur Verfügung gestellt.
 Dazu werden Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
 
-\subsection{Ports zum Pmod I2S2}
+\subsection{I/Os}
 
-Für die Verbindung zum Pmod I2S2 werden folgende Ports zur Verfügung gestellt:
-\begin{enumerate}
-    \item \textbf{o\_mclk}: Line In Converter Master Clock \glqq A/D MCLK\grqq
-    \item \textbf{o\_lrck}: Line In Converter Word Select \glqq A/D LRCK\grqq
-    \item \textbf{o\_sclk}: Line In Converter Serial Clock \glqq A/D SCLK\grqq
-    \item \textbf{i\_data}: Line In Converter Serial Data Output \glqq A/D SDOUT\grqq
-\end{enumerate}
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{c c c >{\raggedright\arraybackslash}X}
+        Signal Name & I/O & Initial State & Description \\
+        \toprule
+        s00\_axi\_axlk & I & NA & AXI Clock \\
+        \midrule
+        s00\_axi\_aresetn & I & NA & AXI Reset, acve-Low \\
+        \midrule
+        s00\_axi* & NA & NA & AXI4-Lite Slave Interface signals \\
+        \midrule
+        i\_audio\_clk & I & NA & Master Clock Signal für den Pmod I2S2 (24,576 MHz) \\
+        \midrule
+        o\_interrupt & O & 0x0 & Zeigt, ob ein Interrupt ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_mclk & O & 0x0 & Line In Converter Master Clock \glqq A/D MCLK\grqq \\
+        \midrule
+        o\_lrck & O & 0x0 & Line In Converter Word Select \glqq A/D LRCK\grqq \\
+        \midrule
+        o\_sclk & O & 0x0 & Line In Converter Serial Clock \glqq A/D SCLK\grqq \\
+        \midrule
+        i\_data & I & 0x0 & Line In Converter Serial Data Output \glqq A/D SDOUT\grqq \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Ports des Audio-IPs}
+\end{table}
 
-Der Pmod I2S2 ist dabei im Slave Modus zu betreiben.
+\subsection{Pmod I2S2}
+
+Der Pmod I2S2 ist im Slave Modus zu betreiben.
 Der Audio-IP nimmt den Master Modus ein.
 
 \subsection{AXI Lite Schnittstelle}
+
+Die Ports der AXI Lite Schnittstelle entsprechen den Ports des AXI Lite Standards für einen AXI Lite Slave mit 32 Bit Datenbreite und 100 MHz AXI Clock.
 
 Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:audio_register} genauer beschrieben.
 

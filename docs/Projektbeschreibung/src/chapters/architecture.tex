@@ -19,7 +19,7 @@ Dazu werden die notwendigen Taktsignale für MCLK, LRCK und SCLK erzeugt.
 Das I2S Signal des Pmods wird empfangen und in einen asynchronen FIFO per AXI Stream geladen.
 Dort werden die Werte gepuffert und wechseln zudem in die Taktdomäne der AXI Lite Schnittstelle.
 Die Daten werden über AXI Lite an den Microblaze übergeben.
-Dazu werden Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
+Dazu wird je Audio Kanal ein Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
 
 \subsubsection{MicroBlaze}
 
@@ -32,6 +32,7 @@ Um die Lautstärke des Audiosignals zu berechnen werden die beiden Audiokanäle 
 Der Visualization-IP erhält vom MicroBlaze über AXI Lite die Lautstärke in Prozent als Festkommazahl im 7.2 Format.
 Diese wird als Text in den Framebuffer geladen.
 Zusätzlich wird die Lautstärke als Balken relativ zum Prozentwert ebenfalls in den Framebuffer geladen.
+Wenn eine über die AXI Lite Schnittstelle geschriebener Lautstärke verarbeitet wurde, wird ein Interrupt ausgelöst.
 Das VGA Signal wird im Format 640x480@60Hz erzeugt.
 Die Pixelclock dazu wird, ebenso wie Steuersignale, die den aktuellen Status des VGA Signals enthalten, erzeugt.
 Der Framebuffer wird zwischen zwei Frames aktualisiert, während sich das VGA Signal in der \glqq Blanking Period\grqq \ befindet.

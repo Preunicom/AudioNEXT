@@ -5,20 +5,42 @@
 Der Visualization-IP stellt eine AXI Lite Schnittstelle zur Verfügung.
 Über diese erhält er die Lautstärke in Prozent und Grenzwerte für die farbige Visualisierung.
 Das VGA Signal wird im Format 640x480@60Hz erzeugt.
-Immer wenn ein Lautstärkenwert verarbeitet wurde wird ein Interrupt ausgelöst.
+Immer wenn ein Lautstärkenwert verarbeitet wurde, wird ein Interrupt ausgelöst.
 
-\subsection{Ports zum Pmod VGA}
+\subsection{I/Os}
 
-Für die Verbindung zum Pmod VGA werden folgende Ports zur Verfügung gestellt:
-\begin{enumerate}
-    \item \textbf{o\_red}: roter 4-Bit-Farbkanal
-    \item \textbf{o\_green}: grüner 4-Bit-Farbkanal
-    \item \textbf{o\_blue}: blauer 4-Bit-Farbkanal
-    \item \textbf{o\_hsync}: horizontales Synchronisationssignal \glqq HSync\grqq
-    \item \textbf{o\_vsync}: vertikale Synchronisationssignal \glqq VSync\grqq
-\end{enumerate}
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{c c c >{\raggedright\arraybackslash}X}
+        Signal Name & I/O & Initial State & Description \\
+        \toprule
+        s00\_axi\_axlk & I & NA & AXI Clock \\
+        \midrule
+        s00\_axi\_aresetn & I & NA & AXI Reset, acve-Low \\
+        \midrule
+        s00\_axi* & NA & NA & AXI4-Lite Slave Interface signals \\
+        \midrule
+        i\_pixel\_clk & I & NA & Pixel Clock Signal für die VGA Ausgabe \\
+        \midrule
+        o\_interrupt & O & 0x0 & Zeigt, ob ein Interrupt ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_red(4 downto 0) & O & 0x0 & roter 4-Bit-Farbkanal \\
+        \midrule
+        o\_green(4 downto 0) & O & 0x0 & grüner 4-Bit-Farbkanal \\
+        \midrule
+        o\_blue(4 downto 0) & O & 0x0 & blauer 4-Bit-Farbkanal \\
+        \midrule
+        o\_hsync & O & 0x0 & horizontales Synchronisationssignal \glqq HSync\grqq \\
+        \midrule
+        o\_vsync & O & 0x0 & vertikales Synchronisationssignal \glqq VSync\grqq \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Ports des Visualization-IPs}
+\end{table}
 
 \subsection{AXI Lite Schnittstelle}
+
+Die Ports der AXI Lite Schnittstelle entsprechen den Ports des AXI Lite Standards für einen AXI Lite Slave mit 32 Bit Datenbreite und 100 MHz AXI Clock.
 
 Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:visual_register} genauer beschrieben.
 
