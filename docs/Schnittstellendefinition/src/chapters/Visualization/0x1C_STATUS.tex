@@ -1,6 +1,6 @@
-\subsubsection{IP Interrupt Enable Register (IPIER)}
+\subsubsection{Status Register (STATUS)}
 
-Address offset: \textbf{0x08}
+Address offset: \textbf{0x1C}
 \newline
 Reset value: 0x0000 0000
 
@@ -17,16 +17,16 @@ Reset value: 0x0000 0000
     \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
         \bitheader{0-15} \\
         \bitbox{15}{Reserved} &
-        \bitbox{1}{FIE} \\
-        \bitbox[]{15}{}
-        \bitbox[]{1}{R/W}
+        \bitbox{1}{FDP} \\
+        \bitbox[]{15}{} &
+        \bitbox[]{1}{R}
     \end{bytefield}
 \end{figure}
 
 \begin{itemize}
     \item \textbf{Bit 31:1 - Reserved Bits}
-    \item \textbf{Bit 0 - FIE: Frame Data Processed Interrupt Enable}\\
-    Wenn dieses Bit auf 1 gesetzt wird, ist der Frame Data Processed Interrupt aktiviert.
-    Er wird ausgelöst, wenn das FDP Bit in IPISR gesetzt wird.
-    Zusätzlich müssen global die Interrupts aktiviert sein, indem das GIE Bit im GIER Register gesetzt ist.
+    \item \textbf{Bit 0 - FDP: Frame Data Processed}\\
+    Dieses Bit wird 1 gelesen, wenn die Daten im VDATR Register verarbeitet wurden.
+    Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff auf das VDATR Register ausgeführt wird.
+    Dieses Bit entspricht dem FDP Bit in IPISR.
 \end{itemize}
