@@ -17,7 +17,7 @@ Reset value: 0x0000 0000
     \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
         \bitheader{0-15} \\
         \bitbox{15}{Reserved} &
-        \bitbox{1}{FDE} \\
+        \bitbox{1}{FDP} \\
         \bitbox[]{15}{} &
         \bitbox[]{1}{R}
     \end{bytefield}
@@ -25,7 +25,7 @@ Reset value: 0x0000 0000
 
 \begin{itemize}
     \item \textbf{Bit 31:1 - Reserved Bits}
-    \item \textbf{Bit 0 - FDE: Frame Data Empty}\\
+    \item \textbf{Bit 0 - FDP: Frame Data Processed}\\
     Dieses Bit wird 1 gelesen, wenn die Daten im VDATR Register verarbeitet wurden.
     Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff auf das VDATR Register ausgeführt wird.
     Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das FIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
