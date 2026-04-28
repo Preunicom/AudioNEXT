@@ -1,6 +1,6 @@
 \subsubsection{Visualization Data Register (VDATR)}
 
-Address offset: \textbf{0x18}
+Address offset: \textbf{0x20}
 \newline
 Reset value: 0x0000 0000
 
@@ -28,5 +28,5 @@ Reset value: 0x0000 0000
     \item \textbf{Bits 8:0 - VOL: Volume}\\
     Enthält die zu visualisierende Lautstärke in einem 7.2 Festkommaformat in Prozent.
     Der geschriebene Wert darf 100 nicht überschreiten.
-    Der Wert darf nur geschrieben werden, wenn das FDE Bit im IPISR Register 0 gelesen wird.
+    Der Wert sollte nur geschrieben werden, wenn das FDP Bit im STATUS Register 0 gelesen wird um Datenverlust zu vermeiden.
 \end{itemize}

@@ -16,19 +16,19 @@ Immer wenn ein Lautstärkenwert verarbeitet wurde, wird ein Interrupt ausgelöst
         \toprule
         s00\_axi\_axlk & I & NA & AXI Clock \\
         \midrule
-        s00\_axi\_aresetn & I & NA & AXI Reset, acve-Low \\
+        s00\_axi\_aresetn & I & NA & AXI Reset, Active-Low \\
         \midrule
-        s00\_axi* & NA & NA & AXI4-Lite Slave Interface signals \\
+        s00\_axi* & NA & NA & AXI4-Lite Slave Interface Signale \\
         \midrule
-        i\_pixel\_clk & I & NA & Pixel Clock Signal für die VGA Ausgabe \\
+        i\_pixel\_clk & I & NA & Pixel Clock Signal für die VGA Ausgabe (25,175 MHz) \\
         \midrule
         o\_interrupt & O & 0x0 & Zeigt, ob ein Interrupt ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
         \midrule
-        o\_red(4 downto 0) & O & 0x0 & roter 4-Bit-Farbkanal \\
+        o\_red(3 downto 0) & O & 0x0 & roter 4-Bit-Farbkanal \\
         \midrule
-        o\_green(4 downto 0) & O & 0x0 & grüner 4-Bit-Farbkanal \\
+        o\_green(3 downto 0) & O & 0x0 & grüner 4-Bit-Farbkanal \\
         \midrule
-        o\_blue(4 downto 0) & O & 0x0 & blauer 4-Bit-Farbkanal \\
+        o\_blue(3 downto 0) & O & 0x0 & blauer 4-Bit-Farbkanal \\
         \midrule
         o\_hsync & O & 0x0 & horizontales Synchronisationssignal \glqq HSync\grqq \\
         \midrule
@@ -46,7 +46,7 @@ Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:visual_r
 
 Zusammengefasst werden die bereitgestellten Lautstärkenwerte, wenn die Visualisierung aktiviert ist, auf dem Bildschirm als Text sowie als farbiger Balken dargestellt.
 Nach jedem verarbeiteten Wert in VDATR wird ein Interrupt ausgelöst.
-Der Wert in VDATR sollte nur überschrieben werden, wenn das FDE Flag im IPISR Register gesetzt ist, um Datenverluste zu verhindern.
+Der Wert in VDATR sollte nur überschrieben werden, wenn das FDP Flag im STATUS Register gesetzt ist, um Datenverluste zu verhindern.
 
 Der Wert in VDATR wird in einem 7.2 Festkommaformat verlangt.
 Die Bitwertigkeiten sind somit $2^7 \ 2^6 \ \dots \ 2^0 \ 2^{-1} \ 2^{-2}$.
@@ -82,8 +82,14 @@ Zusätzlich überschreibt die rote Grenze die gelbe, wodurch eine niedrigere rot
     \input{chapters/Visualization/0x14_VERR}
 \end{registerblock}
 \begin{registerblock}
-    \input{chapters/Visualization/0x18_VDATR}
+    \input{chapters/Visualization/0x18_CTRL}
 \end{registerblock}
 \begin{registerblock}
-    \input{chapters/Visualization/0x1C_COLR}
+    \input{chapters/Visualization/0x1C_STATUS}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x20_VDATR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x24_COLR}
 \end{registerblock}
