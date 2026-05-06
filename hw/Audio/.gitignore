@@ -1,4 +1,9 @@
 *
+# Constraints
+!constraints/
+!constraints/**
+constraints/*.*
+!constraints/**/*.xdc
 # Block designs
 !bd/
 !bd/**

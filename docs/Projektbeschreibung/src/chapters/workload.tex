@@ -6,12 +6,24 @@
     \label{fig:workload_split_diagram}
 \end{figure}
 
-Die Aufteilung in Arbeitspakete wurde anhand der IPs gewählt.
+Bei der Hardware wurde als Ansatz \glqq Blackbox Testing\grqq\ verwendet.
+Die Module werden somit nicht vom Entwickler des Moduls, sondern von einer anderen Person getestet.
 \newline
-Felix Knoll und Maximilian Hafeneder übernehmen den Audio-IP zusammen mit der Hauptlogik des MicroBlazes.
-Dazu zählt die Implementierung der I2S Empfangslogik, sowie die Bereitstellung der Daten per AXI Lite Schnittstelle.
-Zusätzlich wird der Treiber für den Audio-IP und die Berechnungslogik auf dem MicroBlaze implementiert.
+Die Softwarepakete werden vom jeweiligen Autor getestet.
 \newline
-Markus Remy, Nicolas Lonthoff und Richard Tuch sind für den Visualization-IP sowie den zugehörigen Treiber zuständig.
-Dazu gehört die Implementierung der VGA Verarbeitungslogik, sowie die Annahme der zu visualisierenden Daten über eine AXI Lite Schnittstelle.
-Außerdem wird der Treiber für den Visualization-IP entwickelt.
+Der Audio-Core wird von Maximilian Hafeneder entwickelt und von Felix Knoll getestet.
+Der zugehörige AXI Wrapper wird von Richard Tuch entwickelt und von Maximilian Hafeneder getestet.
+\newline
+Den Visualization-Core entwickelt Markus Remy.
+Getestet wird er von Nicolas Lonthoff.
+Der zugehörige AXI Wrapper wird gegengleich von Nicolas und Markus entwickelt.
+\newline
+Das softwareseitige Interface des Audio IPs entwickelt Richard Tuch inklusive der zugehörigen Tests der Register.
+Den darüber liegenden Core für den IP entwickelt Felix Knoll ebenfalls inklusive des zughörigen Funktionstests.
+\newline
+Das softwareseitige Interface des Visualization IPs entwickelt Maximilian Hafeneder inklusive der zugehörigen Tests der Register.
+Den darüber liegenden Core für den IP entwickelt Nicolas Lonthoff ebenfalls inklusive des zughörigen Funktionstests.
+\newline
+Das Hauptprogramm entwickelt Felix Knoll.
+\newline
+Die Integration des Gesamtsystems wird von Markus Remy angeleitet und mit dem gesamten Team umgesetzt.

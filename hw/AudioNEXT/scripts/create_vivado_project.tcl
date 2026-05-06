@@ -24,6 +24,8 @@ set proj_IP_dir "[file normalize "$project_data_dir/ip"]"
 set general_files_dir "[file normalize "$project_data_dir/../0_General"]"
 set ip_repo_path "[file normalize "$project_data_dir/../ip_repo"]"
 
+# ================ MISC ================
+file delete -force $proj_dir
 
 # ================ PROJECT ================
 create_project $proj_name "$proj_dir" -part $proj_part
