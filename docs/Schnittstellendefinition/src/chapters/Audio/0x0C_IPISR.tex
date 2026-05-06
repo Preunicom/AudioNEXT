@@ -21,9 +21,9 @@ Reset value: 0x0000 0000
         \bitbox{7}{Reserved} &
         \bitbox{1}{SLA} \\
         \bitbox[]{7}{} &
-        \bitbox[]{1}{R} &
+        \bitbox[]{1}{R/W} &
         \bitbox[]{7}{} &
-        \bitbox[]{1}{R}
+        \bitbox[]{1}{R/W}
     \end{bytefield}
 \end{figure}
 
@@ -33,9 +33,11 @@ Reset value: 0x0000 0000
     Dieses Bit wird 1 gelesen, wenn die Daten im ADATRR Register gültig sind.
     Es wird automatisch zurückgesetzt, wenn ein Lesezugriff auf das ADATRR Register ausgeführt wird.
     Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das SRIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
+    1 schreiben um das Bit auf 0 zu setzen.
     \item \textbf{Bit 7:1 - Reserved Bits}
     \item \textbf{Bit 0 - SLA: Sample Left Available}\\
     Dieses Bit wird 1 gelesen, wenn die Daten im ADATLR Register gültig sind.
     Es wird automatisch zurückgesetzt, wenn ein Lesezugriff auf das ADATLR Register ausgeführt wird.
     Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das SLIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
+    1 schreiben um das Bit auf 0 zu setzen.
 \end{itemize}

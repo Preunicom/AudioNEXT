@@ -19,7 +19,7 @@ Reset value: 0x0000 0000
         \bitbox{15}{Reserved} &
         \bitbox{1}{FDP} \\
         \bitbox[]{15}{} &
-        \bitbox[]{1}{R}
+        \bitbox[]{1}{R/W}
     \end{bytefield}
 \end{figure}
 
@@ -29,4 +29,5 @@ Reset value: 0x0000 0000
     Dieses Bit wird 1 gelesen, wenn die Daten im VDATR Register verarbeitet wurden.
     Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff auf das VDATR Register ausgeführt wird.
     Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das FIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
+    1 schreiben um das Bit auf 0 zu setzen.
 \end{itemize}

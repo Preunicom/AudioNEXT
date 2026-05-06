@@ -23,7 +23,9 @@ Dazu werden Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
         \midrule
         i\_audio\_clk & I & NA & Master Clock Signal für den Pmod I2S2 (24,576 MHz) \\
         \midrule
-        o\_interrupt & O & 0x0 & Zeigt, ob ein Interrupt ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        o\_interrupt\_sla & O & 0x0 & Zeigt, ob ein Interrupt auf dem linken Audio Kanal ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_interrupt\_sra & O & 0x0 & Zeigt, ob ein Interrupt auf dem rechten Audio Kanal ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
         \midrule
         o\_mclk & O & 0x0 & Line In Converter Master Clock \glqq A/D MCLK\grqq \\
         \midrule
