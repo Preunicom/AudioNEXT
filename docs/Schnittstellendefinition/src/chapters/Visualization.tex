@@ -3,9 +3,9 @@
 \subsection{Kurzbeschreibung}
 
 Der Visualization-IP stellt eine AXI Lite Schnittstelle zur Verfügung.
-Über diese erhält er die Lautstärke in Prozent und Grenzwerte für die farbige Visualisierung.
+Über diese erhält er den anzuzeigenden Text im ASCII Format sowie die Farbe und die Position.
 Das VGA Signal wird im Format 640x480@60Hz erzeugt.
-Immer wenn ein Lautstärkenwert verarbeitet wurde, wird ein Interrupt ausgelöst.
+Immer wenn der sichtbare Bereich eines Bildes vollständig angezeigt wurde, wird ein Interrupt ausgelöst.
 
 \subsection{I/Os}
 
@@ -44,19 +44,8 @@ Die Ports der AXI Lite Schnittstelle entsprechen den Ports des AXI Lite Standard
 
 Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:visual_register} genauer beschrieben.
 
-Zusammengefasst werden die bereitgestellten Lautstärkenwerte, wenn die Visualisierung aktiviert ist, auf dem Bildschirm als Text sowie als farbiger Balken dargestellt.
-Nach jedem verarbeiteten Wert in VDATR wird ein Interrupt ausgelöst.
-Der Wert in VDATR sollte nur überschrieben werden, wenn das FDP Flag im STATUS Register gesetzt ist, um Datenverluste zu verhindern.
-
-Der Wert in VDATR wird in einem 7.2 Festkommaformat verlangt.
-Die Bitwertigkeiten sind somit $2^7 \ 2^6 \ \dots \ 2^0 \ 2^{-1} \ 2^{-2}$.
-
-Die Farbe des Balkens wird anhand der im COLR Register festgelegten Werte bestimmt.
-Standardmäßig ist der Balken grün.
-Sollte die Lautstärke die in YT gesetzte Grenze überschreiten wird der gesamte Balken gelb.
-Sollte er die Grenze RT überschreiten, wird der gesamte Balken rot.
-Wenn eine Grenze größer als 0x64 (100) gewählt wird, wird diese Farbe nie gesetzt.
-Zusätzlich überschreibt die rote Grenze die gelbe, wodurch eine niedrigere rote als gelbe Grenze ebenfalls zur Folge hat, dass der Balken nie gelb werden kann.
+Zusammengefasst werden die bereitgestellten Daten, wenn die Visualisierung aktiviert ist, auf dem Bildschirm als Text dargestellt.
+Dies geschieht Zeichen für Zeichen, sobald die Übernahme aktiviert wird.
 
 \subsection{Registerbeschreibungen}\label{subsec:visual_register}
 
@@ -88,8 +77,11 @@ Zusätzlich überschreibt die rote Grenze die gelbe, wodurch eine niedrigere rot
     \input{chapters/Visualization/0x1C_STATUS}
 \end{registerblock}
 \begin{registerblock}
-    \input{chapters/Visualization/0x20_VDATR}
+    \input{chapters/Visualization/0x20_ADDRR}
 \end{registerblock}
 \begin{registerblock}
-    \input{chapters/Visualization/0x24_COLR}
+    \input{chapters/Visualization/0x24_VDATR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x28_COLR}
 \end{registerblock}

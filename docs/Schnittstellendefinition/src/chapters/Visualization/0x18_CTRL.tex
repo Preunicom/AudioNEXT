@@ -16,15 +16,23 @@ Reset value: 0x0000 0000
     \centering
     \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
         \bitheader{0-15} \\
-        \bitbox{15}{Reserved} &
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{WD} &
+        \bitbox{7}{Reserved} &
         \bitbox{1}{VEN} \\
-        \bitbox[]{15}{} &
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R/W} &
+        \bitbox[]{7}{} &
         \bitbox[]{1}{R/W}
     \end{bytefield}
 \end{figure}
 
 \begin{itemize}
-    \item \textbf{Bit 31:1 - Reserved Bits}
+    \item \textbf{Bit 31:9 - Reserved Bits}
+    \item \textbf{Bit 8 - WD: Write Data}\\
+    Wenn dieses Bit auf 1 gesetzt wird, werden die in VDATR, COLR und ADDRR gesetzten Daten übernommen.
+    Dieses Bit wird nach der Übernahme auf 0 zurückgesetzt.
+    \item \textbf{Bit 7:1 - Reserved Bits}
     \item \textbf{Bit 0 - VEN: Visualization Enable}\\
     Wenn dieses Bit auf 1 gesetzt ist, werden die in VDATR gesetzten Daten auf der VGA Ausgabe ausgegeben.
 \end{itemize}

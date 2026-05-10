@@ -26,8 +26,7 @@ Reset value: 0x0000 0000
 \begin{itemize}
     \item \textbf{Bit 31:1 - Reserved Bits}
     \item \textbf{Bit 0 - FDP: Frame Data Processed}\\
-    Dieses Bit wird 1 gelesen, wenn die Daten im VDATR Register verarbeitet wurden.
-    Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff auf das VDATR Register ausgeführt wird.
+    Dieses Bit wird 1 gesetzt, wenn der sichtbare Bereich des Frame vollständig übertragen wurde.
+    Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff mit 1 auf dieses Bit ausgeführt wird.
     Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das FIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
-    1 schreiben um das Bit auf 0 zu setzen.
 \end{itemize}

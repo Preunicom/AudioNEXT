@@ -1,0 +1,39 @@
+\subsubsection{Address Register (ADDRR)}
+
+Address offset: \textbf{0x20}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{3}{Res} &
+        \bitbox{5}{YA} &
+        \bitbox{1}{Res} &
+        \bitbox{7}{XA} \\
+        \bitbox[]{3}{} &
+        \bitbox[]{5}{R/W} &
+        \bitbox[]{1}{} &
+        \bitbox[]{7}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bits 31:13 - Reserved}
+    \item \textbf{Bits 12:8 - YA: Y Address}\\
+    Adresse des auszuwählenden Zeichenblocks auf der Leinwand im Bereich 0 bis 29.
+    Wird übernommen, wenn WD in CTRL auf 1 gesetzt wird.
+    \item \textbf{Bit 7 - Reserved}
+    \item \textbf{Bits 6:0 - XA: X Address}\\
+    Adresse des auszuwählenden Zeichenblocks auf der Leinwand im Bereich 0 bis 79.
+    Wird übernommen, wenn WD in CTRL auf 1 gesetzt wird.
+\end{itemize}

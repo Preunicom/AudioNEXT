@@ -1,0 +1,46 @@
+\subsubsection{Color Register (COLR)}
+
+Address offset: \textbf{0x28}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{12}{Reserved} &
+        \bitbox{4}{CB} \\
+        \bitbox[]{12}{} &
+        \bitbox[]{4}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{4}{Res} &
+        \bitbox{4}{CG} &
+        \bitbox{4}{Res} &
+        \bitbox{4}{CR} \\
+        \bitbox[]{4}{} &
+        \bitbox[]{4}{R/W} &
+        \bitbox[]{4}{} &
+        \bitbox[]{4}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bits 31:20 - Reserved}
+    \item \textbf{Bits 19:16 - CB: Color Blue}\\
+    Der blaue Farbanteil des in VDATR gesetzten Zeichens im in ADDRR ausgewählten Pixelblock.
+    Wird übernommen, wenn WD in CTRL auf 1 gesetzt wird.
+    \item \textbf{Bits 15:12 - Reserved}
+    \item \textbf{Bits 11:8 - CG: Color Green}\\
+    Der grüne Farbanteil des in VDATR gesetzten Zeichens im in ADDRR ausgewählten Pixelblock.
+    Wird übernommen, wenn WD in CTRL auf 1 gesetzt wird.
+    \item \textbf{Bits 7:4 - Reserved}
+    \item \textbf{Bits 3:0 - CR: Color Red}\\
+    Der rote Farbanteil des in VDATR gesetzten Zeichens im in ADDRR ausgewählten Pixelblock.
+    Wird übernommen, wenn WD in CTRL auf 1 gesetzt wird.
+\end{itemize}
