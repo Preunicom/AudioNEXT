@@ -31,7 +31,6 @@ create_project $proj_name "$proj_dir" -part $proj_part
 
 set obj [current_project]
 set_property -name "customized_default_ip_location" -value $proj_IP_dir -objects $obj
-set_property -name "enable_vhdl_2008" -value "1" -objects $obj
 set_property -name "part" -value $proj_part -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 set_property -name "target_language" -value "VHDL" -objects $obj
@@ -73,7 +72,11 @@ foreach file $rtl_files {
     set file_obj [get_files $file]
     if {[string match "*.vhd" $file]} {
         set_property -name "file_type" -value "VHDL" -objects $file_obj
-    } 
+    } elseif {[string match "*.v" $file]} {
+        set_property -name "file_type" -value "Verilog" -objects $file_obj
+    } elseif {[string match "*.sv" $file]} {
+        set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
+    }
 }
 
 foreach file $ip_files {
@@ -88,7 +91,7 @@ foreach file $ip_files {
 set obj [get_filesets sources_1]
 if {[info exists proj_top_module]} {
     set_property -name "top" -value $proj_top_module -objects $obj
-}
+} 
 set_property -name "top_auto_set" -value "0" -objects $obj
 
 # ================ CONSTRAINTS ================
@@ -120,7 +123,11 @@ if {[llength $sim_files] > 0} {
 foreach file $sim_files {
     set file_obj [get_files $file]
     if {[string match "*.vhd" $file]} {
-        set_property -name "file_type" -value "VHDL 2008" -objects $file_obj
+        set_property -name "file_type" -value "VHDL" -objects $file_obj
+    } elseif {[string match "*.v" $file]} {
+        set_property -name "file_type" -value "Verilog" -objects $file_obj
+    } elseif {[string match "*.sv" $file]} {
+        set_property -name "file_type" -value "SystemVerilog" -objects $file_obj
     }
 }
 
