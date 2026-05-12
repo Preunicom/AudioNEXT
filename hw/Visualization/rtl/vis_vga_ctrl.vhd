@@ -129,14 +129,14 @@ architecture rtl of vis_vga_ctrl is
 	signal s_h_sync_pulse : std_logic;                                  -- 1-clock pulse on sync trigger
 
 	-- USER CODE BEGIN Markus Remy
-	signal s_visible_frame_done_pulse : std_logic;								-- 1-clock pulse after visible frame part
+	signal s_visible_frame_done_pulse : std_logic;						-- 1-clock pulse after visible frame part
 	-- USED CODE END Markus Remy
 
 	--
 	-- signals for the charmaps Block ROM component...
 	signal s_charmaps_en   : std_logic;
 	signal s_charmaps_ADDR : std_logic_vector(c_INTCHMAP_ADDR_BUS_W - 1 downto 0);
-	signal s_charmaps_DO   : std_logic_vector(c_INTCHMAP_DATA_BUS_W - 1 downto 0);
+	signal s_charmaps_mask : std_logic_vector(c_INTCHMAP_DATA_BUS_W - 1 downto 0);
 
 	--
 	-- to manage the outside display region's blanking
@@ -151,7 +151,7 @@ architecture rtl of vis_vga_ctrl is
 	-- EDIT CODE END Markus Remy
 	-- USER CODE BEGIN Markus Remy
 	signal s_chars_color 	: std_logic_vector(c_CHR_COLOR_DATA_BUS_W - 1 downto 0);
-	signal r_chars_color 	: std_logic_vector(c_CHR_COLOR_DATA_BUS_W - 1 downto 0); -- Delays signal (for 1 clock cycle to match rom data)
+	signal r_charmaps_color	: std_logic_vector(c_CHR_COLOR_DATA_BUS_W - 1 downto 0); -- Delays signal (for 1 clock cycle to match rom data)
 	-- USER CODE END Markus Remy
 	signal s_chars_EN_r     : std_logic;
 
@@ -213,7 +213,10 @@ begin
 	-- EDIT CODE END Markus Remy
 
 	-- USER CODE BEGIN Markus Remy
-	s_char_col_rgb <= i_char_col_red & i_char_col_green & i_char_col_blue;
+	s_char_col_rgb(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0) <= i_char_col_red;
+	s_char_col_rgb((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W) <= i_char_col_green;
+	s_char_col_rgb(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W) <= i_char_col_blue;
+
 	 -- Porch is in address, so we have 800 pixel --> Need one more bit but this is alway zero as we cannot write in the porch
 	s_char_address_yx <= i_char_address_y & '0' & i_char_address_x;
 
@@ -264,18 +267,20 @@ begin
 			i_en    => s_charmaps_en,
 			i_clock => not i_vga_clk,
 			i_ADDR  => s_charmaps_ADDR,
-			o_DO    => s_charmaps_DO
+			o_DO    => s_charmaps_mask
 		);
 
 	-- USER CODE BEGIN Markus Remy
 	-- Delay color to match the data from ROM
 	p_delay_color: process(i_vga_clk)
 	begin
-		if falling_edge(i_vga_clk) then
+		if falling_edge(i_vga_clk) then -- falling edge to match the negated clock of ROM
 			if i_reset = '1' then
-				r_chars_color <= (others => '0');
+				r_charmaps_color <= (others => '0');
 			else
-				r_chars_color <= s_chars_color;
+				if s_charmaps_en = '1' then
+					r_charmaps_color <= s_chars_color;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -390,20 +395,26 @@ begin
 				if s_display = '1' and i_enable = '1' then -- display zone and enabled
 					-- USER CODE BEGIN Markus Remy
 					-- Map 1 in ascii pixel map to foreground color and 0 to background color
-					if s_charmaps_DO(conv_integer(not s_h_count(2 downto 0))) = '1' then
-						if s_color_inverted = '1' then
-							o_red <= not r_chars_color(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
-							o_green <= not r_chars_color((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W);
-							o_blue <= not r_chars_color(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W);
+					if s_charmaps_mask(conv_integer(not s_h_count(2 downto 0))) = '1' then
+						if s_color_inverted = '0' then
+							o_red <= r_charmaps_color(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+							o_green <= r_charmaps_color((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W);
+							o_blue <= r_charmaps_color(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W);
 						else
-							o_red <= r_chars_color(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
-							o_green <= r_chars_color((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W);
-							o_blue <= r_chars_color(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W);
+							o_red <= not r_charmaps_color(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+							o_green <= not r_charmaps_color((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W);
+							o_blue <= not r_charmaps_color(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W);
 						end if;
 					else
-						o_red <= (others => '0');
-						o_green <= (others => '0');
-						o_blue <= (others => '0');
+						if s_color_inverted = '0' then
+							o_red <= (others => '0');
+							o_green <= (others => '0');
+							o_blue <= (others => '0');
+						else
+							o_red <= (others => '1');
+							o_green <= (others => '1');
+							o_blue <= (others => '1');
+						end if;
 					end if;
 					-- USER CODE END Markus Remy
 				else -- blank zone
