@@ -1,0 +1,18 @@
+{
+  "name": "audio_rms",
+  "type": "HOST",
+  "platform": "/home/user/1work/AudioNEXT/sw/AudioNEXT_platform/export/AudioNEXT_platform/AudioNEXT_platform.xpfm",
+  "domain": "standalone_microblaze_0",
+  "cpuInstance": "microblaze_0",
+  "cpuType": "microblaze",
+  "os": "standalone",
+  "configuration": {
+    "componentType": "HOST",
+    "hostToolchainConfigurations": []
+  },
+  "domainRealName": "standalone_microblaze_0",
+  "applicationFlow": "EMBEDDED",
+  "previousBuildStatusMap": {
+    "hw": "SUCCESS"
+  }
+}
