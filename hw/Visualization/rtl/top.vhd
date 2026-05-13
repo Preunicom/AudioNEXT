@@ -1,3 +1,4 @@
+-- USER CODE BEGIN Markus Remy
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.numeric_std.all;
@@ -12,13 +13,13 @@ entity TOP is
     g_DELAY : in natural := 120
   );
   port(
-    i_clk   : in std_logic;
-    i_reset : in std_logic;
-    o_hsync : out std_logic;
-    o_vsync : out std_logic;
-    o_red   : out std_logic_vector (3 downto 0);
-    o_green : out std_logic_vector (3 downto 0);
-    o_blue  : out std_logic_vector (3 downto 0)   
+    i_sys_clk   : in std_logic;
+    i_reset     : in std_logic;
+    o_hsync     : out std_logic;
+    o_vsync     : out std_logic;
+    o_red       : out std_logic_vector (3 downto 0);
+    o_green     : out std_logic_vector (3 downto 0);
+    o_blue      : out std_logic_vector (3 downto 0)   
   );
         
 end TOP;
@@ -27,7 +28,6 @@ architecture BEHAV of TOP is
 
   component vis_core is
     port (
-          -- USER CODE BEGIN Markus Remy
           -- Frame buffer signals
           i_clk                       : in std_logic;
           i_rst                       : in std_logic;
@@ -47,7 +47,6 @@ architecture BEHAV of TOP is
           o_red                       : out std_logic_vector (3 downto 0);
           o_green                     : out std_logic_vector (3 downto 0);
           o_blue                      : out std_logic_vector (3 downto 0)   
-          -- USER CODE END Markus Remy
           );
   end component;
 
@@ -83,7 +82,7 @@ begin
 
   VGA_INST: vis_core
   port map (
-    i_clk                       => i_clk,
+    i_clk                       => i_sys_clk,
     i_rst                       => i_reset,
     i_buf_valid                 => w_char_valid,
     i_buf_addr_x                => w_char_addr_x,
@@ -102,9 +101,9 @@ begin
     o_blue                      => o_blue
   );
 
-  process(i_clk)
+  process(i_sys_clk)
   begin
-    if rising_edge(i_clk) then
+    if rising_edge(i_sys_clk) then
       if i_reset = '1' then
         r_current_state <= s_TEXT1;
       else
@@ -176,9 +175,9 @@ begin
 
   end process;
 
-  CHAR_COUNTER: process(i_clk)
+  CHAR_COUNTER: process(i_sys_clk)
   begin
-    if rising_edge(i_clk) then
+    if rising_edge(i_sys_clk) then
       if i_reset = '1' then
         r_char_counter <= 0;
       else
@@ -193,9 +192,9 @@ begin
     end if;
   end process;
 
-  FRAME_COUNTER: process(i_clk)
+  FRAME_COUNTER: process(i_sys_clk)
   begin
-    if rising_edge(i_clk) then
+    if rising_edge(i_sys_clk) then
       if i_reset = '1' then
         r_frame_counter <= 0;
         r_last_vis_frame_done <= '0';

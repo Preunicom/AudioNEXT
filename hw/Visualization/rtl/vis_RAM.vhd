@@ -48,8 +48,8 @@
 --------------------------------------------------------------------------------
 
 library IEEE;
-	use IEEE.STD_LOGIC_1164.all;
-	use IEEE.NUMERIC_STD.all;
+	use IEEE.std_logic_1164.all;
+	use IEEE.std_logic_unsigned.all;
 
 	use work.vis_vga_pkg.all;
 
@@ -67,17 +67,16 @@ entity vis_RAM is
 	-- USER CODE END Markus Remy
 	-- CODE EDIT BEGIN Markus Remy
 	port (
-		i_clock_w : in  std_logic;                                       -- Write Clock
-		i_EN_w    : in  std_logic;                                       -- Write RAM Enable Input    
-		i_ADDR_w  : in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);     -- Write Address Input
-		i_DI_w    : in  std_logic_vector(g_DATA_WIDTH - 1 downto 0);     -- Write Data Input
+		i_clock_w 		: in  std_logic;                                       	-- Write Clock
+		i_EN_w		 	: in std_logic;									 		-- Write RAM Enable Input    
+		i_write_en_w 	: in  std_logic;                                    	-- Write RAM Write Enable    
+		i_ADDR_w  		: in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);     	-- Write Address Input
+		i_DI_w    		: in  std_logic_vector(g_DATA_WIDTH - 1 downto 0);     	-- Write Data Input
 
-		i_sync_rst: in std_logic;								 	 	 -- Synchronous RAM Reset
-
-		i_clock_r  : in  std_logic;                                      -- Read Clock
-		i_EN_r     : in  std_logic;										 -- Read RAM address Enable Input    
-		i_ADDR_r   : in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);    -- Read Address Input
-		o_DO_r     : out std_logic_vector(g_DATA_WIDTH - 1 downto 0)     -- Read Data Output
+		i_clock_r  		: in  std_logic;                                      	-- Read Clock
+		i_EN_r     		: in  std_logic;										-- Read RAM Enable Input    
+		i_ADDR_r   		: in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);    	-- Read Address Input
+		o_DO_r     		: out std_logic_vector(g_DATA_WIDTH - 1 downto 0)     	-- Read Data Output
 	);
 	-- CODE EDIT END Markus Remy
 end entity;
@@ -89,12 +88,7 @@ architecture Behavioral of vis_RAM is
 	-- CODE EDIT BEGIN Markus Remy
 	type t_ram is array (c_ram_size - 1 downto 0) of std_logic_vector(g_DATA_WIDTH - 1 downto 0);
 
-	signal v_ram0 : t_ram := (others => (others=>'0'));
-	signal s0_DO_r : std_logic_vector(g_DATA_WIDTH - 1 downto 0);
-
-	-- Infer BRAM instead of distributed RAM
-	attribute ram_style : string;
-	attribute ram_style of v_ram0 : signal is "block";
+	shared variable v_ram0 : t_ram := (others => (others=>'0'));
 	-- CODE EDIT END Markus Remy
 begin
 
@@ -102,9 +96,10 @@ begin
 	p_w0_port: process (i_clock_w)
 	begin
 		if rising_edge(i_clock_w) then
-			-- No reset as it would not infer BRAM in this case
 			if i_EN_w = '1' then
-				v_ram0(to_integer(unsigned((i_ADDR_w)))) <= i_DI_w;
+				if i_write_en_w = '1' then
+					v_ram0(conv_integer(i_ADDR_w)) := i_DI_w;
+				end if;
 			end if;
 		end if;
 	end process;
@@ -112,15 +107,11 @@ begin
 	p_ro0_port: process (i_clock_r)
 	begin
 		if rising_edge(i_clock_r) then
-			if i_sync_rst = '1' then
-				s0_DO_r <= (others => '0');
-			elsif (i_EN_r = '1') then
-				s0_DO_r <= v_ram0(to_integer(unsigned(i_ADDR_r)));
+			if i_EN_r = '1' then
+				o_DO_r <= v_ram0(conv_integer(i_ADDR_r));
 			end if;
 		end if;
 	end process;
 	-- CODE EDIT END Markus Remy
-
-	o_DO_r <= s0_DO_r;
 
 end architecture;

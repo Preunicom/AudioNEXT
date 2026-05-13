@@ -189,6 +189,7 @@ module vis_tb();
 
     // EDIT CODE BEGIN Markus Remy
     check_32bitregister_value_with_gaps (GSCR_ADDR, 32'h00000000, 32'h00000000, tmp_error_found);
+    error_found |= tmp_error_found;
     expectedval=0;
     expectedval=GIER_GIE_MASK;
     check_32bitregister_value_with_gaps (GIER_ADDR, expectedval, 32'h00000000, tmp_error_found);
@@ -200,6 +201,7 @@ module vis_tb();
     expectedval=0;
     expectedval=IPISR_FDP_MASK;
     check_32bitregister_value_with_gaps (IPISR_ADDR, expectedval, expectedval, tmp_error_found); //write 1 to toggle!
+    error_found |= tmp_error_found;
     check_32bitregister_value_with_gaps (IPISR_ADDR, 32'h00000000, 32'h00000000, tmp_error_found); //write 1 to toggle!
     error_found |= tmp_error_found;
     check_32bitregister_value_with_gaps (IDR_ADDR, 32'h0000D15C, 32'h0000D15C, tmp_error_found);

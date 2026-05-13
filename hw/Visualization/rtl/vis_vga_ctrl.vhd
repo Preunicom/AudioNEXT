@@ -186,17 +186,19 @@ architecture rtl of vis_vga_ctrl is
 			g_ADDR_WIDTH : natural
 		);
 		port (
-			i_clock_w : in  std_logic;                                       -- Write Clock
-			i_EN_w    : in  std_logic;                                       -- Write RAM Enable Input    
-			i_ADDR_w  : in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);     -- Write Address Input
-			i_DI_w    : in  std_logic_vector(g_DATA_WIDTH - 1 downto 0);     -- Write Data Input
-			i_sync_rst: in std_logic;								 	 	 -- Synchronous RAM Reset
-			i_clock_r  : in  std_logic;                                      -- Read Clock
-			i_EN_r     : in  std_logic;										 -- Read RAM address Enable Input    
-			i_ADDR_r   : in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);    -- Read Address Input
-			o_DO_r     : out std_logic_vector(g_DATA_WIDTH - 1 downto 0)     -- Read Data Output
+			i_clock_w 		: in  std_logic;                                       	-- Write Clock
+			i_EN_w		 	: in std_logic;									 		-- Write RAM Enable Input    
+			i_write_en_w 	: in  std_logic;                                    	-- Write RAM Write Enable    
+			i_ADDR_w  		: in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);     	-- Write Address Input
+			i_DI_w    		: in  std_logic_vector(g_DATA_WIDTH - 1 downto 0);     	-- Write Data Input
+	
+			i_clock_r  		: in  std_logic;                                      	-- Read Clock
+			i_EN_r     		: in  std_logic;										-- Read RAM Enable Input    
+			i_ADDR_r   		: in  std_logic_vector(g_ADDR_WIDTH - 1 downto 0);    	-- Read Address Input
+			o_DO_r     		: out std_logic_vector(g_DATA_WIDTH - 1 downto 0)     	-- Read Data Output
 		);
 	end component;
+
 	-- to manage the background and cursor colors
 	signal s_color_inverted : std_logic := '0';
 	-- CODE EDIT END Markus Remy
@@ -226,33 +228,33 @@ begin
 			g_ADDR_WIDTH => c_INTCHR_ADDR_BUS_W
 		)
 		port map (
-			i_clock_w  => i_char_clk,
-			i_EN_w     => i_char_write_en,
-			i_ADDR_w   => s_char_address_yx,
-			i_DI_w     => i_char_data,
-			i_sync_rst => i_char_reset,
-			i_clock_r  => not i_vga_clk,
-			i_EN_r     => s_chars_EN_r,
-			i_ADDR_r   => s_chars_ram_addr,
-			o_DO_r     => s_chars_ascii
+			i_clock_w  		=> i_char_clk,
+			i_EN_w     		=> i_char_write_en,
+			i_write_en_w 	=> i_char_write_en,
+			i_ADDR_w   		=> s_char_address_yx,
+			i_DI_w     		=> i_char_data,
+			i_clock_r  		=> not i_vga_clk,
+			i_EN_r     		=> s_chars_EN_r,
+			i_ADDR_r   		=> s_chars_ram_addr,
+			o_DO_r     		=> s_chars_ascii
 		);
 	
 	u1_color_RAM: vis_RAM
-	generic map (
-		g_DATA_WIDTH => c_CHR_COLOR_DATA_BUS_W,
-		g_ADDR_WIDTH => c_INTCHR_ADDR_BUS_W
-	)
-	port map (
-		i_clock_w  => i_char_clk,
-		i_EN_w     => i_char_write_en,
-		i_ADDR_w   => s_char_address_yx,
-		i_DI_w     => s_char_col_rgb,
-		i_sync_rst => i_char_reset,
-		i_clock_r  => not i_vga_clk,
-		i_EN_r     => s_chars_EN_r,
-		i_ADDR_r   => s_chars_ram_addr,
-		o_DO_r     => s_chars_color
-	);
+		generic map (
+			g_DATA_WIDTH => c_CHR_COLOR_DATA_BUS_W,
+			g_ADDR_WIDTH => c_INTCHR_ADDR_BUS_W
+		)
+		port map (
+			i_clock_w  		=> i_char_clk,
+			i_EN_w     		=> i_char_write_en,
+			i_write_en_w 	=> i_char_write_en,
+			i_ADDR_w   		=> s_char_address_yx,
+			i_DI_w     		=> s_char_col_rgb,
+			i_clock_r  		=> not i_vga_clk,
+			i_EN_r     		=> s_chars_EN_r,
+			i_ADDR_r   		=> s_chars_ram_addr,
+			o_DO_r     		=> s_chars_color
+		);
 	-- USER CODE END Markus Remy
 
 	-- modify the charmaps address (each 16 s_v_count - chars are 16 pixel tall)
