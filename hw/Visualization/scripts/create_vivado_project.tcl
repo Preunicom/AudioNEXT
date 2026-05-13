@@ -57,6 +57,9 @@ set sim_files [concat \
     [find_files $general_files_dir/sim "*.v"] \
     [find_files $general_files_dir/sim "*.sv"] \
 ]
+set sim_bd_files [concat \
+    [find_files $general_files_dir/sim "*.bd"] \
+]
 set constr_file [lindex [find_files $project_data_dir/constraints "*.xdc"] 0]
 
 # ================ SOURCES ================
@@ -115,6 +118,9 @@ set obj [get_filesets sim_1]
 
 if {[llength $sim_files] > 0} {
     add_files -norecurse -fileset $obj $sim_files
+}
+if {[llength $sim_bd_files] > 0} {
+    add_files -norecurse -fileset $obj $sim_bd_files
 }
 
 foreach file $sim_files {

@@ -157,23 +157,6 @@ module vis_tb();
   endtask
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
-  // Poll the Control interface status register.
-  // This will poll until the DONE flag in the status register is asserted.
-  task automatic poll_done_register ();
-    bit [31:0] rd_value;
-    do begin
-      read_register(GSCR_ADDR, rd_value);
-    end while ((rd_value & GSCR_DONE_MASK) == 0);
-  endtask
- 
-  task automatic poll_idle_register ();
-    bit [31:0] rd_value;
-    do begin
-      read_register(GSCR_ADDR, rd_value);
-    end while ((rd_value & GSCR_IDLE_MASK) == 0);
-  endtask
-
-  /////////////////////////////////////////////////////////////////////////////////////////////////
   //check if only the implemented bit can be written and read back 
   //(unimplemented reserved bits should ignore writes and return zeros if read)
   task automatic check_32bitregister_value_with_gaps(input bit [31:0] addr_in, input bit [31:0] expectedreadregvalwriteff, input bit [31:0] expectedreadregvalwrite00, output bit error_found);
@@ -256,7 +239,7 @@ module vis_tb();
   
   task automatic CHECK_REGISTERS;  
     $display("---------------------------------------------------------------");
-    $display("START TEST Check Registers");
+    $display(" START TEST Check Registers");
     $display("---------------------------------------------------------------"); 
     check_scalar_registers(error_found);
     if(error_found == 1) begin
@@ -267,239 +250,106 @@ module vis_tb();
     end 
   endtask
   
-  
-  task automatic TEST_UP;  
-    //const bit [31:0] c_cnt_limit = 32'h00000004;
-    const bit [31:0] c_cnt_limit = 32'h00000100;
-    bit [31:0] CR0_is =0;
-    bit [31:0] GSCR_is =0;
+  // USER CODE BEGIN Markus Remy
+  task automatic TEST_FRAME_PROCESSED;  
+    bit [31:0] STATUS_is = 0;
   
     $display("---------------------------------------------------------------");
-    $display(" START TEST_UP");
-    $display("---------------------------------------------------------------");
-  
-    blocking_write_register(LR0_ADDR, c_cnt_limit);
-    
-    //TB_ud0 <='1'; (5)
-    //TB_load0 <='0'; (4)
-    //TB_ent0_out <='1'; (2)    
-    blocking_write_register(SCSR_ADDR, 32'h00000024);
-        
-    //TB_auto_restart<='0'; (7)
-    //TB_ap_start <='1'; (0)
-    blocking_write_register(GSCR_ADDR, GSCR_START_MASK);    
+    $display(" START TEST_FRAME_PROCESSED");
+    $display("---------------------------------------------------------------"); 
    
-   
-    poll_done_register();
-   
+    // Wait for end of visible part of frame
+    do begin
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
+
+    // Wait for visible part of next frame
+    do begin
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == 1);
+
+    // Wait for end of visible part of frame
+    do begin
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
     
     #10
-    read_register(GSCR_ADDR, GSCR_is); //reset ap_done (superflous since already accomplished in poll_done_register(), 
-                                       //here just for check result)
-    
-    //RESULT CHECK (not sufficent)
-    //read_register(CR0_ADDR, CR0_is);
-    //if(CR0_is == c_cnt_limit) begin 
-    //  $display(" RESULT DATA CHECK SUCCEED!!");
-    //end else begin
-    //  $display(" RESULT DATA CHECK FAILED!!");
-    //  $display("  -- MISMATCH at  exp = %x, act = %x", c_cnt_limit, CR0_is);
-    //end 
-    
-    //MANUAL CHECK IN WAVEFORM 
-    //CR0_reg should reach value of LR0_reg (limit value);
-    //ap_done(GSCR_reg(1)) should be set
-    //ap_start(GSCR_reg(0)) should be reset by ap_done(GSCR_reg(1)) 
-    //o_t0_out should be toggled by ap_done(GSCR_reg(1))
-    //ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg)
-        
-    #10;     
+
+    $display("Test Frame Processed ... OK"); // Not reached in case of failure
   endtask
 
- 
-  task automatic TEST_UP_AUTORESTART;  
-    //const bit [31:0] c_cnt_limit = 32'h00000004;
-    //const bit [31:0] c_cnt_limit = 32'h00000100;
-    const bit [31:0] c_cnt_limit = 32'h0000000A;
-    bit [31:0] CR_is =0;
+  task automatic TEST_FRAME_PROCESSED_INT;  
+    bit [31:0] IPISR_before_int_reset = 0;
+    bit [31:0] IPISR_after_int_reset = 0;
   
     $display("---------------------------------------------------------------");
-    $display(" START TEST_UP_AUTORESTART");
-    $display("---------------------------------------------------------------");
-  
-    blocking_write_register(LR0_ADDR, c_cnt_limit);
-    
-    //TB_ud0 <='1'; (5)
-    //TB_load0 <='0'; (4)
-    //TB_ent0_out <='1'; (2)    
-    blocking_write_register(SCSR_ADDR, 32'h00000024);
-        
-    //TB_auto_restart<='1'; (7)    
-    //TB_ap_start <='1'; (0)
-    blocking_write_register(GSCR_ADDR, 32'h00000081);    
+    $display(" START TEST_FRAME_PROCESSED_INT");
+    $display("---------------------------------------------------------------"); 
    
-    #100;
-   
-   
-    poll_done_register();
-
-
-    //RESULT CHECK (not sufficent)
-    //read_register(CR0_ADDR, CR_is);
-    //if(CR_is == c_cnt_limit) begin 
-    //  $display(" RESULT DATA CHECK SUCCEED!!");
-    //end else begin
-    //  $display(" RESULT DATA CHECK FAILED!!");
-    //  $display("  -- MISMATCH at  exp = %x, act = %x", c_cnt_limit, CR_is);
-    //end 
-    
-    //MANUAL RESULT CHECK IN WAVEFORM 
-    //CR0_reg should reach value of LR0_reg (limit value);
-    //ap_done(GSCR_reg(1)) should be set
-    //ap_start(GSCR_reg(0)) should be reset by ap_done(GSCR_reg(1)) 
-    //o_t0_out should be toggled by ap_done(GSCR_reg(1))
-    //ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg)
-    //repeating:       
-      //CR0_reg should reach value of LR0_reg (limit value);
-      //ap_done(GSCR_reg(1)) should be set
-      //ap_start(GSCR_reg(0)) should be reset by ap_done(GSCR_reg(1)) 
-      //o_t0_out should be toggled by ap_done(GSCR_reg(1)) (oscillating with LR0_reg amount clks)
-      //ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg)   
-          
-    #10;   
-  endtask
-  
-  
-  task automatic TEST_UP_INT;  
-  //##INSERT YOUR CODE HERE 
-    //const bit [31:0] c_cnt_limit = 32'h00000004;
-    const bit [31:0] c_cnt_limit = 32'h00000100;
-    bit [31:0] CR0_is =0;
-    bit [31:0] GSCR_is =0;
-  
-    $display("---------------------------------------------------------------");
-    $display(" START TEST_UP_INT");
-    $display("---------------------------------------------------------------");
-  
-    blocking_write_register(LR0_ADDR, c_cnt_limit);
-    
-    //TB_ud0 <='1'; (5)
-    //TB_load0 <='0'; (4)
-    //TB_ent0_out <='1'; (2)       
-    blocking_write_register(SCSR_ADDR, 32'h00000024);
-    
-    blocking_write_register(IPIER_ADDR, IPIER_IPIE_MASK);
-    
+    // Enable interrupts
     blocking_write_register(GIER_ADDR, GIER_GIE_MASK);
-           
-    //TB_auto_restart<='0'; (7)    
-    //TB_ap_start <='1'; (0)
-    blocking_write_register(GSCR_ADDR, GSCR_START_MASK);    
-   
+    blocking_write_register(IPIER_ADDR, IPIER_FIE_MASK);
+    blocking_write_register(IPIER_ADDR, IPISR_FDP_MASK); // Reset old interrupts
 
-    //poll_done_register();
-    //wait(interrupt==1'b1);
-    wait_for_interrupt();
-     
-    
     #10
-    
-    read_register(GSCR_ADDR, GSCR_is); //reset done (required here!)
-      
-    //clear interrupt
-    blocking_write_register(IPISR_ADDR, IPISR_IPIS_MASK); 
-      
-        
-    //CHECK RESULT (not sufficent)
-    //read_register(CR0_ADDR, CR0_is);
-    //if(CR0_is == c_cnt_limit) begin 
-    //  $display(" RESULT DATA CHECK SUCCEED!!");
-    //end else begin
-    //  $display(" RESULT DATA CHECK FAILED!!");
-    //  $display("  -- MISMATCH at  exp = %x, act = %x", c_cnt_limit, CR0_is);
-    //end 
-    
-    //MANUAL RESULT CHECK IN WAVEFORM (timings taken with clkperiod=1ns)
-    //CR0_reg should reach value of LR0_reg (limit value); //~338.5ns 
-    //ap_done(GSCR_reg(1)) should be set //~338.5ns 
-    //ap_start(GSCR_reg(0)) should be reset by ap_done(GSCR_reg(1)) //~338.5ns
-    //o_t0_out should be toggled by ap_done(GSCR_reg(1))  //~338.5ns
-    //interrupt should be set by ap_done(GSCR_reg(1))  //~338.5ns
-    //ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg) //~350.5ns
-    //interrupt should be reset after writing '1' to IPISR_reg (W1C!) //~372.5ns resp. ~373.5ns
-        
-    #10;   
-  //##INSERT YOUR CODE HERE END    
-  endtask
-  
-  
-  task automatic TEST_UP_AUTORESTART_INT;  
-    //const bit [31:0] c_cnt_limit = 32'h00000004;
-    //const bit [31:0] c_cnt_limit = 32'h00000100;
-    //const bit [31:0] c_cnt_limit = 32'h0000000A;
-    const bit [31:0] c_cnt_limit = 32'h000008F;
-    
-    bit [31:0] CR0_is =0;
-    bit [31:0] GSCR_is =0;
-  
-    $display("---------------------------------------------------------------");
-    $display(" START TEST_UP_AUTORESTART WITH INT");
-    $display("---------------------------------------------------------------");
-  
-   
-    blocking_write_register(LR0_ADDR, c_cnt_limit);
-    
-    //TB_ud0 <='1'; (5)
-    //TB_load0 <='0'; (4)
-    //TB_ent0_out <='1'; (2)       
-    blocking_write_register(SCSR_ADDR, 32'h00000024);
-    
-    blocking_write_register(IPIER_ADDR, IPIER_IPIE_MASK);
-    
-    blocking_write_register(GIER_ADDR, GIER_GIE_MASK);
-            
-    //TB_auto_restart<='1'; (7)    
-    //TB_ap_start <='1'; (0)
-    blocking_write_register(GSCR_ADDR, 32'h00000081);    
-   
-    #300;
- 
-   
-    //poll_done_register();
-    //wait(interrupt==1'b1);
+
     wait_for_interrupt();
- 
-    
+
     #10
-    read_register(GSCR_ADDR, GSCR_is); //reset done
+
+    read_register(IPISR_ADDR, IPISR_before_int_reset); // Only this interrupt should be possible
+
+    blocking_write_register(IPIER_ADDR, IPISR_FDP_MASK); // Reset interrupt
+
+    read_register(IPISR_ADDR, IPISR_after_int_reset); // Only this interrupt should be possible
     
-    //clear interrupt
-    blocking_write_register(IPISR_ADDR, IPISR_IPIS_MASK); 
-        
-    //RESULT CHECK (not sufficent)
-    //read_register(CR0_ADDR, CR0_is);
-    //if(CR_is == c_cnt_limit) begin 
-    //  $display(" RESULT DATA CHECK SUCCEED!!");
-    //end else begin
-    //  $display(" RESULT DATA CHECK FAILED!!");
-    //  $display("  -- MISMATCH at  exp = %x, act = %x", c_cnt_limit, CR_is);
-    //end 
-    
-    //MANUAL RESULT CHECK
-    //repeating:       
-      //CR0_reg should reach value of LR0_reg (limit value);
-      //ap_done(GSCR_reg(1)) should be set
-      //(ap_start(GSCR_reg(0)) should be reset by ap_done(GSCR_reg(1))) (overwritten by auto restart)
-      //ap_start(GSCR_reg(0)) should be set again by auto_restart 
-      //o_t0_out should be toggled by ap_done(GSCR_reg(1)) (oscillating with LR0_reg amount clks)
-      //interrupt should be set by ap_done(GSCR_reg(1))
-      //(ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg)) (not used here since free running)   
-      //(interrupt should be reset after writing '1' to IPISR_ADDR (W1C)) (not used here since free running)    
-    //ap_done(GSCR_reg(1)) should be reset after done_ack (read of GSCR_reg)
-    //interrupt should be reset after writing '1' to IPISR_reg (W1C!)
-    
-    #10;   
+    if(IPISR_before_int_reset & IPISR_FDP_MASK = 1 and IPISR_after_int_reset & IPISR_FDP_MASK = 0) begin 
+      $display("Test Frame Processed INT ... OK");
+    end else begin
+      $display("Test Frame Processed INT ... NOT OK");
+    end
   endtask
+
+  task automatic TEST_WRITE_FRAME;
+    bit [31:0] CTRL_is = 0;
+
+    $display("---------------------------------------------------------------");
+    $display(" START TEST_WRITE_FRAME");
+    $display("---------------------------------------------------------------"); 
+    
+    blocking_write_register(CTRL_ADDR, 0);  // Disable Visualization
+
+    // Wait for frame end
+    do begin
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
+
+    blocking_write_register(CTRL_ADDR, CTRL_VEN_MASK);  // Enable Visualization
+    blocking_write_register(COLR_ADDR, COLR_CR_MASK | COLR_CG_MASK | COLR_CB_MASK); // Write Color White
+    blocking_write_register(VDATR_ADDR, VDATR_CHAR_MASK & "H"); // Write Char
+    blocking_write_register(ADDRR_ADDR, (ADDRR_XA_MASK & 20) | (ADDRR_YA_MASK & 10) ); // Write Position
+    blocking_write_register(CTRL_ADDR, CTRL_WD_MASK); // Apply values
+
+    #10
+
+    read_register(CTRL_ADDR, CTRL_is);
+
+    // Wait for frame end
+    do begin
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
+
+    if (CTRL_is & CTRL_WD_MASK = 0) begin
+      $display("Test Write Frame ... May be OK, check manually for one empty and one written frame");
+    end else begin
+      $display("Test Write Frame ... NOT OK");
+    end
+
+    // Manual check: 
+    //  No other color than 0 in the first frame (before first v_sync)
+    //  Some other color than 0 in the second frame (after first v_sync)
+  endtask;
+  // USER CODE END Markus Remy
   
   //------------------------------------------------------------------------------------------------------
   //ACTUCAL TEST MAIN  
@@ -511,13 +361,12 @@ module vis_tb();
     start_vips();
     #10
  
-    //##INSERT YOUR CODE HERE 
+    // USER CODE BEGIN Markus Remy
     CHECK_REGISTERS();
-    //TEST_UP();
-    //TEST_UP_AUTORESTART();
-    //TEST_UP_INT();
-    //TEST_UP_AUTORESTART_INT();
-    //##INSERT YOUR CODE HERE END
+    //TEST_FRAME_PROCESSED();
+    //TEST_FRAME_PROCESSED_INT();
+    //TEST_WRITE_FRAME();
+    // USER CODE END Markus Remy
  
     $finish(); 
             

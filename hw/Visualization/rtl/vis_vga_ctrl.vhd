@@ -76,7 +76,7 @@ entity vis_vga_ctrl is
 		o_blue           : out std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
 
 		i_char_clk		 : in std_logic;
-		i_char_buf_rst	 : in std_logic; -- Clear frame buffer
+		i_char_reset	 : in std_logic;
 
 		i_char_write_en  : in std_logic;
 		i_char_address_x : in  std_logic_vector(c_CHR_ADDR_BUS_W_X - 1 downto 0); -- To access 80 chars in one row
@@ -230,7 +230,7 @@ begin
 			i_EN_w     => i_char_write_en,
 			i_ADDR_w   => s_char_address_yx,
 			i_DI_w     => i_char_data,
-			i_sync_rst => i_char_buf_rst,
+			i_sync_rst => i_char_reset,
 			i_clock_r  => not i_vga_clk,
 			i_EN_r     => s_chars_EN_r,
 			i_ADDR_r   => s_chars_ram_addr,
@@ -247,7 +247,7 @@ begin
 		i_EN_w     => i_char_write_en,
 		i_ADDR_w   => s_char_address_yx,
 		i_DI_w     => s_char_col_rgb,
-		i_sync_rst => i_char_buf_rst,
+		i_sync_rst => i_char_reset,
 		i_clock_r  => not i_vga_clk,
 		i_EN_r     => s_chars_EN_r,
 		i_ADDR_r   => s_chars_ram_addr,
@@ -429,11 +429,7 @@ begin
 		end if; -- if rising_edge(i_vga_clk)
 	end process;
 
-	-- CODE EDIT BEGIN Markus Remy
 	o_blank <= not s_display;
-	-- CODE EDIT END Markus Remy
-	-- USER CODE BEGIN Marku Remy
 	o_visible_frame_done_pulse <= s_visible_frame_done_pulse;
-	-- USER CODE END Markus Remy
 
 end architecture;

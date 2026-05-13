@@ -49,8 +49,7 @@
 
 library IEEE;
 	use IEEE.STD_LOGIC_1164.all;
-	use IEEE.STD_LOGIC_ARITH.all;
-	use IEEE.STD_LOGIC_UNSIGNED.all;
+	use IEEE.NUMERIC_STD.all;
 
 	use work.vis_vga_pkg.all;
 
@@ -90,8 +89,12 @@ architecture Behavioral of vis_RAM is
 	-- CODE EDIT BEGIN Markus Remy
 	type t_ram is array (c_ram_size - 1 downto 0) of std_logic_vector(g_DATA_WIDTH - 1 downto 0);
 
-	shared variable v_ram0 : t_ram := (others => (others=>'0'));
+	signal v_ram0 : t_ram := (others => (others=>'0'));
 	signal s0_DO_r : std_logic_vector(g_DATA_WIDTH - 1 downto 0);
+
+	-- Infer BRAM instead of distributed RAM
+	attribute ram_style : string;
+	attribute ram_style of v_ram0 : signal is "block";
 	-- CODE EDIT END Markus Remy
 begin
 
@@ -99,10 +102,9 @@ begin
 	p_w0_port: process (i_clock_w)
 	begin
 		if rising_edge(i_clock_w) then
-			if i_sync_rst = '1' then
-				v_ram0 := (others => (others=>'0'));
-			elsif i_EN_w = '1' then
-				v_ram0(conv_integer(i_ADDR_w)) := i_DI_w;
+			-- No reset as it would not infer BRAM in this case
+			if i_EN_w = '1' then
+				v_ram0(to_integer(unsigned((i_ADDR_w)))) <= i_DI_w;
 			end if;
 		end if;
 	end process;
@@ -113,7 +115,7 @@ begin
 			if i_sync_rst = '1' then
 				s0_DO_r <= (others => '0');
 			elsif (i_EN_r = '1') then
-				s0_DO_r <= v_ram0(conv_integer(i_ADDR_r));
+				s0_DO_r <= v_ram0(to_integer(unsigned(i_ADDR_r)));
 			end if;
 		end if;
 	end process;
