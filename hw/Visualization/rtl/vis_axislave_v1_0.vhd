@@ -17,8 +17,6 @@ entity at is
   port (
     -- Users to add ports here
     --dm begin
-    o_t0_out: out std_logic;
-
     -- Begin user code (Nicolas Lonthoff)
     -- Interface zum Visualization-Core
     o_interrupt : out std_logic; 
@@ -94,7 +92,7 @@ architecture arch_imp of at is
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
     o_ven : out std_logic;
-    o_ed : out std_logic;
+    o_wd : out std_logic;
     o_char : out std_logic_vector(6 downto 0);
     o_x_addr : out std_logic_vector(6 downto 0);
     o_y_addr : out std_logic_vector(4 downto 0);
@@ -115,12 +113,12 @@ component at_visualization_core is
     -- Begin user code (Nicolas Lonthoff)
     i_ven : in std_logic;
     i_wd : in std_logic;
-    i_char : in std_logic(6 downto 0);
-    i_x_addr: in std_logic(6 downto 0);
+    i_char : in std_logic_vector(6 downto 0);
+    i_x_addr: in std_logic_vector(6 downto 0);
     i_y_addr: in std_logic_vector(4 downto 0);
     i_color: in std_logic_vector(11 downto 0);
     --
-    o_fdp: out std_logic;   
+    o_fdp: out std_logic   
     -- End user code (Nicolas Lonthoff)
   );
 end component;   

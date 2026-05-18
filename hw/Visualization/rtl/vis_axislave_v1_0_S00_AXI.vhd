@@ -90,7 +90,7 @@ entity at_S00_AXI is
       o_y_addr : out std_logic_vector(4 downto 0);
       o_color : out std_logic_vector(11 downto 0);
       i_fdp : in std_logic;
-      interrupt : out std_logic;
+      interrupt : out std_logic
    -- End user code
    --dm end    
   );
@@ -137,7 +137,7 @@ architecture arch_imp of at_S00_AXI is
   signal STATUS_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg07
   signal ADDRR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg08
   signal VDATR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg09 --reserved
-  signal COLR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := x"00500032"M
+  signal COLR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := x"00500032";
   -- End user code (Nicolas Lonthoff)
 
   signal slv_reg_rden : std_logic;
@@ -322,17 +322,7 @@ begin
   --dm begin
   --dm part 1 register overview (centrcal documentation)
     --GCSR General/Global Control and Status Register slv_reg00 0x00
-      o_ap_start <= GCSR_reg(0); --axi rw ip rw part4 --also reset by ap_done
-      --GCSR_reg(1)<= i_ap_done; --axi r ip rw part3 --also reset if host reads the GCSR control register
-      --GCSR_reg(2)<= i_ap_idle; --axi r ip rw part3
-      --GCSR_reg(3)<= i_ap_ready; --reserved --axi r ip rw part3
-        GCSR_reg(3)<= '0'; --reserved 
-      --o_ap_continue<=GCSR_reg(4) --reserved --axi rw ip r part2
-        GCSR_reg(4)<= '0'; --reserved      
-      GCSR_reg(5)<= '0'; --reserved
-      GCSR_reg(6)<= '0'; --reserved
-      o_auto_restart<= GCSR_reg(7); --axi rw ip r part2
-      GCSR_reg(31 downto 8) <= (others =>'0'); --reserved
+      -- GCSR: komplett reserved, keine Zuweisung nötig, removed by user (Nicolas Lonthoff)
         
     --##INSERT YOUR CODE HERE 
     --##correct the following code      
@@ -345,29 +335,37 @@ begin
     --IPISR IP Interrupt Status Register slv_reg03 0x0C 
       --IPISR_reg(31 downto 0) <= (others =>'0'); --reserved
       IPISR_reg(31 downto 1) <= (others =>'0'); --reserved
+    -- Begin user code (Nicolas Lonthoff)
+    -- CTRL: nur Bit 8 (WD) und Bit 0 (VEN) genutzt, Rest reserved
+      CTRL_reg(31 downto 9) <= (others => '0');
+      CTRL_reg(7 downto 1)  <= (others => '0');
+    -- STATUS: nur Bit 0 (FDP) genutzt
+      STATUS_reg(31 downto 1) <= (others => '0');
+    -- ADDRR: nur Bits 12:8 (YA) und 6:0 (XA) genutzt
+      ADDRR_reg(31 downto 13) <= (others => '0');
+      ADDRR_reg(7)            <= '0';
+    -- VDATR: nur Bits 6:0 (CHAR) genutzt
+      VDATR_reg(31 downto 7) <= (others => '0');
+    -- COLR: nur Bits 11:0 (COL) genutzt
+      COLR_reg(31 downto 12) <= (others => '0');
+    -- End user code (Nicolas Lonthoff)
     --##INSERT YOUR CODE HERE END  
       
     --IDR ID Register slv_reg04 0x10 
-      IDR_reg(31 downto 0) <= x"8001DEEF"; --const axi r ip rw (part3)
+      IDR_reg(31 downto 0) <= x"0000D15C"; --const axi r ip rw (part3) --user adjusted (Nicolas Lonthoff)
     --VERR Version Register slv_reg05 0x14 
-      VERR_reg(31 downto 0) <= x"80001000"; --const axi r ip rw (part3)      
+      VERR_reg(31 downto 0) <= x"00000001"; --const axi r ip rw (part3) --user adjusted (Nicolas Lonthoff)    
     --SCSR Special Control and Status Register slv_reg06 0x18 
-      SCSR0_reg(0)<= '0'; --reserved
-      SCSR0_reg(1)<= '0'; --reserved
-      o_ent0_out<=SCSR0_reg(2); --axi rw ip r part2  
-      SCSR0_reg(3)<= '0'; --reserved 
-      o_load0<=SCSR0_reg(4); --axi rw ip r part2  
-      o_ud0<=SCSR0_reg(5); --axi rw ip r part2
-      SCSR0_reg(7 downto 6)<=(others=>'0'); --reserved
-      o_reset_ip<=SCSR0_reg(8); --axi rw ip r part2
-      o_freeze_ip<=SCSR0_reg(9); --axi rw ip r part2
-      SCSR0_reg(31 downto 10)<=(others=>'0'); --reserved       
+      --SCSR0_reg(0)<= '0'; --reserved
+      --SCSR0_reg(1)<= '0'; --reserved
+      --SCSR0_reg(3)<= '0'; --reserved 
+      --SCSR0_reg(7 downto 6)<=(others=>'0'); --reserved
+      --SCSR0_reg(31 downto 10)<=(others=>'0'); --reserved       
     --CR0 Counter Register slv_reg07 0x1C 
       --CR0_reg <= i_CR0; --axi rw ip r part3     
     --LR0 Load Register slv_reg08 0x20 
-      o_LR0 <= LR0_reg; --axi rw ip r part2
     --XXX slv_reg09 0x24 reserved 
-      REG09_reg(31 downto 0) <= (others =>'0'); --reserved
+      --REG09_reg(31 downto 0) <= (others =>'0'); --reserved
   --dm end
 
 
@@ -389,7 +387,7 @@ begin
     if rising_edge(S_AXI_ACLK) then 
       if S_AXI_ARESETN = '0' then
         --GCSR_reg <= (others => '0');
-          GCSR_reg(7) <= '0';
+          --GCSR_reg(7) <= '0'; -- Removed by user (Nicolas Lonthoff)
           
         --##INSERT YOUR CODE HERE         
         --GIER_reg <= (others => '0');
@@ -397,34 +395,29 @@ begin
         --IPIER_reg <= (others => '0');
           IPIER_reg(0) <= '0';
         --IPISR_reg <= (others => '0');
+	-- Begin user code (Nicolas Lonthoff)
+	  CTRL_reg <= (others => '0');
+	  ADDRR_reg <= (others => '0');
+	  VDATR_reg <= (others => '0');
+	  COLR_reg <= x"00500032";
+        -- End user code (Nicolas Lonthoff)
         --##INSERT YOUR CODE HERE END
         
         --IDR_reg <= (others => '0');
         --VERR_reg <= (others => '0');
         --SCSR0_reg <= (others => '0');
-          SCSR0_reg(2) <= '0';
-          SCSR0_reg(5 downto 4) <= (others => '0');         
-          SCSR0_reg(9 downto 8) <= (others => '0');        
+        --  SCSR0_reg(2) <= '0';
+        --  SCSR0_reg(5 downto 4) <= (others => '0');         
+        --  SCSR0_reg(9 downto 8) <= (others => '0');        
         --CR0_reg <= (others => '0');
-          LR0_reg <= (others => '0');
+        --  LR0_reg <= (others => '0');
         --REG09_reg <= (others => '0');
       else
         loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         if (slv_reg_wren = '1') then
           case loc_addr is
             when GCSR_ADDR =>
-              if ( S_AXI_WSTRB(0) = '1' ) then --(7 downto 0)
-                  GCSR_reg(7) <= S_AXI_WDATA(7);
-              end if;
-              if ( S_AXI_WSTRB(1) = '1' ) then --(15 downto 8)
-                null;
-              end if;  
-              if ( S_AXI_WSTRB(2) = '1' ) then --(23 downto 16)
-                null;
-              end if;  
-              if ( S_AXI_WSTRB(3) = '1' ) then --(31 downto 24)
-                null;
-              end if;
+	      null; -- komplett reserved, kein Schreibzugriff, removed by user (Nicolas Lonthoff)
             
             --##INSERT YOUR CODE HERE     
             when GIER_ADDR =>
@@ -453,6 +446,7 @@ begin
               if ( S_AXI_WSTRB(3) = '1' ) then --(31 downto 24)
                 null;
               end if;
+	    -- Begin user code (Nicolas Lonthoff)
 	    when CTRL_ADDR =>
 	      if (S_AXI_WSTRB(0) = '1') then
 	        CTRL_reg(0) <= S_AXI_WDATA(0); -- VEN: Visualization Enable
@@ -460,61 +454,30 @@ begin
               if (S_AXI_WSTRB(1) = '1') then
 	          -- WD (8 Bit): nur als Strobe setzen, Auto-Clear im part3
 	          if S_AXI_WDATA(8) = '1' then
-	            CTRL_REG(8) <= '1';
+	            CTRL_reg(8) <= '1';
                   end if;
               end if;
             when ADDRR_ADDR =>
-              if (S_AXI_WSTRB(0)) = '1' then
+              if (S_AXI_WSTRB(0) = '1') then
                 ADDRR_reg(6 downto 0) <= S_AXI_WDATA(6 downto 0); -- XA: X-Adresse
               end if;
               if (S_AXI_WSTRB(1) = '1') then 
-	        ADDR_reg(12 downto 8) <= S_AXI_WDATA(12 downto 8); -- YA: Y-Adresse
+	        ADDRR_reg(12 downto 8) <= S_AXI_WDATA(12 downto 8); -- YA: Y-Adresse
               end if;
             when VDATR_ADDR =>
               if (S_AXI_WSTRB(0) = '1') then
                 VDATR_reg(6 downto 0) <= S_AXI_WDATA(6 downto 0); -- CHAR: ASCII-Zeichen
               end if;
-            when COLR_ADR =>
+            when COLR_ADDR =>
               if (S_AXI_WSTRB(0) = '1') then
                 COLR_reg(7 downto 0) <= S_AXI_WDATA(7 downto 0); -- COL Bits 7:0
               end if;
               if (S_AXI_WSTRB(1) = '1') then
 	        COLR_reg(11 downto 8) <= S_AXI_WDATA(11 downto 8); -- COL Bits 11:8
               end if;		
+	    -- End user code (Nicolas Lonthoff)
             --##INSERT YOUR CODE HERE END 
-              
-            when SCSR0_ADDR =>
-              if ( S_AXI_WSTRB(0) = '1' ) then --(7 downto 0)
-                SCSR0_reg(5 downto 4) <= S_AXI_WDATA(5 downto 4);   
-                SCSR0_reg(2) <= S_AXI_WDATA(2); 
-              end if;               
-              if ( S_AXI_WSTRB(1) = '1' ) then --(15 downto 8)
-                SCSR0_reg(9 downto 8) <= S_AXI_WDATA(9 downto 8);
-              end if;
-              if ( S_AXI_WSTRB(2) = '1' ) then --(23 downto 16)
-                null;
-              end if;  
-              if ( S_AXI_WSTRB(3) = '1' ) then --(31 downto 24)
-                null;
-              end if;            
-            when CR0_ADDR =>
-
-            when LR0_ADDR =>
-              for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-                if ( S_AXI_WSTRB(byte_index) = '1' ) then
-                  -- Respective byte enables are asserted as per write strobes                   
-                  -- slave registor 8
-                  LR0_reg(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-                end if;
-              end loop;
-            when REG09_ADDR =>
-              --for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
-              --  if ( S_AXI_WSTRB(byte_index) = '1' ) then
-              --    -- Respective byte enables are asserted as per write strobes                   
-              --    -- slave registor 9
-              --    REG09_reg(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
-              --  end if;
-              --end loop;
+              -- Old registers removed by user (Nicolas Lonthoff)
             when others =>
           end case;
         end if;
@@ -538,12 +501,13 @@ begin
       if S_AXI_ARESETN = '0' then
         --GCSR_reg
           --GCSR_reg_ap_start
-            GCSR_reg(0)<='0'; 
+	  -- Removed reset 
             
-        --##INSERT YOUR CODE HERE     
+        --##INSERT YOUR CODE HERE, user code (Nicolas Lonthoff)     
         --IPISR_reg
           IPISR_reg(0) <='0'; 
           CTRL_reg(8) <= '0'; -- WD-Bit reset
+	  STATUS_reg(0) <= '0'; -- Reset here instead of GCSR_reg
         --##INSERT YOUR CODE HERE END
           
         --...     
@@ -552,24 +516,14 @@ begin
         --GCSR_reg
           --GCSR_reg_ap_start 
               -- if ... and S_AXI_WDATA(0)='1' -> allow software only to trigger start but not to trigger aboart 
-              if(axi_wready = '1' and loc_addr = GCSR_ADDR  
-                       and S_AXI_WSTRB(0) = '1' and S_AXI_WDATA(0)='1') then
-                 GCSR_reg(0) <= '1';               
-              elsif(i_ap_done = '1') then 
-                 --Version01: clears when ap_done asserted
-                   --GCSR_reg(0) <='0'; 
-                 --Version02: cleares when ap_done is asserted (and o_auto_restart is false) and 
-                 --retriggers ap_start in case o_auto_restart is true                
-                   GCSR_reg(0) <=GCSR_reg(7); --o_auto_restart<= GCSR_reg(7); --axi rw ip r part2
-              end if;  
+              -- Removed
               
         --##INSERT YOUR CODE HERE          
         --IPISR_reg        
           if(axi_wready = '1' and loc_addr = IPISR_ADDR  
                    and S_AXI_WSTRB(0) = '1' ) then
             IPISR_reg(0) <= IPISR_reg(0) xor S_AXI_WDATA(0); --toggle on write (main function w1c)             
-          elsif(i_ap_done = '1' and IPIER_reg(0)='1') then 
-            IPISR_reg(0) <='1';
+							     -- Removed elsif
           end if;             
 
         -- Begin user code (Nicolas Lonthoff)
