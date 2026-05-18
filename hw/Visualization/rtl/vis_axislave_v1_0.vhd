@@ -18,19 +18,17 @@ entity at is
     -- Users to add ports here
     --dm begin
     o_t0_out: out std_logic;
-    --
-    interrupt: out std_logic;
 
     -- Begin user code (Nicolas Lonthoff)
     -- Interface zum Visualization-Core
-    0_interrupt : out std_logic; 
-    o_ven: out std_logic; -- Visualisation Enable
-    o_write_data: out std_logic; -- Write Data Strobe (WD)
-    o_char: out std_logic_vector(6 downto 0); -- ASCII Character (VDATR)
-    o_x_addr: out std_logic_vector(6 downto 0); -- X-Address (ADDRR bits 6:0)
-    o_y_addr: out std_logic_vector(4 downto 0); -- Y-Address (ADDRR bits 12:8)
-    o_color : out std_logic_vector(11 downto 0); -- Color (COLR bits 11:0)
-    i_fdp: in std_logic -- Frame Data Processed (FDP) from Core
+    o_interrupt : out std_logic; 
+    o_ven: out std_logic; 				-- Visualisation Enable
+    o_write_data: out std_logic; 			-- Write Data Strobe (WD)
+    o_char: out std_logic_vector(6 downto 0); 		-- ASCII Character (VDATR)
+    o_x_addr: out std_logic_vector(6 downto 0); 	-- X-Address (ADDRR bits 6:0)
+    o_y_addr: out std_logic_vector(4 downto 0); 	-- Y-Address (ADDRR bits 12:8)
+    o_color : out std_logic_vector(11 downto 0); 	-- Color (COLR bits 11:0)
+    i_fdp: in std_logic;			 	-- Frame Data Processed (FDP) from Core
     -- End user code (Nicolas Lonthoff)
     --dm end
     
@@ -94,24 +92,16 @@ architecture arch_imp of at is
     S_AXI_RREADY  : in std_logic;
     --
     --dm begin
-      o_ap_start : out std_logic;
-      i_ap_idle : in std_logic;
-      i_ap_done : in std_logic;      
-      o_auto_restart : out std_logic;
-      --
-      o_ent0_out : out std_logic;
-      o_load0 : out std_logic;
-      o_ud0 : out std_logic;
-      o_reset_ip: out std_logic;
-      o_freeze_ip: out std_logic;
-      --
-      o_LR0: out std_logic_vector(31 downto 0);
-      --
-      i_CR0: in std_logic_vector(31 downto 0);
-      --
-      interrupt: out std_logic;
-      --
-      dummylast : in std_logic
+    -- Begin user code (Nicolas Lonthoff)
+    o_ven : out std_logic;
+    o_ed : out std_logic;
+    o_char : out std_logic_vector(6 downto 0);
+    o_x_addr : out std_logic_vector(6 downto 0);
+    o_y_addr : out std_logic_vector(4 downto 0);
+    o_color : out std_logic_vector(11 downto 0);
+    i_fdp : in std_logic;
+    interrupt : out std_logic
+    -- End user code (Nicolas Lonthoff)
     --dm end
     );
   end component at_S00_AXI;
@@ -122,27 +112,21 @@ component at_visualization_core is
     i_clk : in std_logic;
     i_reset : in std_logic;
     --
-    i_ap_start : in std_logic;
-    o_ap_idle : out std_logic;
-    o_ap_done : out std_logic;        
-    i_auto_restart : in std_logic;
+    -- Begin user code (Nicolas Lonthoff)
+    i_ven : in std_logic;
+    i_wd : in std_logic;
+    i_char : in std_logic(6 downto 0);
+    i_x_addr: in std_logic(6 downto 0);
+    i_y_addr: in std_logic_vector(4 downto 0);
+    i_color: in std_logic_vector(11 downto 0);
     --
-    i_ent0_out : in std_logic;
-    i_load0 : in std_logic;
-    i_ud0 : in std_logic;
-    i_reset_ip: in std_logic;
-    i_freeze_ip: in std_logic;
-    --
-    i_LR0: in std_logic_vector(31 downto 0);
-    --
-    o_CR0: out std_logic_vector(31 downto 0);
-    --
-    o_t0_out: out std_logic;   
-    --
-    dummylast : in std_logic  
+    o_fdp: out std_logic;   
+    -- End user code (Nicolas Lonthoff)
   );
 end component;   
- 
+ -- Begin user code (Nicolas Lonthoff)
+ signal w_reset : std_logic;
+ -- End user code (Nicolas Lonthoff)
  signal w_ven : std_logic;
  signal w_wd: std_logic;
  signal w_char: std_logic_vector(6 downto 0);
@@ -188,60 +172,41 @@ at_S00_AXI_inst : at_S00_AXI
     S_AXI_RVALID  => s00_axi_rvalid,
     S_AXI_RREADY  => s00_axi_rready,
     --dm begin
-      o_ap_start => w_ap_start, 
-      i_ap_idle => w_ap_idle,
-      i_ap_done => w_ap_done,      
-      o_auto_restart => w_auto_restart,
-      --
-      o_ent0_out => w_ent0_out,
-      o_load0 => w_load0,
-      o_ud0 => w_ud0,
-      o_reset_ip => w_reset_ip,
-      o_freeze_ip => w_freeze_ip,
-      --
-      o_LR0 => w_LR0,
-      --
-      i_CR0 => w_CR0,
-      --
-      interrupt=>w_interrupt,
-      --
-      dummylast => '0'
+    -- Begin user code (Nicolas Lonthoff)
+      o_ven        => w_ven,
+      o_wd         => w_wd,
+      o_char       => w_char,
+      o_x_addr     => w_x_addr,
+      o_y_addr     => w_y_addr,
+      o_color      => w_color,
+      i_fdp        => w_fdp,
+      interrupt    => w_interrupt
+    -- End user code (Nicolas Lonthoff)
     --dm end
   );
 
   -- Add user logic here
   --dm begin
+  -- Begin user code (Nicolas Lonthoff)
   w_reset <= not s00_axi_aresetn;
 
-  at_core_inst: at_core
+  visualization_core_inst: visualization_core
     port map(
       i_clk => s00_axi_aclk,
       i_reset => w_reset,
       --
-      i_ap_start => w_ap_start,
-      o_ap_idle =>  w_ap_idle,
-      o_ap_done =>  w_ap_done,      
-      i_auto_restart => w_auto_restart,
+      i_ven => w_ven,
+      i_wd => w_wd,
+      i_char => w_char,
+      i_x_addr => w_x_addr,
+      i_y_addr => w_y_addr,
+      i_color => w_color,
       --
-      i_ent0_out => w_ent0_out,
-      i_load0 => w_load0,
-      i_ud0 => w_ud0,
-      i_reset_ip => w_reset_ip,
-      i_freeze_ip => w_freeze_ip,
-      --
-      i_LR0 => w_LR0,
-      --
-      o_CR0 => w_CR0,
-      --
-      o_t0_out => w_t0_out,
-      --   
-      dummylast => '0'      
+      o_fdp => w_fdp     
     );
 
-  o_t0_out <= w_t0_out;
-
-  interrupt <= w_interrupt;
-
+  o_interrupt <= w_interrupt;
+  -- End user code (Nicolas Lonthoff)
   --dm end
   -- User logic ends
 

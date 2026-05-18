@@ -82,24 +82,6 @@ entity at_S00_AXI is
     S_AXI_RREADY  : in std_logic;
     --
     --dm begin
-      o_ap_start : out std_logic;
-      i_ap_idle : in std_logic;
-      i_ap_done : in std_logic;      
-      o_auto_restart : out std_logic;
-      --
-      o_ent0_out : out std_logic;
-      o_load0 : out std_logic;
-      o_ud0 : out std_logic;
-      o_reset_ip: out std_logic;
-      o_freeze_ip: out std_logic;
-      --
-      o_LR0: out std_logic_vector(31 downto 0);
-      --
-      i_CR0: in std_logic_vector(31 downto 0);
-      --
-      interrupt: out std_logic;
-      --
-      dummylast : in std_logic
    -- Begin user code (Nicolas Lonthoff)
       o_ven : out std_logic;
       o_wd : out std_logic;
@@ -150,11 +132,14 @@ architecture arch_imp of at_S00_AXI is
   
   signal IDR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg04
   signal VERR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg05
-  signal SCSR0_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg06
-  signal CR0_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg07
-  signal LR0_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg08
-  signal REG09_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg09 --reserved
-  
+  -- Begin user code (Nicolas Lonthoff)	
+  signal CTRL_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg06
+  signal STATUS_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg07
+  signal ADDRR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg08
+  signal VDATR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg09 --reserved
+  signal COLR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := x"00500032"M
+  -- End user code (Nicolas Lonthoff)
+
   signal slv_reg_rden : std_logic;
   signal slv_reg_wren : std_logic;
   signal reg_data_out :std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
@@ -172,10 +157,13 @@ architecture arch_imp of at_S00_AXI is
    
   constant IDR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"4"; --offset x"10"
   constant VERR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"5"; --offset x"14"
-  constant SCSR0_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"6"; --offset x"18"
-  constant CR0_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"7"; --offset x"1C"
-  constant LR0_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"8"; --offset x"20"
-  constant REG09_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"9"; --offset x"24" --reserved
+  -- Begin user code (Nicolas Lonthoff)
+  constant CTRL_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"6"; --offset x"18"
+  constant STATUS_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"7"; --offset x"1C"
+  constant ADDRR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"8"; --offset x"20"
+  constant VDATR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"9"; --offset x"24" --reserved
+  constant COLR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0)  := x"A"; 
+  -- End user code (Nicolas Lonthoff)
   --dm end
     
 begin
@@ -538,37 +526,7 @@ begin
       
   --dm begin
   --dm part3 write register/register parts by ip only [axi r ip rw] 
-  process (S_AXI_ACLK)
-  variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
-  begin
-    if rising_edge(S_AXI_ACLK) then
-      if S_AXI_ARESETN = '0' then
-        --GCSR_reg
-          --GCSR_reg_ap_done 
-            GCSR_reg(1)<='0';
-          --GCSR_reg_i_ap_idle     
-            GCSR_reg(2)<='0';
-        --CR0_reg
-          CR0_reg <= (others=>'0');
-        --o_ap_done_ack <= '0'; 
-      else
-        loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
-        --GCSR_reg
-          --GCSR_reg_ap_done 
-            if(i_ap_done = '1') then --set when core indicated done
-              GCSR_reg(1) <= '1';              
-            elsif(axi_arready = '1' and loc_addr = GCSR_ADDR ) then --reset when host reads control register
-              GCSR_reg(1) <= '0';
-            end if;
-          --GCSR_reg_i_ap_idle  
-            GCSR_reg(2)<= i_ap_idle;
-          --GCSR_reg_...  
-            --...
-        --CR0_reg
-          CR0_reg <= i_CR0;       
-      end if;
-    end if;
-  end process;     
+  -- Removed because no register is written exlusively from core (without being involved with AXI)     
   --dm end
     
   --dm begin
@@ -680,14 +638,6 @@ begin
           reg_data_out <= IDR_reg;
         when VERR_ADDR =>
           reg_data_out <= VERR_reg;
-        when SCSR0_ADDR =>
-          reg_data_out <= SCSR0_reg;
-        when CR0_ADDR =>
-          reg_data_out <= CR0_reg;
-        when LR0_ADDR =>
-          reg_data_out <= LR0_reg;
-        when REG09_ADDR =>
-          reg_data_out <= REG09_reg;
         when others =>
           reg_data_out  <= (others => '0');
       end case;
