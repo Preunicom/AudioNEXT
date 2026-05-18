@@ -17,13 +17,25 @@
 # Allow hardware related files
 !hw
 !hw/**/
+# Allow XSA export from Vivado
+!xilinx/
+!xilinx/vivado/
+!xilinx/vivado/**/
+!xilinx/vivado/**/*.xsa
 # Allow software related files
 !sw
+!sw/**
+sw/**
+!sw/audio_rms/
+!sw/audio_rms/**
+!sw/audio_rms/src/**
+!sw/audio_rms/include/**
 ## Manage Vitis files according to https://docs.amd.com/r/en-US/ug1400-vitis-embedded/Source-Control
 ## Manage workspace level Vitis files
 sw/**/_ide
 !sw/**/_ide/version.ini
 sw/**/.rigel_lopper
+sw/.theia
 ## Manage platform component level Vitis files
 sw/**/export
 sw/**/hw/sdt
@@ -36,6 +48,14 @@ sw/**/compile_commands.json
 # Docs for DAPI
 !docs/
 !docs/**/*
+docs/*/src/*.aux
+docs/*/src/*.fdb_latexmk
+docs/*/src/*.fls
+docs/*/src/*.toc
+docs/*/src/*.log
+docs/*/src/*.out
+docs/*/src/*.synctex.gz
+docs/*/src/*.pdf
 # Vivado logs
 vivado.jou
 vivado.log
