@@ -62,6 +62,8 @@ entity vis_core is
         -- VGA signals
         i_vga_enable                : in std_logic;
         o_visible_frame_done_pulse  : out std_logic;
+        -- All following outputs are in the clock domain of i_pixel_clk
+        i_pixel_clk                 : in std_logic;
         o_hsync                     : out std_logic;
         o_vsync                     : out std_logic;
         o_red                       : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
@@ -72,16 +74,6 @@ entity vis_core is
 end vis_core;
 
 architecture Behavioral of vis_core is
-	-- USER CODE END Markus Remy
-  component VGA_CLK
-    port (
-      i_clk     : in  std_logic;
-      o_vga_clk : out std_logic;
-      reset     : in  std_logic;
-      locked    : out std_logic
-    );
-  end component;
-  -- USER CODE END Markus Remy
   -- CODE EDIT BEGIN Markus Remy
   component vis_vga_ctrl is
     port (
@@ -96,7 +88,6 @@ architecture Behavioral of vis_core is
       o_green                     : out std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
       o_blue                      : out std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
       i_char_clk		              : in  std_logic;
-      i_char_reset	              : in  std_logic;
       i_char_write_en             : in  std_logic;
       i_char_address_x            : in  std_logic_vector(c_CHR_ADDR_BUS_W_X - 1 downto 0);
       i_char_address_y            : in  std_logic_vector(c_CHR_ADDR_BUS_W_Y - 1  downto 0);
@@ -117,8 +108,6 @@ architecture Behavioral of vis_core is
   signal s_buf_write_en : std_logic;
   -- CODE EDIT END Markus Remy
   -- USER CODE BEGIN Markus Remy
-  -- Clock Generation
-  signal s_vga_clk : std_logic;
   -- CDC
   -- IN 2 VGA
   signal s_cdc_vga_rst : std_logic;
@@ -133,15 +122,6 @@ architecture Behavioral of vis_core is
   signal s_visible_frame_done_pulse : std_logic;
   -- USER CODE END Markus Remy
 begin
-  -- USER CODE BEGIN Markus Remy
-  VGA_CLK_INST: VGA_CLK
-  port map (
-    i_clk     => i_clk,
-    o_vga_clk => s_vga_clk,
-    reset     => i_rst,
-    locked    => open
-  );
-  -- USER CODE END Markus Remy
 
   o_hsync <= s_h_sync;
   o_vsync <= s_v_sync;
@@ -152,7 +132,7 @@ begin
 
   u1_vga_ctrl: vis_vga_ctrl
   port map (
-    i_vga_clk                   => s_vga_clk,
+    i_vga_clk                   => i_pixel_clk,
     i_reset                     => s_vga_rst,
     i_enable                    => s_vga_en,
     o_h_sync                    => s_h_sync,
@@ -163,7 +143,6 @@ begin
     o_blue                      => s_blue,
     o_visible_frame_done_pulse  => s_visible_frame_done_pulse_vga_clk,
     i_char_clk                  => i_clk,
-    i_char_reset                => i_rst,
     i_char_write_en             => s_buf_write_en,
     i_char_address_x            => i_buf_addr_x,
     i_char_address_y            => i_buf_addr_y,
@@ -186,9 +165,9 @@ begin
 		end if;
 	end process;
 
-  CDC_IN_2_VGA: process(s_vga_clk)
+  CDC_IN_2_VGA: process(i_pixel_clk)
 	begin
-		if rising_edge(s_vga_clk) then
+		if rising_edge(i_pixel_clk) then
       s_cdc_vga_rst <= i_rst;
       s_vga_rst <= s_cdc_vga_rst;
       s_cdc_vga_en <= i_vga_enable;

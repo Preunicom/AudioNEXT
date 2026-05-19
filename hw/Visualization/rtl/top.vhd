@@ -25,7 +25,16 @@ entity TOP is
 end TOP;
 
 architecture BEHAV of TOP is
-
+  	-- USER CODE END Markus Remy
+  component VGA_CLK
+    port (
+      i_sys_clk : in  std_logic;
+      o_vga_clk : out std_logic;
+      reset     : in  std_logic;
+      o_locked  : out std_logic
+    );
+  end component;
+  -- USER CODE END Markus Remy
   component vis_core is
     port (
           -- Frame buffer signals
@@ -42,6 +51,7 @@ architecture BEHAV of TOP is
           -- VGA signals
           i_vga_enable                : in std_logic;
           o_visible_frame_done_pulse  : out std_logic;
+          i_pixel_clk                 : in std_logic;
           o_hsync                     : out std_logic;
           o_vsync                     : out std_logic;
           o_red                       : out std_logic_vector (3 downto 0);
@@ -78,7 +88,17 @@ architecture BEHAV of TOP is
 
   signal r_char_counter_reset : std_logic;
   signal r_frame_counter_reset : std_logic;
+
+  signal s_vga_clk : std_logic;
 begin
+
+  VGA_CLK_INST: VGA_CLK
+  port map (
+    i_sys_clk => i_sys_clk,
+    o_vga_clk => s_vga_clk,
+    reset     => i_reset,
+    o_locked  => open
+  );
 
   VGA_INST: vis_core
   port map (
@@ -94,6 +114,7 @@ begin
     o_buf_ready                 => w_buf_ready,
     i_vga_enable                => '1',
     o_visible_frame_done_pulse  => w_visible_frame_done_pulse,
+    i_pixel_clk                 => s_vga_clk,
     o_hsync                     => o_hsync,
     o_vsync                     => o_vsync,
     o_red                       => o_red,
