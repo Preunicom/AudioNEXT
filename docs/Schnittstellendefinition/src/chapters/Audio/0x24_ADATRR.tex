@@ -27,7 +27,7 @@ Reset value: 0x0000 0000
 \begin{itemize}
     \item \textbf{Bits 31:24 - Reserved}
     \item \textbf{Bits 23:0 - DATAR: Right Channel Audio Sample}\\
-    Enthält das 24-Bit Audio-Sample des linken Audio Kanals.
-    Der Wert ist nur gültig, wenn das SLA-Bit im IPISR gesetzt ist.
+    Enthält das 24-Bit Audio-Sample des rechten Audio Kanals.
+    Der Wert ist nur gültig, wenn das SRA-Bit im IPISR gesetzt ist.
     Nach einem Lesezugriff wird das Sample ungültig und bleibt es, bis ein neues Sample bereitsteht.
 \end{itemize}
