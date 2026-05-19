@@ -71,7 +71,7 @@ begin
         r_skip <= '1';
       end if;
         
-      if i_sclk = '0' and sclk_prev = '1' then
+      if i_sclk = '1' and sclk_prev = '0' then
         if r_skip = '1' then
           r_skip <= '0';
         elsif i_sen = '1' then
