@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity at is
+entity vis is
   generic (
     -- Users to add parameters here
 
@@ -19,14 +19,14 @@ entity at is
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
     -- Interface zum Visualization-Core
-    o_interrupt : out std_logic; 
-    o_ven: out std_logic; 				-- Visualisation Enable
-    o_write_data: out std_logic; 			-- Write Data Strobe (WD)
-    o_char: out std_logic_vector(6 downto 0); 		-- ASCII Character (VDATR)
-    o_x_addr: out std_logic_vector(6 downto 0); 	-- X-Address (ADDRR bits 6:0)
-    o_y_addr: out std_logic_vector(4 downto 0); 	-- Y-Address (ADDRR bits 12:8)
-    o_color : out std_logic_vector(11 downto 0); 	-- Color (COLR bits 11:0)
-    i_fdp: in std_logic;			 	-- Frame Data Processed (FDP) from Core
+    i_pixel_clk : in std_logic;   -- Pixel clock signal (25,175 MHz)
+    --
+    o_interrupt : out std_logic;  -- 
+    o_red: out std_logic_vector(3 downto 0); 	-- Red color channel
+    o_green: out std_logic_vector(3 downto 0); 	-- Green color channel
+    o_blue : out std_logic_vector(3 downto 0); 	-- Blue color channel
+    o_hsync : out std_logic;			 	-- Horizontal synchronisation signal
+    o_vsync : out std_logic;        -- Vertical synchroniston signal
     -- End user code (Nicolas Lonthoff)
     --dm end
     
@@ -56,9 +56,9 @@ entity at is
     s00_axi_rvalid  : out std_logic;
     s00_axi_rready  : in std_logic    
   );
-end at;
+end vis;
 
-architecture arch_imp of at is
+architecture arch_imp of vis is
 
   -- component declaration
   component at_S00_AXI is
@@ -102,24 +102,35 @@ architecture arch_imp of at is
     -- End user code (Nicolas Lonthoff)
     --dm end
     );
-  end component at_S00_AXI;
+  end component vis_S00_AXI;
 
 --dm begin
-component at_visualization_core is
+component vis_core is
   port ( 
-    i_clk : in std_logic;
-    i_reset : in std_logic;
-    --
-    -- Begin user code (Nicolas Lonthoff)
-    i_ven : in std_logic;
-    i_wd : in std_logic;
-    i_char : in std_logic_vector(6 downto 0);
-    i_x_addr: in std_logic_vector(6 downto 0);
-    i_y_addr: in std_logic_vector(4 downto 0);
-    i_color: in std_logic_vector(11 downto 0);
-    --
-    o_fdp: out std_logic   
-    -- End user code (Nicolas Lonthoff)
+   -- USER CODE BEGIN Markus Remy (copied by Nicolas Lonthoff)
+    i_clk                       : in std_logic;
+    i_rst                       : in std_logic;
+    -- Frame buffer signals
+    i_buf_valid                 : in std_logic;
+    i_buf_addr_x                : in std_logic_vector(c_CHR_ADDR_BUS_W_X - 1 downto 0);
+    i_buf_addr_y                : in std_logic_vector(c_CHR_ADDR_BUS_W_Y - 1 downto 0);
+    i_buf_char_ascii            : in std_logic_vector(c_CHR_ASCII_DATA_BUS_W - 1 downto 0);
+    i_buf_color_red             : in std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+    i_buf_color_green           : in std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+    i_buf_color_blue            : in std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+    o_buf_ready                 : out std_logic;
+    -- VGA signals
+    i_vga_enable                : in std_logic;
+    o_visible_frame_done_pulse  : out std_logic;
+    -- All following outputs are in the clock domain of i_pixel_clk
+    i_pixel_clk                 : in std_logic;
+    o_hsync                     : out std_logic;
+    o_vsync                     : out std_logic;
+    o_red                       : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+    o_green                     : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+    o_blue                      : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0)   
+   -- USER CODE END Markus Remy
+    );
   );
 end component;   
  -- Begin user code (Nicolas Lonthoff)
@@ -188,20 +199,28 @@ at_S00_AXI_inst : at_S00_AXI
   -- Begin user code (Nicolas Lonthoff)
   w_reset <= not s00_axi_aresetn;
 
-  visualization_core_inst: visualization_core
-    port map(
-      i_clk => s00_axi_aclk,
-      i_reset => w_reset,
-      --
-      i_ven => w_ven,
-      i_wd => w_wd,
-      i_char => w_char,
-      i_x_addr => w_x_addr,
-      i_y_addr => w_y_addr,
-      i_color => w_color,
-      --
-      o_fdp => w_fdp     
-    );
+  -- copied from top.vhd (by Nicolas Lonthoff)
+  VGA_INST: vis_core
+  port map (
+    i_clk                       => i_sys_clk,
+    i_rst                       => i_reset,
+    i_buf_valid                 => w_char_valid,
+    i_buf_addr_x                => w_char_addr_x,
+    i_buf_addr_y                => w_char_addr_y,
+    i_buf_char_ascii            => w_char_ascii,
+    i_buf_color_red             => w_char_col_r,
+    i_buf_color_green           => w_char_col_g,
+    i_buf_color_blue            => w_char_col_b,
+    o_buf_ready                 => w_buf_ready,
+    i_vga_enable                => '1',
+    o_visible_frame_done_pulse  => w_visible_frame_done_pulse,
+    i_pixel_clk                 => s_vga_clk,
+    o_hsync                     => o_hsync,
+    o_vsync                     => o_vsync,
+    o_red                       => o_red,
+    o_green                     => o_green,
+    o_blue                      => o_blue
+  );
 
   o_interrupt <= w_interrupt;
   -- End user code (Nicolas Lonthoff)
