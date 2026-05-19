@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.vis_vga_pkg.all;
 
 entity vis is
   generic (
@@ -92,17 +93,15 @@ architecture arch_imp of vis is
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
     o_ven : out std_logic;
-    o_wd : out std_logic;
-    o_char : out std_logic_vector(6 downto 0);
-    o_x_addr : out std_logic_vector(6 downto 0);
-    o_y_addr : out std_logic_vector(4 downto 0);
-    o_color : out std_logic_vector(11 downto 0);
+    o_vol : out std_logic_vector(8 downto 0);
+    o_rt : out std_logic_vector(8 downto 0);
+    o_yt : out std_logic_vector(8 downto 0);
     i_fdp : in std_logic;
     interrupt : out std_logic
     -- End user code (Nicolas Lonthoff)
     --dm end
     );
-  end component vis_S00_AXI;
+  end component at_S00_AXI;
 
 --dm begin
 component vis_core is
@@ -128,26 +127,26 @@ component vis_core is
     o_vsync                     : out std_logic;
     o_red                       : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
     o_green                     : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
-    o_blue                      : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0)   
+    o_blue                      : out std_logic_vector (c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0)
    -- USER CODE END Markus Remy
     );
-  );
-end component;   
+end component;
  -- Begin user code (Nicolas Lonthoff)
- signal w_reset : std_logic;
+  signal w_reset         : std_logic;
+  signal w_ven           : std_logic
+  signal w_vol           : std_logic_vector(8 downto 0);
+  signal w_rt            : std_logic_vector(8 downto 0);
+  signal w_yt            : std_logic_vector(8 downto 0);
+  -- frame buffer interface driven by conversion state machine
+  signal w_buf_valid     : std_logic;
+  signal w_buf_addr_x    : std_logic_vector(c_CHR_ADDR_BUS_W_X - 1 downto 0);
+  signal w_buf_addr_y    : std_logic_vector(c_CHR_ADDR_BUS_W_Y - 1 downto 0);
+  signal w_buf_char_ascii: std_logic_vector(c_CHR_ASCII_DATA_BUS_W - 1 downto 0);
+  signal w_buf_color_red : std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+  signal w_buf_color_green: std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+  signal w_buf_color_blue: std_logic_vector(c_CHR_COLOR_BIT_DEPTH_W - 1 downto 0);
+  signal w_buf_ready     : std_logic;
  -- End user code (Nicolas Lonthoff)
- signal w_ven : std_logic;
- signal w_wd: std_logic;
- signal w_char: std_logic_vector(6 downto 0);
- --
- signal w_x_addr: std_logic_vector(6 downto 0);
- signal w_y_addr: std_logic_vector(4 downto 0);
- --
- signal w_color: std_logic_vector(11 downto 0);
- --
- signal w_fdp: std_logic;
- 
- signal w_interrupt: std_logic;
 --dm end
  
 begin
@@ -183,11 +182,9 @@ at_S00_AXI_inst : at_S00_AXI
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
       o_ven        => w_ven,
-      o_wd         => w_wd,
-      o_char       => w_char,
-      o_x_addr     => w_x_addr,
-      o_y_addr     => w_y_addr,
-      o_color      => w_color,
+      o_vol        => w_vol,
+      o_rt         => w_rt,
+      o_yt         => w_yt,
       i_fdp        => w_fdp,
       interrupt    => w_interrupt
     -- End user code (Nicolas Lonthoff)
@@ -199,22 +196,23 @@ at_S00_AXI_inst : at_S00_AXI
   -- Begin user code (Nicolas Lonthoff)
   w_reset <= not s00_axi_aresetn;
 
-  -- copied from top.vhd (by Nicolas Lonthoff)
+  -- copied from top.vhd and adjusted (by Nicolas Lonthoff)
   VGA_INST: vis_core
   port map (
-    i_clk                       => i_sys_clk,
-    i_rst                       => i_reset,
-    i_buf_valid                 => w_char_valid,
-    i_buf_addr_x                => w_char_addr_x,
-    i_buf_addr_y                => w_char_addr_y,
-    i_buf_char_ascii            => w_char_ascii,
-    i_buf_color_red             => w_char_col_r,
-    i_buf_color_green           => w_char_col_g,
-    i_buf_color_blue            => w_char_col_b,
+    i_clk                       => s00_axi_aclk,
+    i_rst                       => w_reset,
+    i_buf_valid                 => w_buf_addr_x,
+    i_buf_addr_x                => w_buf_addr_y,
+    i_buf_addr_y                => w_y_addr,
+    i_buf_char_ascii            => w_buf_char_ascii,
+    i_buf_color_red             => w_buf_color_red,
+    i_buf_color_green           => w_buf_color_green,
+    i_buf_color_blue            => w_buf_color_blue,
     o_buf_ready                 => w_buf_ready,
-    i_vga_enable                => '1',
-    o_visible_frame_done_pulse  => w_visible_frame_done_pulse,
-    i_pixel_clk                 => s_vga_clk,
+    o_visible_frame_done_pulse  => open,
+    --
+    i_vga_enable                => w_ven,
+    i_pixel_clk                 => i_pixel_clk,
     o_hsync                     => o_hsync,
     o_vsync                     => o_vsync,
     o_red                       => o_red,
