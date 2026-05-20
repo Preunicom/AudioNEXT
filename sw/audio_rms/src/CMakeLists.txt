@@ -16,18 +16,19 @@ collect(PROJECT_LIB_DEPS xiltimer)
 
 
 
+
+
 collect(PROJECT_LIB_DEPS gcc)
 collect(PROJECT_LIB_DEPS c)
 
-collect (PROJECT_LIB_SOURCES audio_rms.c)
 collect (PROJECT_LIB_SOURCES platform.c)
+# BEGIN NEW Felix Knoll
 collect (PROJECT_LIB_SOURCES audio_rms_main.c)
 collect (PROJECT_LIB_SOURCES audio.c)
-collector_list (_sources PROJECT_LIB_SOURCES)
-# BEGIN NEW Felix Knoll
-collect (PROJECT_LIB_SOURCES audio.c)
 collect (PROJECT_LIB_SOURCES audio_rms.c)
+collect (PROJECT_LIB_SOURCES audio_rms_selftest.c)
 # END NEW Felix Knoll
+collector_list (_sources PROJECT_LIB_SOURCES)
 foreach (source ${_sources})
     get_filename_component(ext ${source} EXT)
     list(APPEND src_ext ${ext})
