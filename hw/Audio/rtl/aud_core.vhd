@@ -15,7 +15,7 @@ use ieee.numeric_std.all;
 
 entity aud_core is
   port ( 
-    i_audio_clk: in std_logic;
+    i_aud_clk: in std_logic;
     i_clk: in std_logic;
     i_resetn: in std_logic;
     --
@@ -104,7 +104,7 @@ architecture Behavioral of aud_core is
 begin
   
   aud_i2s_clk_gen_inst: aud_i2s_clk_gen port map(
-    i_mclk => i_audio_clk,
+    i_mclk => i_aud_clk,
     i_resetn => i_resetn,
     i_sen => i_sampling_en,
     o_lrck => w_lrck,
@@ -112,7 +112,7 @@ begin
   );
     
   aud_i2s_sampling_inst: aud_i2s_sampling port map(
-    i_mclk => i_audio_clk,
+    i_mclk => i_aud_clk,
     i_resetn => i_resetn,
     i_sclk => w_sclk,
     i_lrck => w_lrck,
@@ -127,7 +127,7 @@ begin
   aud_channel_buffer_left: aud_channel_buffer port map(
     wr_rst_busy => open,
     rd_rst_busy => open,
-    s_aclk => i_audio_clk,
+    s_aclk => i_aud_clk,
     m_aclk => i_clk,
     s_aresetn => i_resetn,
     s_axis_tvalid => w_valid_l,
@@ -141,7 +141,7 @@ begin
   aud_channel_buffer_right: aud_channel_buffer port map(
     wr_rst_busy => open,
     rd_rst_busy => open,
-    s_aclk => i_audio_clk,
+    s_aclk => i_aud_clk,
     m_aclk => i_clk,
     s_aresetn => i_resetn,
     s_axis_tvalid => w_valid_r,
@@ -152,7 +152,7 @@ begin
     m_axis_tdata => w_fifo_data_r
   );
     
-  o_mclk <= i_audio_clk;
+  o_mclk <= i_aud_clk;
   o_sclk <= w_sclk;
   o_lrck <= w_lrck;
 
