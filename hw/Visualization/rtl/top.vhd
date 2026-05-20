@@ -30,6 +30,7 @@ architecture BEHAV of TOP is
     port (
       i_sys_clk : in  std_logic;
       o_vga_clk : out std_logic;
+      o_axi_clk : out std_logic;
       reset     : in  std_logic;
       o_locked  : out std_logic
     );
@@ -69,7 +70,7 @@ architecture BEHAV of TOP is
   type text_array_t is array (natural range <>) of character;
   constant c_TEXT1 : text_array_t := (' ', 'H', 'A', 'L', 'L', 'O', ' ', 'W', 'E', 'L', 'T', '!', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ');
   constant c_TEXT1_len : natural := 20;
-  constant c_TEXT2 : text_array_t := (' ', 'I', 'C', 'H', ' ', 'W', 'A', 'R', ' ', '2', '0', '2', '6', ' ', 'H', 'I', 'E', 'R', '!', ' ');
+  constant c_TEXT2 : text_array_t := ('H', '=', '=', '=', '=', '=', ' ', '_', '_', '_', '_', '_', ' ', '<', '-', '-', '-', '-', '-', '>');
   constant c_TEXT2_len : natural := 20;
 
   signal w_char_valid : std_logic;
@@ -90,19 +91,21 @@ architecture BEHAV of TOP is
   signal r_frame_counter_reset : std_logic;
 
   signal s_vga_clk : std_logic;
+  signal s_axi_clk : std_logic;
 begin
 
   VGA_CLK_INST: VGA_CLK
   port map (
     i_sys_clk => i_sys_clk,
     o_vga_clk => s_vga_clk,
+    o_axi_clk => s_axi_clk,
     reset     => i_reset,
     o_locked  => open
   );
 
   VGA_INST: vis_core
   port map (
-    i_clk                       => i_sys_clk,
+    i_clk                       => s_axi_clk,
     i_rst                       => i_reset,
     i_buf_valid                 => w_char_valid,
     i_buf_addr_x                => w_char_addr_x,
@@ -122,9 +125,9 @@ begin
     o_blue                      => o_blue
   );
 
-  process(i_sys_clk)
+  process(s_axi_clk)
   begin
-    if rising_edge(i_sys_clk) then
+    if rising_edge(s_axi_clk) then
       if i_reset = '1' then
         r_current_state <= s_TEXT1;
       else
@@ -181,7 +184,7 @@ begin
                    )
                  );
           w_char_col_r <= "0000";
-          w_char_col_g <= "0000";
+          w_char_col_g <= "1111";
           w_char_col_b <= "1111";
         else
           r_frame_counter_reset <= '1';
@@ -196,9 +199,9 @@ begin
 
   end process;
 
-  CHAR_COUNTER: process(i_sys_clk)
+  CHAR_COUNTER: process(s_axi_clk)
   begin
-    if rising_edge(i_sys_clk) then
+    if rising_edge(s_axi_clk) then
       if i_reset = '1' then
         r_char_counter <= 0;
       else
@@ -213,9 +216,9 @@ begin
     end if;
   end process;
 
-  FRAME_COUNTER: process(i_sys_clk)
+  FRAME_COUNTER: process(s_axi_clk)
   begin
-    if rising_edge(i_sys_clk) then
+    if rising_edge(s_axi_clk) then
       if i_reset = '1' then
         r_frame_counter <= 0;
         r_last_vis_frame_done <= '0';

@@ -128,7 +128,7 @@ begin
   -- EDIT CODE BEGIN Markus Remy
   o_red <= s_red;
   o_green <= s_green;
-  o_blue <= s_blue;
+  o_blue <= s_blue; 
 
   u1_vga_ctrl: vis_vga_ctrl
   port map (

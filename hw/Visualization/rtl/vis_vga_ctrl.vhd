@@ -125,7 +125,6 @@ architecture rtl of vis_vga_ctrl is
 	signal s_v_count      : std_logic_vector(c_V_COUNT_W - 1 downto 0); -- vertical line counter
 	signal s_v_count_d_4  : std_logic_vector(3 downto 0);               -- vertical line counter mod 16 (char height)
 	signal s_h_sync       : std_logic;                                  -- horizontal sync trigger
-	signal s_h_sync_pulse : std_logic;                                  -- 1-clock pulse on sync trigger
 
 	-- USER CODE BEGIN Markus Remy
 	signal s_visible_frame_done_pulse : std_logic;						-- 1-clock pulse after visible frame part
@@ -139,7 +138,10 @@ architecture rtl of vis_vga_ctrl is
 
 	--
 	-- to manage the outside display region's blanking
-	signal s_display : std_logic;
+	signal s_counter_in_display_area : std_logic;
+	-- USER CODE BEGIN Markus Remy
+	signal s_blank : std_logic;
+	-- USED CODE END Markus Remy
 	--
 
 	--
@@ -167,6 +169,9 @@ architecture rtl of vis_vga_ctrl is
 	-- USER CODE BEGIN Markus Remy
 	signal s_char_address_yx 	: std_logic_vector(c_INTCHR_ADDR_BUS_W - 1 downto 0);
 	signal s_char_col_rgb 		: std_logic_vector(c_CHR_COLOR_DATA_BUS_W - 1 downto 0);
+
+	-- Signals to be delayed to match the color output
+	signal s_v_sync : std_logic;
 	-- USER CODE END Markus Remy
 
 	component vis_charmaps_ROM is
@@ -206,7 +211,7 @@ begin
 
 	-- enable the ram both
 	--   - during the display time   
-	s_chars_EN_r <= s_display;
+	s_chars_EN_r <= s_counter_in_display_area;
 
 	-- EDIT CODE BEGIN Markus Remy
 	-- modify the chars_ram address
@@ -287,22 +292,13 @@ begin
 	end process;
 	-- USER CODE END Markus Remy
 
-
-	-- generate a single clock pulse on hsync falling -- hsync trigger for p_V_LN_COUNT (tick signal)
-	p_pulse_on_hsync_falling: process (i_vga_clk)
-		variable v_h_sync1 : std_logic;
-	begin
-		if rising_edge(i_vga_clk) then
-			s_h_sync_pulse <= not s_h_sync and v_h_sync1;
-			v_h_sync1 := s_h_sync;
-		end if;
-	end process;
-
 	-- control the reset, increment and overflow of the horizontal pixel count
 	p_H_PX_COUNT: process (i_vga_clk)
 	begin
 		if rising_edge(i_vga_clk) then
-			if i_reset = '1' or s_h_count = c_H_PERIODpx then -- sync reset
+			-- EDIT CODE BEGIN Markus Remy
+			if i_reset = '1' or s_h_count = c_H_PERIODpx - 1 then -- sync reset
+			-- EDIT CODE END Markus Remy
 				s_h_count <= (others => '0');
 			else
 				s_h_count <= s_h_count + 1;
@@ -314,13 +310,24 @@ begin
 	p_V_LN_COUNT: process (i_vga_clk)
 	begin
 		if rising_edge(i_vga_clk) then
-			if i_reset = '1' or s_v_count = c_V_PERIODln then -- sync reset
-				s_v_count <= (others => '0');
-				s_v_count_d_4 <= s_v_count(3 downto 0);
-			elsif s_h_sync_pulse = '1' then
-				s_v_count <= s_v_count + 1;
-				s_v_count_d_4 <= s_v_count(3 downto 0);
-			end if;
+			-- USER CODE BEGIN Markus Remy
+			if i_reset = '1' then
+                s_v_count <= (others => '0');
+				s_v_count_d_4 <= (others => '0');
+            else
+                if s_h_count = c_H_PERIODpx - 1 then 
+                    -- Last column --> New row
+                    if s_v_count = c_V_PERIODln - 1 then 
+                        -- Was last row of frame
+                        s_v_count <= (others => '0');
+						s_v_count_d_4 <= (others => '0');
+                    else
+                        s_v_count <= s_v_count + 1;
+						s_v_count_d_4 <= s_v_count_d_4 + 1;
+                    end if;
+                end if;
+            end if;
+			-- EDIT CODE END Markus Remy
 		end if;
 	end process;
 
@@ -328,16 +335,19 @@ begin
 	p_MGM_H_SYNC: process (i_vga_clk)
 	begin
 		if rising_edge(i_vga_clk) then
-			if (s_h_count = c_H_DISPLAYpx + c_H_BACKPORCHpx) then
-				s_h_sync <= '0';
-			elsif (s_h_count = c_H_PERIODpx - c_H_FRONTPORCHpx) then
+			-- EDIT CODE BEGIN Markus Remy
+			if i_reset = '1' then
 				s_h_sync <= '1';
+			else
+				if (s_h_count = c_H_DISPLAYpx + c_H_BACKPORCHpx - 1) then
+					s_h_sync <= '0';
+				elsif (s_h_count = c_H_PERIODpx - c_H_FRONTPORCHpx - 1) then
+					s_h_sync <= '1';
+				end if;
 			end if;
+			-- EDIT CODE END Markus Remy
 		end if;
 	end process;
-	-- CODE EDIT BEGIN Markus Remy
-	o_h_sync <= s_h_sync;
-	-- CODE EDIT END Markus Remy
 
 	-- set the vertical sync high time and low time according to the constants
 	p_MGM_V_SYNC: process (i_vga_clk)
@@ -345,38 +355,59 @@ begin
 		--if falling_edge(i_vga_clk) then
 		if rising_edge(i_vga_clk) then
 			-- CODE EDIT BEGIN Markus Remy
-			if (s_v_count = (c_V_DISPLAYln + c_V_BACKPORCHln)) then
-			-- CODE EDIT END Markus Remy
-				o_v_sync <= '0';
-			elsif (s_v_count = (c_V_PERIODln - c_V_FRONTPORCHln)) then --and (s_h_sync_pulse = '1') then
-				o_v_sync <= '1';
+			if i_reset = '1' then
+				s_v_sync <= '1';
+			else
+				if (s_v_count = (c_V_DISPLAYln + c_V_BACKPORCHln - 1)) then
+					s_v_sync <= '0';
+				elsif (s_v_count = (c_V_PERIODln - c_V_FRONTPORCHln - 1)) then
+					s_v_sync <= '1';
+				end if;
 			end if;
+			-- CODE EDIT END Markus Remy
 		end if;
 	end process;
 
-	-- asserts the blanking signal (active low)
-	p_MGM_BLANK: process (i_vga_clk)
+	-- USER CODE BEGIN Markus Remy
+	s_counter_in_display_area <= '1' when (s_h_count < c_H_DISPLAYpx - 1 and s_v_count < c_V_DISPLAYln - 1) else '0';
+	
+	p_BLANK_MGM: process(i_vga_clk)
 	begin
 		if rising_edge(i_vga_clk) then
-			-- if we are outside the visible range on the screen then tell the RAMDAC to blank
-			-- in this section by putting s_display low
-			if not (s_h_count < c_H_DISPLAYpx and s_v_count < c_V_DISPLAYln) then
-				s_display <= '0';
-			else
-				s_display <= '1';
-			end if;
+			if i_reset = '1' then
+                s_blank <= '1';
+            else
+                -- Delayed async display signal to match all other timings (and also have async buffer enable by display)
+                s_blank <= not s_counter_in_display_area;
+            end if;
 		end if;
 	end process;
 
-	-- USED CODE BEGIN Markus Remy
 	p_MGM_FRAME_END: process(i_vga_clk)
 	begin
 		if rising_edge(i_vga_clk) then
-			-- First pixel after the last visible pixel of the frame -> visible frame done
-			if s_h_count = c_H_DISPLAYpx and s_v_count = c_V_DISPLAYln - 1 then
-				s_visible_frame_done_pulse <= '1';
+			if i_reset = '1' then
+                s_visible_frame_done_pulse <= '0';
+            else
+                if s_v_count = c_V_DISPLAYln - 1 and s_h_count = c_H_DISPLAYpx - 1 then
+					-- First pixel after the last visible pixel of the frame -> visible frame done
+                    s_visible_frame_done_pulse <= '1';
+				else
+					s_visible_frame_done_pulse <= '0';
+                end if;
+            end if;
+		end if;
+	end process;
+
+	p_DELAY_SYNC_TO_RGB: process(i_vga_clk)
+	begin
+		if rising_edge(i_vga_clk) then
+			if i_reset = '1' then
+				o_v_sync <= '1';
+				o_h_sync <= '1';
 			else
-				s_visible_frame_done_pulse <= '0';
+				o_v_sync <= s_v_sync;
+				o_h_sync <= s_h_sync;
 			end if;
 		end if;
 	end process;
@@ -393,7 +424,7 @@ begin
 				o_blue <= (others => '0');
 				-- CODE EDIT END Markus Remy
 			else
-				if s_display = '1' and i_enable = '1' then -- display zone and enabled
+				if s_blank = '0' and i_enable = '1' then -- display zone and enabled
 					-- USER CODE BEGIN Markus Remy
 					-- Map 1 in ascii pixel map to foreground color and 0 to background color
 					if s_charmaps_mask(conv_integer(not s_h_count(2 downto 0))) = '1' then
@@ -430,7 +461,7 @@ begin
 		end if; -- if rising_edge(i_vga_clk)
 	end process;
 
-	o_blank <= not s_display;
+	o_blank <= s_blank;
 	o_visible_frame_done_pulse <= s_visible_frame_done_pulse;
 
 end architecture;

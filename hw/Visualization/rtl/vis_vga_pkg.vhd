@@ -77,6 +77,9 @@ package vis_vga_pkg is
   -- CODE EDIT END Markus Remy
   constant c_INTCHMAP_DATA_BUS_W : integer := 8;
 
+  -- Source for reworked timings:
+  -- https://digilent.com/reference/learn/programmable-logic/tutorials/vga-display-congroller/start
+
   --
   -- horizontal timing signals (in pixels count )
   constant c_H_DISPLAYpx    : integer := 640; 
@@ -94,13 +97,15 @@ package vis_vga_pkg is
   --
   -- vertical timing signals (in lines count)
   constant c_V_DISPLAYln    : integer := 480;
-  constant c_V_BACKPORCHln  : integer := 10;
+  -- CODE EDIT BEGIN Markus Remy
+  constant c_V_BACKPORCHln  : integer := 33;
   constant c_V_SYNCTIMEln   : integer := 2;
-  constant c_V_FRONTPORCHln : integer := 29;
+  constant c_V_FRONTPORCHln : integer := 10;
+  -- CODE EDIT END Markus Remy
   constant c_V_PERIODln     : integer := c_V_DISPLAYln +
                                          c_V_BACKPORCHln +
                                          c_V_SYNCTIMEln +
-                                         c_V_FRONTPORCHln; -- 521
+                                         c_V_FRONTPORCHln; -- 525
   constant c_V_COUNT_W : integer := 10;  -- = ceil(ln2(c_V_PERIODln)) = 10
 
 --  constant c_CHARS_WIDTH: std_logic_vector(2 downto 0) := "111";

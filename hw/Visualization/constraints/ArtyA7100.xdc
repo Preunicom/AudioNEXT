@@ -8,9 +8,10 @@ set_property -dict { PACKAGE_PIN E3    IOSTANDARD LVCMOS33 } [get_ports { i_sys_
 create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports { i_sys_clk }];
 
 # create_generated_clock -name o_vga_clk [get_pins VGA_CLK_INST/o_vga_clk] # 25.175 MHz
+# create_generated_clock -name o_axi_clk [get_pins VGA_CLK_INST/o_axi_clk] # 100 MHz
 
 # Remove timing analysis of CDC paths
-set_false_path -from [get_pins VGA_INST/u1_vga_ctrl/s_display_reg/C] -to [get_pins VGA_INST/s_cdc_blank_reg/D]
+set_false_path -from [get_pins VGA_INST/u1_vga_ctrl/s_blank_reg_replica/C] -to [get_pins VGA_INST/s_cdc_blank_reg/D]
 set_false_path -from [get_pins VGA_INST/u1_vga_ctrl/s_visible_frame_done_pulse_reg/C] -to [get_pins VGA_INST/s_cdc_visible_frame_done_pulse_reg/D]
 
 #set_false_path -from [get_pins VGA_INST/.../C] -to [get_pins VGA_INST/s_cdc_vga_rst_reg/D]
