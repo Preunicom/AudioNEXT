@@ -92,12 +92,17 @@ architecture arch_imp of vis is
     --
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
-    o_ven : out std_logic;
-    o_vol : out std_logic_vector(8 downto 0);
-    o_rt : out std_logic_vector(8 downto 0);
-    o_yt : out std_logic_vector(8 downto 0);
-    i_fdp : in std_logic;
-    interrupt : out std_logic
+    o_ven         : out std_logic;
+    o_wd          : out std_logic;
+    o_xa          : out std_logic_vector(6 downto 0);
+    o_ya          : out std_logic_vector(4 downto 0);
+    o_char        : out std_logic_vector(6 downto 0);
+    o_cr          : out std_logic_vector(3 downto 0);
+    o_cg          : out std_logic_vector(3 downto 0);
+    o_cb          : out std_logic_vector(3 downto 0);
+    i_fdp         : in std_logic;
+    i_frame_start : in std_logic;
+    interrupt     : out std_logic
     -- End user code (Nicolas Lonthoff)
     --dm end
     );
@@ -134,9 +139,6 @@ end component;
  -- Begin user code (Nicolas Lonthoff)
   signal w_reset         : std_logic;
   signal w_ven           : std_logic;
-  signal w_vol           : std_logic_vector(8 downto 0);
-  signal w_rt            : std_logic_vector(8 downto 0);
-  signal w_yt            : std_logic_vector(8 downto 0);
   -- frame buffer interface driven by conversion state machine
   signal w_buf_valid     : std_logic;
   signal w_buf_addr_x    : std_logic_vector(c_CHR_ADDR_BUS_W_X - 1 downto 0);
@@ -148,10 +150,14 @@ end component;
   signal w_buf_ready     : std_logic;
   signal w_fdp           : std_logic;
   signal w_interrupt     : std_logic;
-  type t_conv_state is (s_IDLE, s_WRITE, s_DONE);
-  signal r_state         : t_conv_state := s_IDLE;
-  signal r_col           : unsigned(6 downto 0) := (others => '0');
-  signal w_bar_width     : unsigned(5 downto 0);
+  signal w_wd             : std_logic;
+  signal w_xa             : std_logic_vector(6 downto 0);
+  signal w_ya             : std_logic_vector(4 downto 0);
+  signal w_char           : std_logic_vector(6 downto 0);
+  signal w_cr             : std_logic_vector(3 downto 0);
+  signal w_cg             : std_logic_vector(3 downto 0);
+  signal w_cb             : std_logic_vector(3 downto 0);
+  signal w_frame_start    : std_logic;
  -- End user code (Nicolas Lonthoff)
 --dm end
  
@@ -187,12 +193,17 @@ at_S00_AXI_inst : at_S00_AXI
     S_AXI_RREADY  => s00_axi_rready,
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
-      o_ven        => w_ven,
-      o_vol        => w_vol,
-      o_rt         => w_rt,
-      o_yt         => w_yt,
-      i_fdp        => w_fdp,
-      interrupt    => w_interrupt
+    o_ven         => w_ven,
+    o_wd          => w_wd,
+    o_xa          => w_xa,
+    o_ya          => w_ya,
+    o_char        => w_char,
+    o_cr          => w_cr,
+    o_cg          => w_cg,
+    o_cb          => w_cb,
+    i_fdp         => w_fdp,
+    i_frame_start => w_frame_start,
+    interrupt     => w_interrupt
     -- End user code (Nicolas Lonthoff)
     --dm end
   );
@@ -201,6 +212,18 @@ at_S00_AXI_inst : at_S00_AXI
   --dm begin
   -- Begin user code (Nicolas Lonthoff)
   w_reset <= not s00_axi_aresetn;
+
+  -- w_frame_start fires one cycle after the frame-done pulse,
+  -- which is close enough to "start of next frame" for STATUS.FDP clearing.
+  process(s00_axi_aclk)
+  begin
+    if rising_edge(s00_axi_aclk) then
+      w_frame_start <= w_fdp;
+    end if;
+  end process;
+  -- If a precise frame-start signal is later added to vis_core (e.g. `o_frame_start`),
+  -- replace this process with a direct connection:
+  --w_frame_start <= w_frame_start_from_core;
 
   -- copied from top.vhd and adjusted (by Nicolas Lonthoff)
   VGA_INST: vis_core
@@ -215,7 +238,7 @@ at_S00_AXI_inst : at_S00_AXI
     i_buf_color_green           => w_buf_color_green,
     i_buf_color_blue            => w_buf_color_blue,
     o_buf_ready                 => w_buf_ready,
-    o_visible_frame_done_pulse  => open,
+    o_visible_frame_done_pulse  => w_fdp,
     --
     i_vga_enable                => w_ven,
     i_pixel_clk                 => i_pixel_clk,
@@ -228,80 +251,24 @@ at_S00_AXI_inst : at_S00_AXI
 
   o_interrupt <= w_interrupt;
 
-  -- Bar width = integer part of volume / 2 (w_vol bits 8:3 = upper 6 bits of
-  -- the 7.2 fixed-point value), giving a range of 0-63 columns out of 80.
-  w_bar_width <= unsigned(w_vol(8 downto 3));
-
-  -- Converts the 9-bit volume value into a one-row horizontal bar written to
-  -- vis_core's frame buffer one character at a time.  Runs continuously: each
-  -- time vis_core enters blanking (w_buf_ready = '1') a fresh frame is written
-  -- so the display always reflects the latest volume.
-  CONV_SM: process(s00_axi_aclk)
+  WRITE_PROC: process(s00_axi_aclk)
   begin
     if rising_edge(s00_axi_aclk) then
-      -- Pulse-only defaults; overridden inside the relevant states.
-      w_fdp       <= '0';
-      w_buf_valid <= '0';
+      w_buf_valid <= '0'; -- default: no write
       if w_reset = '1' then
-        r_state <= s_IDLE;
-        r_col   <= (others => '0');
-      else
-        case r_state is
-
-          -- Wait for blanking period before starting a new frame write.
-          -- w_buf_ready is only high while vis_core is in blanking, so writes
-          -- are safe from display tearing.
-          when s_IDLE =>
-            if w_buf_ready = '1' then
-              r_col   <= (others => '0');
-              r_state <= s_WRITE;
-            end if;
-
-          -- Walk columns 0-79 on row 0, one character per clock.
-          -- Columns inside the bar receive '*' (ASCII 42), outside ' ' (32).
-          -- The bar is colored uniformly based on volume vs. thresholds:
-          --   vol > RT → red,  vol > YT → yellow,  otherwise → green.
-          when s_WRITE =>
-            if w_buf_ready = '1' then
-              w_buf_valid  <= '1';
-              w_buf_addr_x <= std_logic_vector(r_col);
-              w_buf_addr_y <= (others => '0');  -- row 0
-              if r_col < w_bar_width then
-                w_buf_char_ascii <= std_logic_vector(to_unsigned(42, c_CHR_ASCII_DATA_BUS_W)); -- '*'
-              else
-                w_buf_char_ascii <= std_logic_vector(to_unsigned(32, c_CHR_ASCII_DATA_BUS_W)); -- ' '
-              end if;
-              -- Red threshold is checked first so it takes priority over yellow
-              if unsigned(w_vol) > unsigned(w_rt) then
-                w_buf_color_red   <= (others => '1');
-                w_buf_color_green <= (others => '0');
-                w_buf_color_blue  <= (others => '0');
-              elsif unsigned(w_vol) > unsigned(w_yt) then
-                w_buf_color_red   <= (others => '1');
-                w_buf_color_green <= (others => '1');
-                w_buf_color_blue  <= (others => '0');
-              else
-                w_buf_color_red   <= (others => '0');
-                w_buf_color_green <= (others => '1');
-                w_buf_color_blue  <= (others => '0');
-              end if;
-              if r_col = to_unsigned(79, 7) then
-                r_state <= s_DONE;  -- last column written
-              else
-                r_col <= r_col + 1;
-              end if;
-            end if;
-
-          -- Assert w_fdp for exactly one cycle to tell the AXI slave the
-          -- frame buffer update is complete (sets IPISR.FDP → interrupt).
-          when s_DONE =>
-            w_fdp   <= '1';
-            r_state <= s_IDLE;
-
-        end case;
+        w_buf_valid <= '0';
+      elsif w_wd = '1' then
+        -- Forward ADDRR/VDATR/COLR to vis_core for one cycle
+        w_buf_valid       <= '1';
+        w_buf_addr_x      <= w_xa;
+        w_buf_addr_y      <= w_ya;
+        w_buf_char_ascii  <= w_char;
+        w_buf_color_red   <= w_cr;
+        w_buf_color_green <= w_cg;
+        w_buf_color_blue  <= w_cb;
       end if;
     end if;
-  end process CONV_SM;
+  end process WRITE_PROC;
   -- End user code (Nicolas Lonthoff)
   --dm end
   -- User logic ends

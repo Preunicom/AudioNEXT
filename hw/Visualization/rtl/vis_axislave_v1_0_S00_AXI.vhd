@@ -83,14 +83,20 @@ entity at_S00_AXI is
     --
     --dm begin
    -- Begin user code (Nicolas Lonthoff)
-      o_ven : out std_logic;
-      o_vol : out std_logic_vector(8 downto 0); -- VDATR bits 8:0
-      o_rt : out std_logic_vector(8 downto 0); -- COLR bits 24:16
-      o_yt : out std_logic_vector(8 downto 0); -- COLR bits 8:0
-      i_fdp : in std_logic;
-      interrupt : out std_logic
+    o_ven  : out std_logic;                    -- VEN: Visualization Enable
+    o_wd   : out std_logic;                    -- WD pulse: 1 cycle when AXI writes WD=1
+    o_xa   : out std_logic_vector(6 downto 0); -- ADDRR XA bits 6:0   (X address 0-79)
+    o_ya   : out std_logic_vector(4 downto 0); -- ADDRR YA bits 12:8  (Y address 0-29)
+    o_char : out std_logic_vector(6 downto 0); -- VDATR CHAR bits 6:0 (7-bit ASCII)
+    o_cr   : out std_logic_vector(3 downto 0); -- COLR CR bits 3:0    (Red)
+    o_cg   : out std_logic_vector(3 downto 0); -- COLR CG bits 11:8   (Green)
+    o_cb   : out std_logic_vector(3 downto 0); -- COLR CB bits 19:16  (Blue)
+    --
+    i_fdp           : in std_logic;  -- set when visible frame fully transmitted
+    i_frame_start   : in std_logic;  -- pulse when visible area of next frame begins
+    interrupt       : out std_logic  -- combined interrupt output
    -- End user code
-   --dm end    
+   --dm end
   );
 end at_S00_AXI;
 
@@ -133,8 +139,9 @@ architecture arch_imp of at_S00_AXI is
   -- Begin user code (Nicolas Lonthoff)	
   signal CTRL_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg06
   signal STATUS_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg07
-  signal VDATR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); --slv_reg09 --reserved
-  signal COLR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0) := x"00500032";
+  signal ADDRR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- slv_reg08 0x20
+  signal VDATR_reg : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- slv_reg09 0x24
+  signal COLR_reg  : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- slv_reg10 0x28
   -- End user code (Nicolas Lonthoff)
 
   signal slv_reg_rden : std_logic;
@@ -157,8 +164,9 @@ architecture arch_imp of at_S00_AXI is
   -- Begin user code (Nicolas Lonthoff)
   constant CTRL_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"6"; --offset x"18"
   constant STATUS_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"7";
-  constant VDATR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"8"; 
-  constant COLR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0)  := x"9"; 
+  constant ADDRR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"8"; -- offset 0x20
+  constant VDATR_ADDR : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"9"; -- offset 0x24
+  constant COLR_ADDR  : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"A"; -- offset 0x28
   -- End user code (Nicolas Lonthoff)
   --dm end
     
@@ -318,7 +326,7 @@ begin
   --dm begin
   --dm part 1 register overview (centrcal documentation)
     --GCSR General/Global Control and Status Register slv_reg00 0x00
-      -- GCSR: komplett reserved, keine Zuweisung nötig, removed by user (Nicolas Lonthoff)
+      GCSR_reg <= (others => '0'); -- all bits reserved
         
     --##INSERT YOUR CODE HERE 
     --##correct the following code      
@@ -332,13 +340,20 @@ begin
       --IPISR_reg(31 downto 0) <= (others =>'0'); --reserved
       IPISR_reg(31 downto 1) <= (others =>'0'); --reserved
     -- Begin user code (Nicolas Lonthoff)
-    -- STATUS: nur Bit 0 (FDP) genutzt
+    -- STATUS: bit 0 = FDP
       STATUS_reg(31 downto 1) <= (others => '0');
-    -- VDATR: nur Bits 8:0 (VOL) genutzt
-      VDATR_reg(31 downto 9) <= (others => '0');
-    -- COLR:
-      COLR_reg(31 downto 25) <= (others => '0');
-      COLR_reg(15 downto 9) <= (others => '0');
+    -- ADDRR: bits 31:13 reserved, bit 7 reserved
+      ADDRR_reg(31 downto 13) <= (others => '0');
+      ADDRR_reg(7)             <= '0';
+    -- VDATR: bits 31:7 reserved (CHAR is bits 6:0)
+      VDATR_reg(31 downto 7) <= (others => '0');
+    -- COLR: bits 31:20 reserved, bits 15:12 reserved, bits 7:4 reserved
+      COLR_reg(31 downto 20) <= (others => '0');
+      COLR_reg(15 downto 12) <= (others => '0');
+      COLR_reg(7 downto 4)   <= (others => '0');
+    -- CTRL: bits 31:9 reserved, bits 7:1 reserved (bit 8 = WD, bit 0 = VEN driven by process)
+      CTRL_reg(31 downto 9) <= (others => '0');
+      CTRL_reg(7 downto 1)  <= (others => '0');
     -- End user code (Nicolas Lonthoff)
     --##INSERT YOUR CODE HERE END  
       
@@ -386,10 +401,11 @@ begin
         --IPIER_reg <= (others => '0');
           IPIER_reg(0) <= '0';
         --IPISR_reg <= (others => '0');
-	-- Begin user code (Nicolas Lonthoff)
-	  CTRL_reg <= (others => '0');
-	  VDATR_reg <= (others => '0');
-	  COLR_reg <= x"00500032";
+        -- Begin user code (Nicolas Lonthoff)
+          CTRL_reg  <= (others => '0');
+          ADDRR_reg <= (others => '0');
+          VDATR_reg <= (others => '0');
+          COLR_reg  <= (others => '0');
         -- End user code (Nicolas Lonthoff)
         --##INSERT YOUR CODE HERE END
         
@@ -403,11 +419,12 @@ begin
         --  LR0_reg <= (others => '0');
         --REG09_reg <= (others => '0');
       else
+        CTRL_reg(8) <= '0'; -- auto-clear WD every cycle
         loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         if (slv_reg_wren = '1') then
           case loc_addr is
             when GCSR_ADDR =>
-	      null; -- komplett reserved, kein Schreibzugriff, removed by user (Nicolas Lonthoff)
+              null; -- komplett reserved, kein Schreibzugriff, removed by user (Nicolas Lonthoff)
             
             --##INSERT YOUR CODE HERE     
             when GIER_ADDR =>
@@ -441,27 +458,30 @@ begin
               if (S_AXI_WSTRB(0) = '1') then
                 CTRL_reg(0) <= S_AXI_WDATA(0); -- VEN: Visualization Enable
               end if;
- 
+              if (S_AXI_WSTRB(1) = '1') then
+                CTRL_reg(8) <= S_AXI_WDATA(8); -- WD: Write Data (auto-cleared by default above)
+              end if; 
+          when ADDRR_ADDR =>
+            if (S_AXI_WSTRB(0) = '1') then
+              ADDRR_reg(6 downto 0) <= S_AXI_WDATA(6 downto 0); -- XA bits 6:0
+            end if;
+            if (S_AXI_WSTRB(1) = '1') then
+              ADDRR_reg(12 downto 8) <= S_AXI_WDATA(12 downto 8); -- YA bits 12:8
+            end if;
             when VDATR_ADDR =>
               if (S_AXI_WSTRB(0) = '1') then
-                VDATR_reg(7 downto 0) <= S_AXI_WDATA(7 downto 0); -- CHAR: ASCII-Zeichen
+                VDATR_reg(6 downto 0) <= S_AXI_WDATA(6 downto 0); -- CHAR: 7-bit ASCII
               end if;
-              if (S_AXI_WSTRB(1) = '1') then
-                VDATR_reg(8) <= S_AXI_WDATA(8); -- bit 8 of VOL
-              end if;
-            when COLR_ADDR =>
-              if (S_AXI_WSTRB(0) = '1') then
-                COLR_reg(7 downto 0) <= S_AXI_WDATA(7 downto 0); -- Yellow threshold bits 7:0
-              end if;
-              if (S_AXI_WSTRB(1) = '1') then
-                COLR_reg(8) <= S_AXI_WDATA(8);  -- Yellow threshold bit 8
-              end if;
-              if (S_AXI_WSTRB(2) = '1') then
-                COLR_reg(23 downto 16) <= S_AXI_WDATA(23 downto 16); -- Red threshold bits 7:0
-              end if;
-              if (S_AXI_WSTRB(3) = '1') then
-	              COLR_reg(24) <= S_AXI_WDATA(24); -- Red threshold bit 8
-              end if;		
+           when COLR_ADDR =>
+            if (S_AXI_WSTRB(0) = '1') then
+              COLR_reg(3 downto 0) <= S_AXI_WDATA(3 downto 0);     -- CR bits 3:0   (Red)
+            end if;
+            if (S_AXI_WSTRB(1) = '1') then
+              COLR_reg(11 downto 8) <= S_AXI_WDATA(11 downto 8);   -- CG bits 11:8  (Green)
+            end if;
+            if (S_AXI_WSTRB(2) = '1') then
+              COLR_reg(19 downto 16) <= S_AXI_WDATA(19 downto 16); -- CB bits 19:16 (Blue)
+            end if;	
 	    -- End user code (Nicolas Lonthoff)
             --##INSERT YOUR CODE HERE END 
               -- Old registers removed by user (Nicolas Lonthoff)
@@ -505,24 +525,26 @@ begin
               -- Removed
               
         --##INSERT YOUR CODE HERE          
+        -- Begin user code (Nicolas Lonthoff)
         --IPISR_reg        
-          if(axi_wready = '1' and loc_addr = IPISR_ADDR  
-                   and S_AXI_WSTRB(0) = '1' ) then
-            IPISR_reg(0) <= IPISR_reg(0) xor S_AXI_WDATA(0); --toggle on write (main function w1c)             
-							     -- Removed elsif
+          if(slv_reg_wren = '1' and loc_addr = IPISR_ADDR  
+                   and S_AXI_WSTRB(0) = '1') then
+            if S_AXI_WDATA(0) = '1' then
+              IPISR_reg(0) <= '0'; -- W1C: writing 1 clears the bit
+            end if;
+            -- Removed elsif
           end if;             
 
-        -- Begin user code (Nicolas Lonthoff)
           if i_fdp = '1' then
             IPISR_reg(0) <= '1';
             STATUS_reg(0) <= '1';
           end if; 
 
-	     	  if (slv_reg_wren = '1' and loc_addr = VDATR_ADDR) then
-            IPISR_reg(0) <= '0'; -- VDATR auto-clear 
+	     	 -- STATUS.FDP cleared when next frame's visible region begins
+          if i_frame_start = '1' then
             STATUS_reg(0) <= '0';
           end if;
-	    -- End user code (Nicolas Lonthoff)
+        -- End user code (Nicolas Lonthoff)
         --##INSERT YOUR CODE HERE END  
           
         --slv_regxx
@@ -542,7 +564,7 @@ begin
 
   --##INSERT YOUR CODE HERE  
   --all registers have to be in sensitivity list
-  process (GCSR_reg, GIER_reg, IPIER_reg, IPISR_reg, IDR_reg, VERR_reg, CTRL_reg, STATUS_reg, VDATR_reg, COLR_reg, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
+  process (GCSR_reg, GIER_reg, IPIER_reg, IPISR_reg, IDR_reg, VERR_reg, CTRL_reg, STATUS_reg, ADDRR_reg, VDATR_reg, COLR_reg, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
   --##INSERT YOUR CODE HERE END
   
   variable loc_addr : std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
@@ -562,10 +584,11 @@ begin
           reg_data_out <= IPISR_reg;
 
 	-- Begin user code (Nicolas Lonthoff)
-	when CTRL_ADDR => reg_data_out <= CTRL_reg;
+	when CTRL_ADDR   => reg_data_out <= CTRL_reg;
 	when STATUS_ADDR => reg_data_out <= STATUS_reg;
-	when VDATR_ADDR => reg_data_out <= VDATR_reg;
-	when COLR_ADDR => reg_data_out <= COLR_reg;
+	when ADDRR_ADDR  => reg_data_out <= ADDRR_reg;
+	when VDATR_ADDR  => reg_data_out <= VDATR_reg;
+	when COLR_ADDR   => reg_data_out <= COLR_reg;
 	-- End user code (Nicolas Lonthoff)
         --##INSERT YOUR CODE HERE END  
           
@@ -606,9 +629,13 @@ begin
   --interrupt <='0'; if not interrupts are implemented set signal to zero
   interrupt <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_ven <= CTRL_reg(0);
-  o_vol <= VDATR_reg(8 downto 0);
-  o_rt <= COLR_reg(24 downto 16);
-  o_yt <= COLR_reg(8 downto 0);
+  o_wd   <= CTRL_reg(8);
+  o_xa   <= ADDRR_reg(6 downto 0);
+  o_ya   <= ADDRR_reg(12 downto 8);
+  o_char <= VDATR_reg(6 downto 0);
+  o_cr   <= COLR_reg(3 downto 0);
+  o_cg   <= COLR_reg(11 downto 8);
+  o_cb   <= COLR_reg(19 downto 16);
   --##INSERT YOUR CODE HERE END
   
   --dm end 
