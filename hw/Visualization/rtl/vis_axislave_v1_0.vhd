@@ -102,6 +102,7 @@ architecture arch_imp of vis is
     o_cb          : out std_logic_vector(3 downto 0);
     i_fdp         : in std_logic;
     i_frame_start : in std_logic;
+    i_buf_ready   : in std_logic;
     interrupt     : out std_logic
     -- End user code (Nicolas Lonthoff)
     --dm end
@@ -203,6 +204,7 @@ at_S00_AXI_inst : at_S00_AXI
     o_cb          => w_cb,
     i_fdp         => w_fdp,
     i_frame_start => w_frame_start,
+    i_buf_ready   => w_buf_ready,
     interrupt     => w_interrupt
     -- End user code (Nicolas Lonthoff)
     --dm end

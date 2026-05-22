@@ -94,6 +94,7 @@ entity at_S00_AXI is
     --
     i_fdp           : in std_logic;  -- set when visible frame fully transmitted
     i_frame_start   : in std_logic;  -- pulse when visible area of next frame begins
+    i_buf_ready     : in std_logic;  -- STATUS.BUF_RDY: '1' when vis_core accepts writes
     interrupt       : out std_logic  -- combined interrupt output
    -- End user code
    --dm end
@@ -340,8 +341,9 @@ begin
       --IPISR_reg(31 downto 0) <= (others =>'0'); --reserved
       IPISR_reg(31 downto 1) <= (others =>'0'); --reserved
     -- Begin user code (Nicolas Lonthoff)
-    -- STATUS: bit 0 = FDP
-      STATUS_reg(31 downto 1) <= (others => '0');
+    -- STATUS: bit 0 = FDP, bit 1 = BUF_RDY (read-only, driven by vis_core)
+      STATUS_reg(31 downto 2) <= (others => '0');
+      STATUS_reg(1) <= i_buf_ready;
     -- ADDRR: bits 31:13 reserved, bit 7 reserved
       ADDRR_reg(31 downto 13) <= (others => '0');
       ADDRR_reg(7)             <= '0';
