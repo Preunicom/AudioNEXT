@@ -84,7 +84,7 @@ entity at_S00_AXI is
     --dm begin
    -- Begin user code (Nicolas Lonthoff)
     o_ven  : out std_logic;                    -- VEN: Visualization Enable
-    o_wd   : out std_logic;                    -- WD pulse: 1 cycle when AXI writes WD=1
+    o_buf_valid   : out std_logic;                    -- WD pulse: 1 cycle when AXI writes WD=1
     o_xa   : out std_logic_vector(6 downto 0); -- ADDRR XA bits 6:0   (X address 0-79)
     o_ya   : out std_logic_vector(4 downto 0); -- ADDRR YA bits 12:8  (Y address 0-29)
     o_char : out std_logic_vector(6 downto 0); -- VDATR CHAR bits 6:0 (7-bit ASCII)
@@ -344,6 +344,7 @@ begin
     -- STATUS: bit 0 = FDP, bit 1 = BUF_RDY (read-only, driven by vis_core)
       STATUS_reg(31 downto 2) <= (others => '0');
       STATUS_reg(1) <= i_buf_ready;
+    --STATUS_reg(0) <= i_fdp; -- Optionally also show frame done in STATUS register (not needed because of interrupt)
     -- ADDRR: bits 31:13 reserved, bit 7 reserved
       ADDRR_reg(31 downto 13) <= (others => '0');
       ADDRR_reg(7)             <= '0';
@@ -421,7 +422,10 @@ begin
         --  LR0_reg <= (others => '0');
         --REG09_reg <= (others => '0');
       else
-        CTRL_reg(8) <= '0'; -- auto-clear WD every cycle
+        -- Clear WD only once vis_core acknowledges the write (i_buf_ready)
+        if i_buf_ready = '1' then
+          CTRL_reg(8) <= '0'; 
+        end if;
         loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         if (slv_reg_wren = '1') then
           case loc_addr is
@@ -631,7 +635,7 @@ begin
   --interrupt <='0'; if not interrupts are implemented set signal to zero
   interrupt <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_ven <= CTRL_reg(0);
-  o_wd   <= CTRL_reg(8);
+  o_buf_valid   <= CTRL_reg(8);
   o_xa   <= ADDRR_reg(6 downto 0);
   o_ya   <= ADDRR_reg(12 downto 8);
   o_char <= VDATR_reg(6 downto 0);
