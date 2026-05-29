@@ -2,10 +2,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-
 -- EDIT CODE BEGIN Richard Tuch
 
 entity aud is
+
+-- EDIT CODE END Richard Tuch
+
   generic (
     -- Users to add parameters here
 
@@ -19,8 +21,11 @@ entity aud is
   port (
     -- Users to add ports here
     -- dm begin
+
+    -- EDIT CODE BEGIN RICHARD TUCH
+
     -- Audio I/O ports
-    i_audio_clk     : in std_logic;
+    i_aud_clk     : in std_logic;
     o_mclk          : out std_logic;
     o_lrck          : out std_logic;
     o_sclk          : out std_logic;  
@@ -28,6 +33,9 @@ entity aud is
     -- Interrupts
     o_interrupt_sla : out std_logic;
     o_interrupt_sra : out std_logic;
+
+    -- EDIT CODE END RICHARD TUCH
+
     -- dm end
     
     -- User ports ends
@@ -56,6 +64,9 @@ entity aud is
     s00_axi_rvalid  : out std_logic;
     s00_axi_rready  : in std_logic    
   );
+
+-- EDIT CODE BEGIN Richard Tuch
+
 end aud;
 
 -- EDIT CODE END Richard Tuch
@@ -67,6 +78,9 @@ architecture arch_imp of aud is
 
   -- component declaration
   component aud_S00_AXI is
+
+  -- EDIT CODE END Richard Tuch
+
     generic (
     C_S_AXI_DATA_WIDTH  : integer := 32;
     C_S_AXI_ADDR_WIDTH  : integer := 6
@@ -95,6 +109,9 @@ architecture arch_imp of aud is
     S_AXI_RREADY  : in std_logic;
     --
     --dm begin
+
+    -- EDIT CODE BEGIN RICHARD TUCH
+
     o_sampling_en : out std_logic;
     i_sla           : in  std_logic;
     i_sra           : in  std_logic;
@@ -123,7 +140,7 @@ component aud_core is
   port ( 
     i_clk         : in  std_logic;
     i_reset       : in  std_logic;
-    i_audio_clk   : in  std_logic;
+    i_aud_clk   : in  std_logic;
     -- Control
     i_sampling_en : in  std_logic;
     -- Status
@@ -176,6 +193,9 @@ end component;
 begin
 -- Instantiation of Axi Bus Interface S00_AXI
 aud_S00_AXI_inst : aud_S00_AXI
+
+-- EDIT CODE END Richard Tuch
+
   generic map (
     C_S_AXI_DATA_WIDTH  => C_S00_AXI_DATA_WIDTH,
     C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
@@ -203,6 +223,9 @@ aud_S00_AXI_inst : aud_S00_AXI
     S_AXI_RVALID  => s00_axi_rvalid,
     S_AXI_RREADY  => s00_axi_rready,
     --dm begin
+
+    -- EDIT CODE BEGIN RICHARD TUCH
+
     o_sampling_en   => w_sampling_en,
     i_sla           => w_sla,
     i_sra           => w_sra,
@@ -216,23 +239,24 @@ aud_S00_AXI_inst : aud_S00_AXI
     o_interrupt_sra => w_interrupt_sra,
     --
     dummylast => '0'
+
+    -- EDIT CODE END RICHARD TUCH
+
     --dm end
   );
 
-  -- EDIT CODE END Richard Tuch
-
-
-  -- EDIT CODE BEGIN Richard Tuch
 
   -- Add user logic here
   --dm begin
   w_reset <= not s00_axi_aresetn;
 
+-- EDIT CODE BEGIN Richard Tuch
+
   aud_core_inst: aud_core
     port map(
       i_clk => s00_axi_aclk,
       i_reset => w_reset,
-      i_audio_clk => i_audio_clk,
+      i_aud_clk => i_aud_clk,
       -- Control
       i_sampling_en => w_sampling_en,
       -- Status
@@ -257,9 +281,10 @@ aud_S00_AXI_inst : aud_S00_AXI
 
   o_interrupt_sla <= w_interrupt_sla;
   o_interrupt_sra <= w_interrupt_sra;
+  
+  --EDIT CODE END Richard Tuch
+
   --dm end
   -- User logic ends
 
 end arch_imp;
-
--- EDIT CODE END Richard Tuch
