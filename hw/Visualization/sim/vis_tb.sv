@@ -42,11 +42,11 @@ module vis_tb();
   parameter STATUS_FDP_MASK        = 32'h00000001;
   //ADDRR Address Register slv_reg08 0x20 
   parameter ADDRR_ADDR             = 6'h020;
-  parameter ADDRR_XA_MASK          = 32'h000000EF;
+  parameter ADDRR_XA_MASK          = 32'h0000007F;
   parameter ADDRR_YA_MASK          = 32'h00001F00;
   //VDATR Visualization Data Register slv_reg09 0x24
   parameter VDATR_ADDR             = 6'h024;
-  parameter VDATR_CHAR_MASK        = 32'h000000EF;
+  parameter VDATR_CHAR_MASK        = 32'h0000007F;
   //COLR Color Register slv_reg10 0x28
   parameter COLR_ADDR              = 6'h028;
   parameter COLR_CR_MASK           = 32'h0000000F;
@@ -105,12 +105,12 @@ module vis_tb();
    .aclk(ap_clk),
    .aresetn(ap_rst_n),
    .i_pixel_clk_0(i_pixel_clk),
-   .o_hsync_0(o_hsync),
-   .o_vsync_0(o_vsync),
-   .o_red_0(o_red),
+   .o_blue_0(o_blue),
    .o_green_0(o_green),
-   o_blue_0(o_blue),
-   .interrupt_0(o_interrupt)
+   .o_vsync_0(o_vsync),
+   .o_interrupt_0(o_interrupt),
+   .o_hsync_0(o_hsync),
+   .o_red_0(o_red)
   );
   // EDIT CODE END Markus Remy
  
@@ -199,6 +199,7 @@ module vis_tb();
   task automatic check_scalar_registers(output bit error_found);
     bit [31:0] expectedval = 32'h00000000;
     bit tmp_error_found = 0;
+    bit frame_visible = 0;
     
     error_found = 0;    
     $display("%t : Checking scalar registers", $time);
@@ -216,9 +217,7 @@ module vis_tb();
     error_found |= tmp_error_found;
     expectedval=0;
     expectedval=IPISR_FDP_MASK;
-    check_32bitregister_value_with_gaps (IPISR_ADDR, expectedval, expectedval, tmp_error_found); //write 1 to toggle!
-    error_found |= tmp_error_found;
-    check_32bitregister_value_with_gaps (IPISR_ADDR, 32'h00000000, 32'h00000000, tmp_error_found); //write 1 to toggle!
+    check_32bitregister_value_with_gaps (IPISR_ADDR, 32'h00000000, 32'h00000000, tmp_error_found); //write 1 to clear!
     error_found |= tmp_error_found;
     check_32bitregister_value_with_gaps (IDR_ADDR, 32'h0000D15C, 32'h0000D15C, tmp_error_found);
     error_found |= tmp_error_found;
@@ -227,18 +226,18 @@ module vis_tb();
     // EDIT CODE END Markus Remy
     // USER CODE BEGIN Markus Remy
     expectedval=0;
-    expectedval=CTRL_WD_MASK | CTRL_WD_MASK;
+    expectedval=CTRL_VEN_MASK | CTRL_WD_MASK;
     check_32bitregister_value_with_gaps (CTRL_ADDR, expectedval, 32'h00000000, tmp_error_found); // WD could be 1 or 0 depending on the current blanking status
     error_found |= tmp_error_found;
     check_32bitregister_value_with_gaps (STATUS_ADDR, 32'h00000000, 32'h00000000, tmp_error_found); // FDP could be 0 or 1 depending on the current frame status
     error_found |= tmp_error_found;
     expectedval=0;
     expectedval=ADDRR_XA_MASK | ADDRR_YA_MASK;
-    check_32bitregister_value_with_gaps (ADDRR, expectedval, 32'h00000000, tmp_error_found);
+    check_32bitregister_value_with_gaps (ADDRR_ADDR, expectedval, 32'h00000000, tmp_error_found);
     error_found |= tmp_error_found;
     expectedval=0;
     expectedval=VDATR_CHAR_MASK;
-    check_32bitregister_value_with_gaps (VDATR, expectedval, 32'h00000000, tmp_error_found);
+    check_32bitregister_value_with_gaps (VDATR_ADDR, expectedval, 32'h00000000, tmp_error_found);
     error_found |= tmp_error_found;
     expectedval=0;
     expectedval=COLR_CR_MASK | COLR_CG_MASK | COLR_CB_MASK;
@@ -321,7 +320,7 @@ module vis_tb();
 
     read_register(IPISR_ADDR, IPISR_after_int_reset); // Only this interrupt should be possible
     
-    if(IPISR_before_int_reset & IPISR_FDP_MASK = 1 and IPISR_after_int_reset & IPISR_FDP_MASK = 0) begin 
+    if((IPISR_before_int_reset & IPISR_FDP_MASK) == 1 && (IPISR_after_int_reset & IPISR_FDP_MASK) == 0) begin 
       $display("Test Frame Processed INT ... OK");
     end else begin
       $display("Test Frame Processed INT ... NOT OK");
@@ -330,6 +329,7 @@ module vis_tb();
 
   task automatic TEST_WRITE_FRAME;
     bit [31:0] CTRL_is = 0;
+    bit [31:0] STATUS_is = 0;
 
     $display("---------------------------------------------------------------");
     $display(" START TEST_WRITE_FRAME");
@@ -357,7 +357,7 @@ module vis_tb();
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
 
-    if (CTRL_is & CTRL_WD_MASK = 0) begin
+    if ((CTRL_is & CTRL_WD_MASK) == 0) begin
       $display("Test Write Frame ... May be OK, check manually for one empty and one written frame");
     end else begin
       $display("Test Write Frame ... NOT OK");
@@ -380,10 +380,10 @@ module vis_tb();
     #10
  
     // USER CODE BEGIN Markus Remy
-    CHECK_REGISTERS();
+    //CHECK_REGISTERS();
     //TEST_FRAME_PROCESSED();
     //TEST_FRAME_PROCESSED_INT();
-    //TEST_WRITE_FRAME();
+    TEST_WRITE_FRAME();
     // USER CODE END Markus Remy
  
     $finish(); 
