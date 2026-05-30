@@ -93,7 +93,7 @@ architecture arch_imp of vis is
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
     o_ven         : out std_logic;
-    o_wd          : out std_logic;
+    o_buf_valid          : out std_logic;
     o_xa          : out std_logic_vector(6 downto 0);
     o_ya          : out std_logic_vector(4 downto 0);
     o_char        : out std_logic_vector(6 downto 0);
@@ -151,7 +151,6 @@ end component;
   signal w_buf_ready     : std_logic;
   signal w_fdp           : std_logic;
   signal w_interrupt     : std_logic;
-  signal w_wd             : std_logic;
   signal w_xa             : std_logic_vector(6 downto 0);
   signal w_ya             : std_logic_vector(4 downto 0);
   signal w_char           : std_logic_vector(6 downto 0);
@@ -195,7 +194,7 @@ at_S00_AXI_inst : at_S00_AXI
     --dm begin
     -- Begin user code (Nicolas Lonthoff)
     o_ven         => w_ven,
-    o_wd          => w_wd,
+    o_buf_valid   => w_buf_valid,
     o_xa          => w_xa,
     o_ya          => w_ya,
     o_char        => w_char,
@@ -253,24 +252,13 @@ at_S00_AXI_inst : at_S00_AXI
 
   o_interrupt <= w_interrupt;
 
-  WRITE_PROC: process(s00_axi_aclk)
-  begin
-    if rising_edge(s00_axi_aclk) then
-      w_buf_valid <= '0'; -- default: no write
-      if w_reset = '1' then
-        w_buf_valid <= '0';
-      elsif w_wd = '1' then
-        -- Forward ADDRR/VDATR/COLR to vis_core for one cycle
-        w_buf_valid       <= '1';
-        w_buf_addr_x      <= w_xa;
-        w_buf_addr_y      <= w_ya;
-        w_buf_char_ascii  <= w_char;
-        w_buf_color_red   <= w_cr;
-        w_buf_color_green <= w_cg;
-        w_buf_color_blue  <= w_cb;
-      end if;
-    end if;
-  end process WRITE_PROC;
+  w_buf_addr_x      <= w_xa;
+  w_buf_addr_y      <= w_ya;
+  w_buf_char_ascii  <= w_char;
+  w_buf_color_red   <= w_cr;
+  w_buf_color_green <= w_cg;
+  w_buf_color_blue  <= w_cb;
+
   -- End user code (Nicolas Lonthoff)
   --dm end
   -- User logic ends
