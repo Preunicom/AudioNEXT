@@ -139,7 +139,7 @@ architecture arch_imp of aud is
 component aud_core is
   port ( 
     i_clk         : in  std_logic;
-    i_reset       : in  std_logic;
+    i_resetn       : in  std_logic;
     i_aud_clk   : in  std_logic;
     -- Control
     i_sampling_en : in  std_logic;
@@ -169,7 +169,7 @@ end component;
 
 -- EDIT CODE BEGIN Richard Tuch
  
-  signal w_reset : std_logic;
+  signal w_resetn : std_logic;
 
   -- Internal signals between AXI slave and aud_core
   signal w_sampling_en : std_logic;
@@ -248,14 +248,14 @@ aud_S00_AXI_inst : aud_S00_AXI
 
   -- Add user logic here
   --dm begin
-  w_reset <= not s00_axi_aresetn;
+  w_resetn <= not s00_axi_aresetn;
 
 -- EDIT CODE BEGIN Richard Tuch
 
   aud_core_inst: aud_core
     port map(
       i_clk => s00_axi_aclk,
-      i_reset => w_reset,
+      i_resetn => w_resetn,
       i_aud_clk => i_aud_clk,
       -- Control
       i_sampling_en => w_sampling_en,
