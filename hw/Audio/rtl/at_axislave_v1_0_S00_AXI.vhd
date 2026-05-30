@@ -478,7 +478,7 @@ begin
   -- EDIT CODE BEGIN Richard Tuch
 
   process (S_AXI_ACLK)
-  variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0); -- not used at the moment
+  variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
   begin
     if rising_edge(S_AXI_ACLK) then
       if S_AXI_ARESETN = '0' then
@@ -488,7 +488,12 @@ begin
           ADATLR_reg(23 downto 0) <= (others => '0');
         --ADATRR_reg
           ADATRR_reg(23 downto 0) <= (others => '0');
+
+          o_ack_left  <= '0';
+          o_ack_right <= '0';
       else
+        loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
+
         --STATUS_reg
           STATUS_reg(0)  <= i_dol; -- DOL
           STATUS_reg(7 downto 1) <= (others => '0'); --reserved
@@ -502,7 +507,7 @@ begin
           ADATLR_reg(23 downto 0) <= i_data_left;
         --ADATRR_reg
           ADATRR_reg(23 downto 0) <= i_data_right;
-          
+
         -- AXI Handshake
         if (axi_arready = '1' and loc_addr = ADATLR_ADDR) then
           o_ack_left <= '1';
