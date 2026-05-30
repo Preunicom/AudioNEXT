@@ -60,6 +60,7 @@ module vis_tb();
   vip_db_axi_vip_0_0_mst_t  mst_ctrl_agent; // check instance name in block design (<blockdesign-name>_<vip-inst-name>_0_mst_t)
   //clock frequency definition
   parameter real CLK_PERIOD = 1; // for ease of use in the waveform diagram the clock period is selected as 1ns
+  parameter real PIX_CLK_PERIOD = 4; // 4 times the AXI clock
   bit error_found = 0;
 
 
@@ -79,9 +80,19 @@ module vis_tb();
     ap_rst_n_sequence(16);
   end
 
+  // USER CODE BEGIN Markus Remy
+
+  logic i_pixel_clk = 0;
+  initial begin: PIX_CLK
+    forever begin
+      i_pixel_clk = #(PIX_CLK_PERIOD/2) ~i_pixel_clk;
+    end
+  end
+
+  // USER CODE END Markus Remy
+
   //SYSTEM DESIGN WRAPPER instance
   // EDIT CODE BEGIN Markus Remy
-  logic i_pixel_clk;
   logic o_hsync;
   logic o_vsync;
   logic [3:0] o_red;
@@ -93,7 +104,12 @@ module vis_tb();
   vip_db_wrapper DUT( // TODO: Check signals!
    .aclk(ap_clk),
    .aresetn(ap_rst_n),
-   .o_t0_out(o_t0_out),
+   .i_pixel_clk_0(i_pixel_clk),
+   .o_hsync_0(o_hsync),
+   .o_vsync_0(o_vsync),
+   .o_red_0(o_red),
+   .o_green_0(o_green),
+   o_blue_0(o_blue),
    .interrupt_0(o_interrupt)
   );
   // EDIT CODE END Markus Remy
