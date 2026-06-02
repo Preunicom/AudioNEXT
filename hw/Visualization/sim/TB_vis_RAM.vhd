@@ -102,6 +102,7 @@ begin
         tb_en_w   <= '0';               -- EN_w blocked
         tb_wr_en  <= '1';
         wait until rising_edge(tb_clk_w);
+        tb_wr_en  <= '0';               -- prevent rogue write when EN_w is re-enabled
         tb_en_w   <= '1';
 
         tb_addr_r <= X"0";
