@@ -85,7 +85,6 @@ begin
   end if;
 end process;
 
-      
 o_sclk <= r_sclk;
 o_lrck <= r_lrck;
 --end Maximilian Hafeneder
