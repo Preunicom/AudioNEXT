@@ -275,53 +275,17 @@ module vis_tb();
     $display(" START TEST_FRAME_DATA_PROCESSED");
     $display("---------------------------------------------------------------");  
 
-    // Only poll once per line of the frame to reduce simulation overhead of the VIP
-
-    // Wait for end of visible part of frame
-    do begin
-      @(negedge o_hsync);
-      read_register(STATUS_ADDR, STATUS_is);
-    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
-
-    $display("Reached end of visible part of first checked frame");
-
-    // Wait for visible part of next frame
-    do begin
-      @(posedge o_hsync);
-      read_register(STATUS_ADDR, STATUS_is);
-    end while ((STATUS_is & STATUS_FDP_MASK) == STATUS_FDP_MASK);
-
-    $display("Reached start of visible part of second checked frame");
-
-    // Wait for end of visible part of frame
-    do begin
-      @(negedge o_hsync);
-      read_register(STATUS_ADDR, STATUS_is);
-    end while ((STATUS_is & STATUS_FDP_MASK) == 0);
-
-    $display("Reached end of visible part of second checked frame");
-    
-    #10
-
-    $display("Test Frame Data Processed ... OK"); // Not reached in case of failure
-  endtask
-
-  task automatic TEST_FRAME_DATA_PROCESSED_TIMING;  
-    bit [31:0] STATUS_is = 0;
-  
-    $display("---------------------------------------------------------------");
-    $display(" START TEST_FRAME_DATA_PROCESSED_TIMING");
-    $display("---------------------------------------------------------------");  
-
     // Wait for end of VSync
+    $display("Waiting for end of first frame");
     @(posedge o_vsync);
 
-    // Wait for 480 + 9 hsync (Start of last line of the frame))
-    // 9 frontporch, 480 visible frame and - 1 because before last line
+    // Wait for 480 + 10 hsync (Start of last line of the frame))
+    // 10 frontporch, 480 visible frame (-1 because start of last line)
+    $display("Waiting for end of second frame");
     for (int i = 0; i < 10 + 480 - 1; i++) begin
       @(posedge o_hsync);
     end
-    
+
     // Check if FDP is LOW 
     read_register(STATUS_ADDR, STATUS_is);
     if ((STATUS_is & STATUS_FDP_MASK) == 0) begin
@@ -339,14 +303,15 @@ module vis_tb();
       $display("FDP after end of frame HIGH ... NOT OK");
     end
 
+    $display("Waiting for begin of fourth frame");
     @(posedge o_vsync) // End of frame
 
-    // Wait for  10 hsync (Start of first line of the frame))
+    // Wait for  10 hsync (Start of first line of the frame)
     for (int i = 0; i < 10; i++) begin
       @(posedge o_hsync);
     end
-    // Wait for 16 pixels frontporch
-    for (int i = 0; i < 16; i++) begin
+    // Wait for 16 pixels frontporch + 1 pixel CDC
+    for (int i = 0; i < 16 + 1; i++) begin
       @(posedge i_pixel_clk);
     end
     // Check if FDP is LOW again 
@@ -383,7 +348,7 @@ module vis_tb();
 
     read_register(IPISR_ADDR, IPISR_before_int_reset); // Only this interrupt should be possible
 
-    blocking_write_register(IPIER_ADDR, IPISR_FDP_MASK); // Reset interrupt
+    blocking_write_register(IPISR_ADDR, IPISR_FDP_MASK); // Reset interrupt
 
     read_register(IPISR_ADDR, IPISR_after_int_reset); // Only this interrupt should be possible
     
@@ -406,24 +371,28 @@ module vis_tb();
 
     // Only poll once per line of the frame to reduce simulation overhead of the VIP
     // Wait for frame end
-    $display("Waiting for end of frame");
+    $display("Waiting for end of empty frame");
     do begin
       @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
 
-    blocking_write_register(CTRL_ADDR, CTRL_VEN_MASK);  // Enable Visualization
     blocking_write_register(COLR_ADDR, COLR_CR_MASK | COLR_CG_MASK | COLR_CB_MASK); // Write Color White
     blocking_write_register(VDATR_ADDR, VDATR_CHAR_MASK & "H"); // Write Char
     blocking_write_register(ADDRR_ADDR, (ADDRR_XA_MASK & 20) | (ADDRR_YA_MASK & 10) ); // Write Position
-    blocking_write_register(CTRL_ADDR, CTRL_WD_MASK); // Apply values
+    blocking_write_register(CTRL_ADDR, CTRL_VEN_MASK | CTRL_WD_MASK); // Apply values and enable Visualization
 
     #10
 
     read_register(CTRL_ADDR, CTRL_is);
 
     // Only poll once per line of the frame to reduce simulation overhead of the VIP
-    // Wait for frame end
+    $display("Waiting for start of written frame");
+    do begin
+      @(negedge o_hsync);
+      read_register(STATUS_ADDR, STATUS_is);
+    end while ((STATUS_is & STATUS_FDP_MASK) == STATUS_FDP_MASK);
+    $display("Waiting for end of written frame");
     do begin
       @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
@@ -452,11 +421,10 @@ module vis_tb();
     #10
  
     // USER CODE BEGIN Markus Remy
-    //CHECK_REGISTERS();
+    CHECK_REGISTERS();
     //TEST_FRAME_DATA_PROCESSED();
-    //TEST_FRAME_DATA_PROCESSED_TIMING();
     //TEST_FRAME_DATA_PROCESSED_INT();
-    TEST_WRITE_FRAME();
+    //TEST_WRITE_FRAME();
     // USER CODE END Markus Remy
  
     $finish(); 

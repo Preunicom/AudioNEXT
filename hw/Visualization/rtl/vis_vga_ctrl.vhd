@@ -358,9 +358,9 @@ begin
 			if i_reset = '1' then
 				s_v_sync <= '1';
 			else
-				if (s_v_count = (c_V_DISPLAYln + c_V_BACKPORCHln - 1)) then
+				if (s_v_count = (c_V_DISPLAYln + c_V_BACKPORCHln)) then -- First line of vsync
 					s_v_sync <= '0';
-				elsif (s_v_count = (c_V_PERIODln - c_V_FRONTPORCHln - 1)) then
+				elsif (s_v_count = (c_V_PERIODln - c_V_FRONTPORCHln)) then -- First line after vsync
 					s_v_sync <= '1';
 				end if;
 			end if;
@@ -369,7 +369,7 @@ begin
 	end process;
 
 	-- USER CODE BEGIN Markus Remy
-	s_counter_in_display_area <= '1' when (s_h_count < c_H_DISPLAYpx - 1 and s_v_count < c_V_DISPLAYln - 1) else '0';
+	s_counter_in_display_area <= '1' when (s_h_count < c_H_DISPLAYpx and s_v_count < c_V_DISPLAYln) else '0';
 	
 	p_BLANK_MGM: process(i_vga_clk)
 	begin
@@ -389,7 +389,7 @@ begin
 			if i_reset = '1' then
                 s_visible_frame_done_pulse <= '0';
             else
-                if s_v_count = c_V_DISPLAYln - 1 and s_h_count = c_H_DISPLAYpx - 1 then
+                if s_v_count = c_V_DISPLAYln - 1 and s_h_count = c_H_DISPLAYpx then
 					-- First pixel after the last visible pixel of the frame -> visible frame done
                     s_visible_frame_done_pulse <= '1';
 				else
