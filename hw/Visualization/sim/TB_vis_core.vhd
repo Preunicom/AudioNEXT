@@ -78,7 +78,7 @@ begin
         wait until rising_edge(tb_pixel_clk);
         wait until rising_edge(tb_pixel_clk);
 
-        wait until rising_edge(tb_pixel_clk);  -- Wait another cycle until the signal has stabilized
+        wait until falling_edge(tb_pixel_clk);  -- sample mid-cycle: outputs stable after last rising edge
 
         assert tb_h_sync = '1'
             report "T1 FAIL: h_sync not '1' after CDC reset propagation" severity failure;

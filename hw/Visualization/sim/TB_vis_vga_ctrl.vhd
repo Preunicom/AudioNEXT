@@ -69,10 +69,10 @@ begin
         tb_reset  <= '1';
         tb_enable <= '0';
 
-        wait until rising_edge(tb_vga_clk); -- Wait for one clock cycle to stabilize the signals
-        
+        wait until rising_edge(tb_vga_clk); -- allow DUT to register reset state
+
         for i in 1 to 5 loop
-            wait until rising_edge(tb_vga_clk);
+            wait until falling_edge(tb_vga_clk); -- sample mid-cycle
             assert tb_h_sync = '1'
                 report "T1 FAIL: h_sync not '1' during reset" severity failure;
             assert tb_v_sync = '1'
