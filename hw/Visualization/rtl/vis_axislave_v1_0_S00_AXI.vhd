@@ -340,9 +340,8 @@ begin
       --IPISR_reg(31 downto 0) <= (others =>'0'); --reserved
       IPISR_reg(31 downto 1) <= (others =>'0'); --reserved
     -- Begin user code (Nicolas Lonthoff)
-    -- STATUS: bit 0 = FDP, bit 1 = BUF_RDY (read-only, driven by vis_core)
-      STATUS_reg(31 downto 2) <= (others => '0');
-      STATUS_reg(1) <= i_buf_ready;
+    -- STATUS: bit 0 = FDP
+      STATUS_reg(31 downto 1) <= (others => '0'); -- bit 1-31 reserved per spec Â§2.4.9
     --STATUS_reg(0) <= i_fdp; -- Optionally also show frame done in STATUS register (not needed because of interrupt)
     -- ADDRR: bits 31:13 reserved, bit 7 reserved
       ADDRR_reg(31 downto 13) <= (others => '0');
