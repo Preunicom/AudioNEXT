@@ -69,6 +69,8 @@ begin
         tb_reset  <= '1';
         tb_enable <= '0';
 
+        wait until rising_edge(tb_vga_clk); -- Wait for one clock cycle to stabilize the signals
+        
         for i in 1 to 5 loop
             wait until rising_edge(tb_vga_clk);
             assert tb_h_sync = '1'
