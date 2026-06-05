@@ -268,39 +268,106 @@ module vis_tb();
   endtask
   
   // USER CODE BEGIN Markus Remy
-  task automatic TEST_FRAME_PROCESSED;  
+  task automatic TEST_FRAME_DATA_PROCESSED;  
     bit [31:0] STATUS_is = 0;
   
     $display("---------------------------------------------------------------");
-    $display(" START TEST_FRAME_PROCESSED");
-    $display("---------------------------------------------------------------"); 
-   
+    $display(" START TEST_FRAME_DATA_PROCESSED");
+    $display("---------------------------------------------------------------");  
+
+    // Only poll once per line of the frame to reduce simulation overhead of the VIP
+
     // Wait for end of visible part of frame
     do begin
+      @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
+
+    $display("Reached end of visible part of first checked frame");
 
     // Wait for visible part of next frame
     do begin
+      @(posedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
-    end while ((STATUS_is & STATUS_FDP_MASK) == 1);
+    end while ((STATUS_is & STATUS_FDP_MASK) == STATUS_FDP_MASK);
+
+    $display("Reached start of visible part of second checked frame");
 
     // Wait for end of visible part of frame
     do begin
+      @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
+
+    $display("Reached end of visible part of second checked frame");
     
     #10
 
-    $display("Test Frame Processed ... OK"); // Not reached in case of failure
+    $display("Test Frame Data Processed ... OK"); // Not reached in case of failure
   endtask
 
-  task automatic TEST_FRAME_PROCESSED_INT;  
+  task automatic TEST_FRAME_DATA_PROCESSED_TIMING;  
+    bit [31:0] STATUS_is = 0;
+  
+    $display("---------------------------------------------------------------");
+    $display(" START TEST_FRAME_DATA_PROCESSED_TIMING");
+    $display("---------------------------------------------------------------");  
+
+    // Wait for end of VSync
+    @(posedge o_vsync);
+
+    // Wait for 480 + 9 hsync (Start of last line of the frame))
+    // 9 frontporch, 480 visible frame and - 1 because before last line
+    for (int i = 0; i < 10 + 480 - 1; i++) begin
+      @(posedge o_hsync);
+    end
+    
+    // Check if FDP is LOW 
+    read_register(STATUS_ADDR, STATUS_is);
+    if ((STATUS_is & STATUS_FDP_MASK) == 0) begin
+      $display("FDP before end of frame LOW ... OK");
+    end else begin
+      $display("FDP before end of frame LOW ... NOT OK");
+    end
+    
+    @(posedge o_hsync)
+    // Check if FDP is HIGH 
+    read_register(STATUS_ADDR, STATUS_is);
+    if ((STATUS_is & STATUS_FDP_MASK) == STATUS_FDP_MASK) begin
+      $display("FDP after end of frame HIGH ... OK");
+    end else begin
+      $display("FDP after end of frame HIGH ... NOT OK");
+    end
+
+    @(posedge o_vsync) // End of frame
+
+    // Wait for  10 hsync (Start of first line of the frame))
+    for (int i = 0; i < 10; i++) begin
+      @(posedge o_hsync);
+    end
+    // Wait for 16 pixels frontporch
+    for (int i = 0; i < 16; i++) begin
+      @(posedge i_pixel_clk);
+    end
+    // Check if FDP is LOW again 
+    read_register(STATUS_ADDR, STATUS_is);
+    if ((STATUS_is & STATUS_FDP_MASK) == 0) begin
+      $display("FDP at begin of frame LOW ... OK");
+    end else begin
+      $display("FDP at begin of frame LOW ... NOT OK");
+    end
+    
+    #10
+
+    $display("Test Frame Data Processed ... DONE"); // Not reached in case of failure
+  endtask
+
+  task automatic TEST_FRAME_DATA_PROCESSED_INT;  
     bit [31:0] IPISR_before_int_reset = 0;
     bit [31:0] IPISR_after_int_reset = 0;
   
     $display("---------------------------------------------------------------");
-    $display(" START TEST_FRAME_PROCESSED_INT");
+    $display(" START TEST_FRAME_DATA_PROCESSED_INT");
     $display("---------------------------------------------------------------"); 
    
     // Enable interrupts
@@ -321,9 +388,9 @@ module vis_tb();
     read_register(IPISR_ADDR, IPISR_after_int_reset); // Only this interrupt should be possible
     
     if((IPISR_before_int_reset & IPISR_FDP_MASK) == 1 && (IPISR_after_int_reset & IPISR_FDP_MASK) == 0) begin 
-      $display("Test Frame Processed INT ... OK");
+      $display("Test Frame Data Processed INT ... OK");
     end else begin
-      $display("Test Frame Processed INT ... NOT OK");
+      $display("Test Frame Data Processed INT ... NOT OK");
     end
   endtask
 
@@ -337,8 +404,11 @@ module vis_tb();
     
     blocking_write_register(CTRL_ADDR, 0);  // Disable Visualization
 
+    // Only poll once per line of the frame to reduce simulation overhead of the VIP
     // Wait for frame end
+    $display("Waiting for end of frame");
     do begin
+      @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
 
@@ -352,8 +422,10 @@ module vis_tb();
 
     read_register(CTRL_ADDR, CTRL_is);
 
+    // Only poll once per line of the frame to reduce simulation overhead of the VIP
     // Wait for frame end
     do begin
+      @(negedge o_hsync);
       read_register(STATUS_ADDR, STATUS_is);
     end while ((STATUS_is & STATUS_FDP_MASK) == 0);
 
@@ -381,8 +453,9 @@ module vis_tb();
  
     // USER CODE BEGIN Markus Remy
     //CHECK_REGISTERS();
-    //TEST_FRAME_PROCESSED();
-    //TEST_FRAME_PROCESSED_INT();
+    //TEST_FRAME_DATA_PROCESSED();
+    //TEST_FRAME_DATA_PROCESSED_TIMING();
+    //TEST_FRAME_DATA_PROCESSED_INT();
     TEST_WRITE_FRAME();
     // USER CODE END Markus Remy
  
