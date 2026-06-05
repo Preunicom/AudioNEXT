@@ -101,7 +101,6 @@ architecture arch_imp of vis is
     o_cg          : out std_logic_vector(3 downto 0);
     o_cb          : out std_logic_vector(3 downto 0);
     i_fdp         : in std_logic;
-    i_frame_start : in std_logic;
     i_buf_ready   : in std_logic;
     interrupt     : out std_logic
     -- End user code (Nicolas Lonthoff)
@@ -157,7 +156,6 @@ end component;
   signal w_cr             : std_logic_vector(3 downto 0);
   signal w_cg             : std_logic_vector(3 downto 0);
   signal w_cb             : std_logic_vector(3 downto 0);
-  signal w_frame_start    : std_logic;
  -- End user code (Nicolas Lonthoff)
 --dm end
  
@@ -202,7 +200,6 @@ at_S00_AXI_inst : at_S00_AXI
     o_cg          => w_cg,
     o_cb          => w_cb,
     i_fdp         => w_fdp,
-    i_frame_start => w_frame_start,
     i_buf_ready   => w_buf_ready,
     interrupt     => w_interrupt
     -- End user code (Nicolas Lonthoff)
@@ -213,18 +210,6 @@ at_S00_AXI_inst : at_S00_AXI
   --dm begin
   -- Begin user code (Nicolas Lonthoff)
   w_reset <= not s00_axi_aresetn;
-
-  -- w_frame_start fires one cycle after the frame-done pulse,
-  -- which is close enough to "start of next frame" for STATUS.FDP clearing.
-  process(s00_axi_aclk)
-  begin
-    if rising_edge(s00_axi_aclk) then
-      w_frame_start <= w_fdp;
-    end if;
-  end process;
-  -- If a precise frame-start signal is later added to vis_core (e.g. `o_frame_start`),
-  -- replace this process with a direct connection:
-  --w_frame_start <= w_frame_start_from_core;
 
   -- copied from top.vhd and adjusted (by Nicolas Lonthoff)
   VGA_INST: vis_core

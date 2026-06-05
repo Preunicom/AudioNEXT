@@ -93,7 +93,6 @@ entity at_S00_AXI is
     o_cb   : out std_logic_vector(3 downto 0); -- COLR CB bits 19:16  (Blue)
     --
     i_fdp           : in std_logic;  -- set when visible frame fully transmitted
-    i_frame_start   : in std_logic;  -- pulse when visible area of next frame begins
     i_buf_ready     : in std_logic;  -- STATUS.BUF_RDY: '1' when vis_core accepts writes
     interrupt       : out std_logic  -- combined interrupt output
    -- End user code
@@ -546,8 +545,8 @@ begin
             STATUS_reg(0) <= '1';
           end if; 
 
-	     	 -- STATUS.FDP cleared when next frame's visible region begins
-          if i_frame_start = '1' then
+	     	 -- STATUS.FDP cleared when the buffer is ready for the next frame
+          if i_buf_ready = '0' then
             STATUS_reg(0) <= '0';
           end if;
         -- End user code (Nicolas Lonthoff)
