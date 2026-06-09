@@ -48,3 +48,32 @@ uint32_t audio_get_overruns(void)
     return cnt;
 }
 // END NEW Felix Knoll
+
+
+// EDIT CODE BEGIN Richard Tuch
+// Register Interface
+uint32_t audio_get_id(void)
+{
+    return AUDIO_REG(AUDIO_IDR);
+}
+
+uint32_t audio_get_version(void)
+{
+    return AUDIO_REG(AUDIO_VERR);
+}
+
+void audio_enable_global_interrupts(void)
+{
+    AUDIO_REG(AUDIO_GIER) |= AUDIO_GIER_GIE;
+}
+
+void audio_enable_left_interrupt(void)
+{
+    AUDIO_REG(AUDIO_IPIER) |= AUDIO_IPIER_SLIE;
+}
+
+void audio_enable_right_interrupt(void)
+{
+    AUDIO_REG(AUDIO_IPIER) |= AUDIO_IPIER_SRIE;
+}
+// EDIT CODE END Richard Tuch
