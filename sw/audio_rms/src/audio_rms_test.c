@@ -32,11 +32,11 @@ static uint16_t run_block(int32_t l, int32_t r)
     return rms_value_fp72();
 }
 
-int audio_rms_selftest(void)
+int audio_rms_test(void)
 {
     uint16_t val;
 
-    xil_printf("--- audio_rms selftest ---\n\r");
+    xil_printf("--- audio_rms test ---\n\r");
 
     rms_reset();
     check("fp72 before any add -> 0", rms_value_fp72() == 0);
@@ -67,7 +67,7 @@ int audio_rms_selftest(void)
 
     xil_printf("--- %d passed, %d failed ---\n\r", pass, fail);
 
-    xil_printf("--- audio_hw selftest ---\n\r");
+    xil_printf("--- audio_hw test ---\n\r");
 
     audio_enable_sampling();
     check("sampling enabled", (AUDIO_REG(AUDIO_CTRL) & AUDIO_CTRL_SEN) != 0);

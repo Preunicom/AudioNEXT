@@ -26,7 +26,7 @@ collect (PROJECT_LIB_SOURCES platform.c)
 collect (PROJECT_LIB_SOURCES audio_rms_main.c)
 collect (PROJECT_LIB_SOURCES audio.c)
 collect (PROJECT_LIB_SOURCES audio_rms.c)
-collect (PROJECT_LIB_SOURCES audio_rms_selftest.c)
+collect (PROJECT_LIB_SOURCES audio_rms_test.c)
 # END NEW Felix Knoll
 collector_list (_sources PROJECT_LIB_SOURCES)
 foreach (source ${_sources})

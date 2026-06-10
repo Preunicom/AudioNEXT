@@ -26,7 +26,7 @@
 #include "audio.h"
 #include "audio_rms.h"
 
-extern int audio_rms_selftest(void);
+extern int audio_rms_test(void);
 // END NEW Felix Knoll
 
 // BEGIN NEW Felix Knoll
@@ -42,7 +42,7 @@ int main()
     init_platform();
 
     // BEGIN NEW Felix Knoll
-    audio_rms_selftest();
+    audio_rms_test();
 
     audio_enable_sampling();
     rms_reset();
