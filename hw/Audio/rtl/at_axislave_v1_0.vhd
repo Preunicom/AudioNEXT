@@ -245,10 +245,11 @@ aud_S00_AXI_inst : aud_S00_AXI
     --dm end
   );
 
-
+  -- EDIT CODE BEGIN Maximilian Hafeneder
   -- Add user logic here
   --dm begin
-  w_resetn <= not s00_axi_aresetn;
+  w_resetn <= s00_axi_aresetn;
+  -- EDIT CODE END Maximilian Hafeneder
 
 -- EDIT CODE BEGIN Richard Tuch
 
