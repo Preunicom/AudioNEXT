@@ -21,12 +21,12 @@ module aud_tb();
   //REGISTER DEFINITIONS
   //GCSR General/Global Control and Status Register slv_reg00 0x00 
   parameter GSCR_ADDR = 6'h000;
-  parameter GCSR_START_MASK        = 32'h00000001;    
-  parameter GCSR_DONE_MASK         = 32'h00000002;
-  parameter GCSR_IDLE_MASK         = 32'h00000004;
-  parameter GCSR_READY_MASK        = 32'h00000008;
-  parameter GCSR_CONTINUE_MASK     = 32'h00000010; 
-  parameter GCSR_AUTO_RESTART_MASK = 32'h00000080;
+  //parameter GCSR_START_MASK        = 32'h00000001;    
+  //parameter GCSR_DONE_MASK         = 32'h00000002;
+  //parameter GCSR_IDLE_MASK         = 32'h00000004;
+  //parameter GCSR_READY_MASK        = 32'h00000008;
+  //parameter GCSR_CONTINUE_MASK     = 32'h00000010; 
+  //parameter GCSR_AUTO_RESTART_MASK = 32'h00000080;
   //GIER slv_reg01 0x04
   parameter GIER_ADDR = 6'h004;
   parameter GIER_GIE_MASK = 32'h00000001;
@@ -82,18 +82,26 @@ module aud_tb();
   end
 
   //SYSTEM DESIGN WRAPPER instance
-  logic o_t0_out;
-  logic interrupt;
-  //check instance name in block design -> <blockdeisgn_name>_wrapper 
+  
   //start edit Maximilian Hafeneder
+  logic interrupt_sla;
+  logic interrupt_sra;
+  logic o_mclk;
+  logic o_lrck;
+  logic o_sclk;
+  
   aud_db_wrapper DUT( 
-  //end edit Maximilian Hafeneder
-   .aclk(ap_clk),
-   .aresetn(ap_rst_n),
-   .o_t0_out(o_t0_out),
-   .interrupt_0(interrupt)
+    .aclk(ap_clk),
+    .aresetn(ap_rst_n),
+    .i_audio_clk(ap_clk),
+    .i_data(1'b0),
+    .o_mclk(o_mclk),
+    .o_lrck(o_lrck),
+    .o_sclk(o_sclk),
+    .o_interrupt_sla(interrupt_sla),
+    .o_interrupt_sra(interrupt_sra),
   );
- 
+   //end edit Maximilian Hafeneder
  
   //-------------------------------------------------------------------------------------
   //FUNCTIONS AND TASKS
@@ -153,7 +161,7 @@ module aud_tb();
     rddata = rd_value;
   endtask
 
-  //start edit Maximilian Hafeneder
+  //begin edit Maximilian Hafeneder
   
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // Poll the Control interface status register.
@@ -171,6 +179,8 @@ module aud_tb();
       //read_register(GCSR_ADDR, rd_value);
     //end while ((rd_value & GCSR_IDLE_MASK) == 0);
   //endtask
+  
+  //end edit Maximilian Hafeneder
   
   /////////////////////////////////////////////////////////////////////////////////////////////////
   //check if only the implemented bit can be written and read back 
@@ -245,7 +255,7 @@ module aud_tb();
 
     //@interrupt //error does not work
     //@(posedge interrupt); //works
-    wait(interrupt==1'b1); //works        
+    wait(interrupt_sla==1'b1); //works        
   endtask
   
     task automatic wait_for_interrupt_sra;
@@ -256,7 +266,7 @@ module aud_tb();
 
     //@interrupt //error does not work
     //@(posedge interrupt); //works
-    wait(interrupt==1'b1); //works        
+      wait(interrupt_sra==1'b1); //works        
   endtask
   //end edit Maximilian Hafeneder
   
@@ -662,6 +672,7 @@ module aud_tb();
     #10
  
     //begin edit Maximilian Hafeneder
+    CHECK_REGISTERS();
     TEST_SEN_AND_INTERRUPT();
     TEST_TWO_SAMPLES();
     TEST_SLA_ONLY();

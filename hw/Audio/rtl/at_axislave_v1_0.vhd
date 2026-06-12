@@ -25,7 +25,9 @@ entity aud is
     -- EDIT CODE BEGIN RICHARD TUCH
 
     -- Audio I/O ports
-    i_aud_clk     : in std_logic;
+    -- EDIT CODE BEGIN Maximilian Hafeneder
+    i_audio_clk     : in std_logic;
+    -- EDIT CODE END Maximilian Hafeneder
     o_mclk          : out std_logic;
     o_lrck          : out std_logic;
     o_sclk          : out std_logic;  
@@ -140,7 +142,9 @@ component aud_core is
   port ( 
     i_clk         : in  std_logic;
     i_resetn       : in  std_logic;
-    i_aud_clk   : in  std_logic;
+    -- EDIT CODE BEGIN Maximilian Hafeneder
+    i_audio_clk   : in  std_logic;
+    -- EDIT CODE END Maximilian Hafeneder
     -- Control
     i_sampling_en : in  std_logic;
     -- Status
@@ -257,7 +261,9 @@ aud_S00_AXI_inst : aud_S00_AXI
     port map(
       i_clk => s00_axi_aclk,
       i_resetn => w_resetn,
-      i_aud_clk => i_aud_clk,
+      -- EDIT CODE BEGIN Maximilian Hafeneder
+      i_audio_clk => i_audio_clk,
+      -- EDIT CODE END Maximilian Hafeneder
       -- Control
       i_sampling_en => w_sampling_en,
       -- Status
