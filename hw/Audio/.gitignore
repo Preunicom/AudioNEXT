@@ -29,6 +29,8 @@ sim/**/*.*
 !sim/**/*.vhd
 !sim/**/*.v
 !sim/**/*.sv
+sim/bd/**/*.*
+!sim/bd/**/*.bd
 # Scripts
 !scripts/
 !script/**
