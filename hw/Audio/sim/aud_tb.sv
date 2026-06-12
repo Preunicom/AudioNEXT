@@ -99,7 +99,7 @@ module aud_tb();
     .o_lrck(o_lrck),
     .o_sclk(o_sclk),
     .o_interrupt_sla(interrupt_sla),
-    .o_interrupt_sra(interrupt_sra),
+    .o_interrupt_sra(interrupt_sra)
   );
    //end edit Maximilian Hafeneder
  
