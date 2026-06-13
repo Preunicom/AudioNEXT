@@ -23,7 +23,8 @@
 
 // BEGIN NEW Felix Knoll
 #include <stdint.h>
-#include "audio.h"
+#include "at_driver.h"
+#include "at_selftest_pio.h"
 #include "audio_rms.h"
 
 extern int audio_rms_test(void);
@@ -42,22 +43,35 @@ int main()
     init_platform();
 
     // BEGIN NEW Felix Knoll
+    AT_Data AT_Inst;
+    AT_Data *AT_InstPtr = &AT_Inst;
+    XStatus Status;
+
+    Status = AT_Init(AT_InstPtr, AT_BASEADDRESS);
+    if (Status != XST_SUCCESS) {
+        xil_printf("error during AT_Init(). Check/Debug manually.\n\r");
+    }
+
+    ///Selftests
+    AT_TestRegisters(AT_InstPtr);
+    AT_TestSampling(AT_InstPtr);
     audio_rms_test();
 
-    audio_enable_sampling();
+    ///Main loop: RMS polling
+    AT_EnableSampling(AT_InstPtr);
     rms_reset();
 
     /* Polling
-     * 32000 Samples pro Kanal ensprechen 3 Hz Ausgaberate */
+     * 32000 Samples pro Kanal entsprechen 3 Hz Ausgaberate */
     uint32_t block_overruns = 0;
     while (1) {
-        block_overruns += audio_get_overruns();
+        block_overruns += AT_GetOverruns(AT_InstPtr);
 
-        if (audio_l_available()) {
-            int32_t l = audio_get_l();
+        if (AT_LAvailable(AT_InstPtr)) {
+            int32_t l = AT_GetL(AT_InstPtr);
             int32_t r = 0;
-            if (audio_r_available()) {
-                r = audio_get_r();
+            if (AT_RAvailable(AT_InstPtr)) {
+                r = AT_GetR(AT_InstPtr);
             }
             rms_add(l, r);
 

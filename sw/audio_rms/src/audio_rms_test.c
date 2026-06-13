@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include "xil_printf.h"
 #include "audio_rms.h"
-#include "audio.h"
 
 #define FULL_SCALE  ((int32_t)(1 << 23) - 1)
 #define HALF_SCALE  ((int32_t)(1 << 22))
@@ -64,44 +63,6 @@ int audio_rms_test(void)
 
     val = run_block(FULL_SCALE, 0);
     check("L=full R=0 -> fp72 ~282", val >= 281 && val <= 283);
-
-    xil_printf("--- %d passed, %d failed ---\n\r", pass, fail);
-
-    xil_printf("--- audio_hw test ---\n\r");
-
-    audio_enable_sampling();
-    check("sampling enabled", (AUDIO_REG(AUDIO_CTRL) & AUDIO_CTRL_SEN) != 0);
-
-    check("no overruns after enable", audio_get_overruns() == 0);
-
-    check("no sample immediately after enable",
-          audio_l_available() == 0 && audio_r_available() == 0);
-
-    {
-        uint32_t timeout = 200000u;
-        while (!audio_l_available() && timeout > 0) timeout--;
-        check("L sample arrives", audio_l_available() == 1);
-    }
-
-    {
-        int32_t sample = audio_get_l();
-        check("SLA cleared after get_l", audio_l_available() == 0);
-        check("L sample in 24-bit range",
-              sample >= -(1 << 23) && sample <= ((1 << 23) - 1));
-    }
-
-    {
-        uint32_t timeout = 200000u;
-        while (!audio_r_available() && timeout > 0) timeout--;
-        check("R sample arrives", audio_r_available() == 1);
-    }
-
-    {
-        int32_t sample = audio_get_r();
-        check("SRA cleared after get_r", audio_r_available() == 0);
-        check("R sample in 24-bit range",
-              sample >= -(1 << 23) && sample <= ((1 << 23) - 1));
-    }
 
     xil_printf("--- %d passed, %d failed ---\n\r", pass, fail);
     return fail;
