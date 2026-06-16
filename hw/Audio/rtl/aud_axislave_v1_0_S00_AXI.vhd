@@ -361,10 +361,10 @@ begin
       --IPISR_reg(8) -- SRA, axi rw ip rw part4
     --
     --IDR ID Register slv_reg04 0x10
-      IDR_reg(31 downto 0) <= x"0000ADB0"; --const axi r
+      IDR_reg(31 downto 0) <= x"0000FEED"; --const axi r
     --
     --VERR Version Register slv_reg05 0x14
-      VERR_reg(31 downto 0) <= x"00001000"; --const axi r (Version 1.0)
+      VERR_reg(31 downto 0) <= x"00000001"; --const axi r (Version 1.0)
     --
     --CTRL Control Register slv_reg06 0x18
       CTRL_reg(31 downto 1) <= (others => '0'); --reserved

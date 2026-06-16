@@ -123,6 +123,9 @@ set obj [get_filesets sim_1]
 if {[llength $sim_files] > 0} {
     add_files -norecurse -fileset $obj $sim_files
 }
+if {[llength $sim_bd_files] > 0} {
+    add_files -norecurse -fileset $obj $sim_bd_files
+}
 
 if {[llength $sim_bd_files] > 0} {
     add_files -norecurse -fileset $obj $sim_bd_files
