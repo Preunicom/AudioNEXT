@@ -19,6 +19,7 @@ set project_data_dir [file normalize "$script_dir/.."]
 set proj_name "AudioNEXT"
 #set proj_top_module "TODO_SET"
 set proj_part "xc7a100tcsg324-1"
+set board_part "digilentinc.com:arty-a7-100:part0:1.1"
 set proj_dir "[file normalize "$project_data_dir/../../xilinx/vivado/$proj_name"]"
 set proj_IP_dir "[file normalize "$project_data_dir/ip"]"
 set general_files_dir "[file normalize "$project_data_dir/../0_General"]"
@@ -32,7 +33,7 @@ create_project $proj_name "$proj_dir" -part $proj_part
 
 set obj [current_project]
 set_property -name "customized_default_ip_location" -value $proj_IP_dir -objects $obj
-set_property -name "part" -value $proj_part -objects $obj
+set_property -name "board_part" -value $board_part -objects $obj
 set_property -name "simulator_language" -value "Mixed" -objects $obj
 set_property -name "target_language" -value "VHDL" -objects $obj
 set_property -name "source_mgmt_mode" -value "All" -objects $obj
