@@ -10,7 +10,7 @@
 
 
 /************************** Constant Definitions ***************************/
-//shared constant defintions should be done in at_driver.h
+//shared constant defintions should be done in vis_driver.h
 
 /**************************** Type Definitions *****************************/
 
