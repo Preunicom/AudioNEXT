@@ -106,7 +106,7 @@
         "vlnv": "xilinx.com:module_ref:aud:1.0",
         "ip_revision": "1",
         "xci_name": "aud_db_aud_0_0",
-        "xci_path": "ip/aud_db_aud_0_0/aud_db_aud_0_0.xci",
+        "xci_path": "ip/aud_db_aud_0_0_1/aud_db_aud_0_0.xci",
         "inst_hier_path": "aud_0",
         "reference_info": {
           "ref_type": "hdl",
@@ -398,7 +398,7 @@
         "vlnv": "xilinx.com:ip:axi_vip:1.1",
         "ip_revision": "15",
         "xci_name": "aud_db_axi_vip_0_0",
-        "xci_path": "ip/aud_db_axi_vip_0_0/aud_db_axi_vip_0_0.xci",
+        "xci_path": "ip/aud_db_axi_vip_0_0_1/aud_db_axi_vip_0_0.xci",
         "inst_hier_path": "axi_vip_0",
         "parameters": {
           "ADDR_WIDTH": {
