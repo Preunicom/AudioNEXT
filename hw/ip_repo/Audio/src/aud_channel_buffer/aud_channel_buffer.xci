@@ -2,7 +2,6 @@
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
     "xci_name": "aud_channel_buffer",
-    "cell_name": "aud_core_inst/aud_channel_buffer_left",
     "component_reference": "xilinx.com:ip:fifo_generator:13.2",
     "ip_revision": "9",
     "gen_directory": "../../tmp_edit_project.gen/sources_1/ip/aud_channel_buffer",

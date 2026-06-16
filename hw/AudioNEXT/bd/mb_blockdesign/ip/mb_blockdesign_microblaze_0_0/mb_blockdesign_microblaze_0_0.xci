@@ -1,7 +1,7 @@
 {
   "schema": "xilinx.com:schema:json_instance:1.0",
   "ip_inst": {
-    "xci_name": "mb_blockdesign_microblaze_0_1",
+    "xci_name": "mb_blockdesign_microblaze_0_0",
     "cell_name": "microblaze_0",
     "component_reference": "xilinx.com:ip:microblaze:11.0",
     "ip_revision": "12",
@@ -220,7 +220,7 @@
         "C_USE_NON_SECURE": [ { "value": "0", "value_src": "propagated", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "C_USE_BRANCH_TARGET_CACHE": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
         "C_BRANCH_TARGET_CACHE_SIZE": [ { "value": "0", "resolve_type": "user", "format": "long", "usage": "all" } ],
-        "Component_Name": [ { "value": "mb_blockdesign_microblaze_0_1", "resolve_type": "user", "usage": "all" } ]
+        "Component_Name": [ { "value": "mb_blockdesign_microblaze_0_0", "resolve_type": "user", "usage": "all" } ]
       },
       "model_parameters": {
         "C_SCO": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],
@@ -245,7 +245,7 @@
         "C_IADDR_SIZE": [ { "value": "32", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_PIADDR_SIZE": [ { "value": "32", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_DADDR_SIZE": [ { "value": "32", "resolve_type": "generated", "format": "long", "usage": "all" } ],
-        "C_INSTANCE": [ { "value": "mb_blockdesign_microblaze_0_1", "resolve_type": "generated", "usage": "all" } ],
+        "C_INSTANCE": [ { "value": "mb_blockdesign_microblaze_0_0", "resolve_type": "generated", "usage": "all" } ],
         "C_AVOID_PRIMITIVES": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_AREA_OPTIMIZED": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],
         "C_OPTIMIZATION": [ { "value": "0", "resolve_type": "generated", "format": "long", "usage": "all" } ],

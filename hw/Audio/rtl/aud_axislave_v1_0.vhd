@@ -125,9 +125,7 @@ architecture arch_imp of aud is
     o_ack_right     : out std_logic;
     --
     o_interrupt_sla : out std_logic;
-    o_interrupt_sra : out std_logic;
-    --
-    dummylast : in std_logic
+    o_interrupt_sra : out std_logic
     --dm end
     );
   end component aud_S00_AXI;
@@ -140,31 +138,26 @@ architecture arch_imp of aud is
 --dm begin
 component aud_core is
   port ( 
-    i_clk         : in  std_logic;
-    i_resetn       : in  std_logic;
-    -- EDIT CODE BEGIN Maximilian Hafeneder
-    i_audio_clk   : in  std_logic;
-    -- EDIT CODE END Maximilian Hafeneder
-    -- Control
-    i_sampling_en : in  std_logic;
-    -- Status
-    o_sla         : out std_logic;
-    o_sra         : out std_logic;
-    o_dol         : out std_logic;
-    o_dor         : out std_logic;
-    -- Audio Data
-    o_data_left   : out std_logic_vector(23 downto 0);
-    o_data_right  : out std_logic_vector(23 downto 0);
-    -- Acknowledge
-    i_ack_left    : in  std_logic;
-    i_ack_right   : in  std_logic;
-    -- Pmod I2S2 Signals
-    o_mclk        : out std_logic;
-    o_lrck        : out std_logic;
-    o_sclk        : out std_logic;
-    i_data        : in  std_logic;
+    i_audio_clk: in std_logic;
+    i_clk: in std_logic;
+    i_resetn: in std_logic;
     --
-    dummylast     : in  std_logic 
+    i_sampling_en: in std_logic;
+    i_data: in std_logic;
+    i_ack_left: in std_logic;
+    i_ack_right: in std_logic;
+    --
+    o_mclk: out std_logic;
+    o_sclk: out std_logic;
+    o_lrck: out std_logic;
+    --
+    o_sla: out std_logic;
+    o_sra: out std_logic;
+    o_dol: out std_logic;
+    o_dor: out std_logic;
+    --
+    o_data_left: out std_logic_vector(23 downto 0);
+    o_data_right: out std_logic_vector(23 downto 0)
   );
 end component;
 
@@ -172,8 +165,6 @@ end component;
 
 
 -- EDIT CODE BEGIN Richard Tuch
- 
-  signal w_resetn : std_logic;
 
   -- Internal signals between AXI slave and aud_core
   signal w_sampling_en : std_logic;
@@ -190,6 +181,11 @@ end component;
   --dm end
 
 -- EDIT CODE END Richard Tuch
+
+-- USER CODE BEGIN Maximilian Hafender, Markus Remy
+  signal r_cdc_resetn_aud : std_logic;
+  signal r_synced_resetn_aud : std_logic;
+-- USER CODE END Maximilian Hafender, Markus Remy
 
 
 -- EDIT CODE BEGIN Richard Tuch
@@ -229,7 +225,6 @@ aud_S00_AXI_inst : aud_S00_AXI
     --dm begin
 
     -- EDIT CODE BEGIN RICHARD TUCH
-
     o_sampling_en   => w_sampling_en,
     i_sla           => w_sla,
     i_sra           => w_sra,
@@ -240,51 +235,45 @@ aud_S00_AXI_inst : aud_S00_AXI
     o_ack_left      => w_ack_left,
     o_ack_right     => w_ack_right,
     o_interrupt_sla => w_interrupt_sla,
-    o_interrupt_sra => w_interrupt_sra,
-    --
-    dummylast => '0'
-
+    o_interrupt_sra => w_interrupt_sra
     -- EDIT CODE END RICHARD TUCH
 
     --dm end
   );
 
-  -- EDIT CODE BEGIN Maximilian Hafeneder
   -- Add user logic here
   --dm begin
-  w_resetn <= s00_axi_aresetn;
-  -- EDIT CODE END Maximilian Hafeneder
+
+  -- USER CODE BEGIN Maximilian Hafender, Markus Remy
+  -- CDC resetn from axi clk to audio clock
+  CDC_Reset: process(i_audio_clk)
+  begin
+    r_cdc_resetn_aud <= s00_axi_aresetn;
+    r_synced_resetn_aud <= r_cdc_resetn_aud;
+  end process;
+  -- USER CODE END Maximilian Hafender, Markus Remy
 
 -- EDIT CODE BEGIN Richard Tuch
 
   aud_core_inst: aud_core
-    port map(
-      i_clk => s00_axi_aclk,
-      i_resetn => w_resetn,
-      -- EDIT CODE BEGIN Maximilian Hafeneder
-      i_audio_clk => i_audio_clk,
-      -- EDIT CODE END Maximilian Hafeneder
-      -- Control
-      i_sampling_en => w_sampling_en,
-      -- Status
-      o_sla => w_sla,
-      o_sra => w_sra,
-      o_dol => w_dol,
-      o_dor => w_dor,
-      -- Audio Data
-      o_data_left => w_data_left,
-      o_data_right => w_data_right,
-      -- Acknowledge
-      i_ack_left => w_ack_left,
-      i_ack_right => w_ack_right,
-      -- Pmod I2S2 Signals
-      o_mclk => o_mclk,
-      o_lrck => o_lrck,
-      o_sclk => o_sclk,
-      i_data => i_data,
-      --   
-      dummylast => '0'      
-    );
+  port map (
+    i_audio_clk   => i_audio_clk,
+    i_clk         => s00_axi_aclk,
+    i_resetn      => r_synced_resetn_aud,
+    i_sampling_en => w_sampling_en,
+    i_data        => i_data,
+    i_ack_left    => w_ack_left,
+    i_ack_right   => w_ack_right,
+    o_mclk        => o_mclk,
+    o_sclk        => o_sclk,
+    o_lrck        => o_lrck,
+    o_sla         => w_sla,
+    o_sra         => w_sra,
+    o_dol         => w_dol,
+    o_dor         => w_dor,
+    o_data_left   => w_data_left,
+    o_data_right  => w_data_right
+  );
 
   o_interrupt_sla <= w_interrupt_sla;
   o_interrupt_sra <= w_interrupt_sra;

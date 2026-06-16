@@ -62,7 +62,7 @@ end vis;
 architecture arch_imp of vis is
 
   -- component declaration
-  component at_S00_AXI is
+  component vis_S00_AXI is
     generic (
     C_S_AXI_DATA_WIDTH  : integer := 32;
     C_S_AXI_ADDR_WIDTH  : integer := 6
@@ -106,7 +106,7 @@ architecture arch_imp of vis is
     -- End user code (Nicolas Lonthoff)
     --dm end
     );
-  end component at_S00_AXI;
+  end component vis_S00_AXI;
 
 --dm begin
 component vis_core is
@@ -162,7 +162,7 @@ end component;
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
-at_S00_AXI_inst : at_S00_AXI
+vis_S00_AXI_inst : vis_S00_AXI
   generic map (
     C_S_AXI_DATA_WIDTH  => C_S00_AXI_DATA_WIDTH,
     C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH

@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity at_S00_AXI is
+entity vis_S00_AXI is
   generic (
     -- Users to add parameters here
 
@@ -98,9 +98,9 @@ entity at_S00_AXI is
    -- End user code
    --dm end
   );
-end at_S00_AXI;
+end vis_S00_AXI;
 
-architecture arch_imp of at_S00_AXI is
+architecture arch_imp of vis_S00_AXI is
 
   -- AXI4LITE signals
   signal axi_awaddr : std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);

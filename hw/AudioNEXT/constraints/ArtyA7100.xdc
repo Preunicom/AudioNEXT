@@ -3,6 +3,8 @@
 ## - uncomment the lines corresponding to used pins
 ## - rename the used ports (in each line, after get_ports) according to the top level signal names in the project
 
+# EDIT CODE Markus Remy, Maximilian Hafeneder
+
 ## Clock signal
 set_property -dict { PACKAGE_PIN E3    IOSTANDARD LVCMOS33 } [get_ports { sys_clk_i }]; #IO_L12P_T1_MRCC_35 Sch=gclk[100]
 create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports { sys_clk_i }];
@@ -11,22 +13,39 @@ create_clock -add -name sys_clk_pin -period 10.00 -waveform {0 5} [get_ports { s
 # create_generated_clock -name audio_clk [get_pins VGA_CLK_INST/audio_clk] # 24.576 MHz
 # create_generated_clock -name pixel_clk [get_pins VGA_CLK_INST/pixel_clk] # 25.175 MHz
 
+## VGA side
 # Remove timing analysis of CDC paths
-set_false_path -from [get_pins VGA_INST/u1_vga_ctrl/s_blank_reg_replica/C] -to [get_pins VGA_INST/s_cdc_blank_reg/D]
-set_false_path -from [get_pins VGA_INST/u1_vga_ctrl/s_visible_frame_done_pulse_reg/C] -to [get_pins VGA_INST/s_cdc_visible_frame_done_pulse_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/u1_vga_ctrl/s_blank_reg/C] -to [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_blank_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/u1_vga_ctrl/s_visible_frame_done_pulse_reg/C] -to [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_visible_frame_done_pulse_reg/D]
 
-#set_false_path -from [get_pins VGA_INST/.../C] -to [get_pins VGA_INST/s_cdc_vga_rst_reg/D]
-#set_false_path -from [get_pins VGA_INST/.../C] -to [get_pins VGA_INST/s_cdc_vga_en_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/rst_clk_wiz_0_100M/U0/ACTIVE_LOW_PR_OUT_DFF[0].FDRE_PER_N_replica/C] -to [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_vga_rst_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/Visualization_0/U0/vis_S00_AXI_inst/CTRL_reg_reg[0]/C] -to [get_pins mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_vga_en_reg/D]
 
 # Set FF to CDC mode --> Placed nearby to improve metastability resistance
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_cdc_blank_reg }];
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_buf_ready_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_blank_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_buf_ready_reg }];
 
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_cdc_visible_frame_done_pulse_reg }];
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_visible_frame_done_pulse_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_visible_frame_done_pulse_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_visible_frame_done_pulse_reg }];
 
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_cdc_vga_rst_reg }];
-set_property ASYNC_REG TRUE [get_cells { VGA_INST/s_vga_rst_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_vga_rst_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_vga_rst_reg }];
+
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_cdc_vga_en_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_vga_en_reg }];
+
+## I2S side
+set_false_path -from [get_pins mb_blockdesign_i/rst_clk_wiz_0_100M/U0/ACTIVE_LOW_PR_OUT_DFF[0].FDRE_PER_N/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_resetn_aud_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_resetn_aud_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_synced_resetn_aud_reg/D]
+
+# Set FF to CDC mode --> Placed nearby to improve metastability resistance
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Audio_0/U0/r_cdc_resetn_aud_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Audio_0/U0/r_synced_resetn_aud_reg }];
+
+# Sync input from outside the FPGA (Should be sync to audio clk, but better safe than sorry)
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_i2s_sampling_inst/aud_i2s_sync_inst/data_sync_reg }];
+set_property ASYNC_REG TRUE [get_cells { mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_i2s_sampling_inst/aud_i2s_sync_inst/data_meta_reg }];
+
 
 ## Switches
 #set_property -dict { PACKAGE_PIN A8    IOSTANDARD LVCMOS33 } [get_ports { sw[0] }]; #IO_L12N_T1_MRCC_16 Sch=sw[0]
@@ -79,10 +98,10 @@ set_property -dict { PACKAGE_PIN E15   IOSTANDARD LVCMOS33 } [get_ports { o_red_
 set_property -dict { PACKAGE_PIN E16   IOSTANDARD LVCMOS33 } [get_ports { o_red_0[1] }]; #IO_L11N_T1_SRCC_15 Sch=jb_n[1]
 set_property -dict { PACKAGE_PIN D15   IOSTANDARD LVCMOS33 } [get_ports { o_red_0[2] }]; #IO_L12P_T1_MRCC_15 Sch=jb_p[2]
 set_property -dict { PACKAGE_PIN C15   IOSTANDARD LVCMOS33 } [get_ports { o_red_0[3] }]; #IO_L12N_T1_MRCC_15 Sch=jb_n[2]
-set_property -dict { PACKAGE_PIN J17   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[4] }]; #IO_L23P_T3_FOE_B_15 Sch=jb_p[3]
-set_property -dict { PACKAGE_PIN J18   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[5] }]; #IO_L23N_T3_FWE_B_15 Sch=jb_n[3]
-set_property -dict { PACKAGE_PIN K15   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[6] }]; #IO_L24P_T3_RS1_15 Sch=jb_p[4]
-set_property -dict { PACKAGE_PIN J15   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[7] }]; #IO_L24N_T3_RS0_15 Sch=jb_n[4]
+set_property -dict { PACKAGE_PIN J17   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[0] }]; #IO_L23P_T3_FOE_B_15 Sch=jb_p[3]
+set_property -dict { PACKAGE_PIN J18   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[1] }]; #IO_L23N_T3_FWE_B_15 Sch=jb_n[3]
+set_property -dict { PACKAGE_PIN K15   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[2] }]; #IO_L24P_T3_RS1_15 Sch=jb_p[4]
+set_property -dict { PACKAGE_PIN J15   IOSTANDARD LVCMOS33 } [get_ports { o_blue_0[3] }]; #IO_L24N_T3_RS0_15 Sch=jb_n[4]
 
 ## Pmod Header JC
 set_property -dict { PACKAGE_PIN U12   IOSTANDARD LVCMOS33 } [get_ports { o_green_0[0] }]; #IO_L20P_T3_A08_D24_14 Sch=jc_p[1]
@@ -239,3 +258,5 @@ set_property -dict { PACKAGE_PIN U17   IOSTANDARD LVCMOS33 } [get_ports { i_data
 #set_property -dict { PACKAGE_PIN F13   IOSTANDARD LVCMOS33     } [get_ports { isns5v0_p }]; #IO_L5P_T0_AD9P_15 Sch=ad_p[9]
 #set_property -dict { PACKAGE_PIN A16   IOSTANDARD LVCMOS33     } [get_ports { isns0v95_n }]; #IO_L8N_T1_AD10N_15 Sch=ad_n[10]
 #set_property -dict { PACKAGE_PIN A15   IOSTANDARD LVCMOS33     } [get_ports { isns0v95_p }]; #IO_L8P_T1_AD10P_15 Sch=ad_p[10]
+
+# EDIT CODE Markus Remy, Maximilian Hafeneder

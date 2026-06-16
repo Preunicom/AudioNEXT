@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0x6F575B2786AB09E5",
+      "boundary_crc": "0x6F575B2756269046",
       "device": "xc7a100tcsg324-1",
       "name": "mb_blockdesign",
       "rev_ctrl_bd_flag": "RevCtrlBdOff",
@@ -374,14 +374,17 @@
           },
           "NUM_OUT_CLKS": {
             "value": "3"
+          },
+          "PRIM_SOURCE": {
+            "value": "Global_buffer"
           }
         }
       },
       "microblaze_0": {
         "vlnv": "xilinx.com:ip:microblaze:11.0",
         "ip_revision": "12",
-        "xci_name": "mb_blockdesign_microblaze_0_1",
-        "xci_path": "ip/mb_blockdesign_microblaze_0_1/mb_blockdesign_microblaze_0_1.xci",
+        "xci_name": "mb_blockdesign_microblaze_0_0",
+        "xci_path": "ip/mb_blockdesign_microblaze_0_0/mb_blockdesign_microblaze_0_0.xci",
         "inst_hier_path": "microblaze_0",
         "parameters": {
           "C_DEBUG_ENABLED": {
@@ -1721,7 +1724,7 @@
       },
       "Visualization_0": {
         "vlnv": "user.org:user:Visualization:1.0",
-        "ip_revision": "1",
+        "ip_revision": "3",
         "xci_name": "mb_blockdesign_Visualization_0_0",
         "xci_path": "ip/mb_blockdesign_Visualization_0_0/mb_blockdesign_Visualization_0_0.xci",
         "inst_hier_path": "Visualization_0",
@@ -1735,7 +1738,7 @@
       },
       "Audio_0": {
         "vlnv": "user.org:user:Audio:1.0",
-        "ip_revision": "1",
+        "ip_revision": "3",
         "xci_name": "mb_blockdesign_Audio_0_0",
         "xci_path": "ip/mb_blockdesign_Audio_0_0/mb_blockdesign_Audio_0_0.xci",
         "inst_hier_path": "Audio_0",
@@ -1932,10 +1935,10 @@
           "rst_clk_wiz_0_100M/slowest_sync_clk",
           "axi_uartlite_0/s_axi_aclk",
           "microblaze_0_axi_periph/M02_ACLK",
-          "Audio_0/s00_axi_aclk",
           "microblaze_0_axi_periph/M03_ACLK",
+          "microblaze_0_axi_periph/M04_ACLK",
           "Visualization_0/s00_axi_aclk",
-          "microblaze_0_axi_periph/M04_ACLK"
+          "Audio_0/s00_axi_aclk"
         ]
       },
       "microblaze_0_intr": {
@@ -2000,10 +2003,10 @@
           "microblaze_0_axi_intc/s_axi_aresetn",
           "axi_uartlite_0/s_axi_aresetn",
           "microblaze_0_axi_periph/M02_ARESETN",
-          "Audio_0/s00_axi_aresetn",
           "microblaze_0_axi_periph/M03_ARESETN",
+          "microblaze_0_axi_periph/M04_ARESETN",
           "Visualization_0/s00_axi_aresetn",
-          "microblaze_0_axi_periph/M04_ARESETN"
+          "Audio_0/s00_axi_aresetn"
         ]
       },
       "rst_mig_7series_0_81M_peripheral_aresetn": {

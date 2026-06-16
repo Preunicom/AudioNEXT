@@ -17,7 +17,7 @@ entity aud_core is
   port ( 
     i_audio_clk: in std_logic;
     i_clk: in std_logic;
-    i_resetn: in std_logic;
+    i_resetn: in std_logic; -- synced to audio clk
     --
     i_sampling_en: in std_logic;
     i_data: in std_logic;
@@ -34,9 +34,7 @@ entity aud_core is
     o_dor: out std_logic;
     --
     o_data_left: out std_logic_vector(23 downto 0);
-    o_data_right: out std_logic_vector(23 downto 0);
-    --
-    dummylast: in std_logic
+    o_data_right: out std_logic_vector(23 downto 0)
   );
 end aud_core;
 

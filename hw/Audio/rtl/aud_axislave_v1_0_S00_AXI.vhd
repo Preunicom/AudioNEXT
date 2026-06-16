@@ -106,9 +106,7 @@ entity aud_S00_AXI is
     o_ack_right     : out std_logic;
     -- Interrupts
     o_interrupt_sla : out std_logic;    -- Interrupt Sample Left Available
-    o_interrupt_sra : out std_logic;    -- Interrupt Sample Right Available
-    --
-    dummylast : in std_logic
+    o_interrupt_sra : out std_logic    -- Interrupt Sample Right Available
    --dm end    
   );
 end aud_S00_AXI;
@@ -488,9 +486,6 @@ begin
           ADATLR_reg(23 downto 0) <= (others => '0');
         --ADATRR_reg
           ADATRR_reg(23 downto 0) <= (others => '0');
-
-          o_ack_left  <= '0';
-          o_ack_right <= '0';
       else
         loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 
@@ -507,19 +502,6 @@ begin
           ADATLR_reg(23 downto 0) <= i_data_left;
         --ADATRR_reg
           ADATRR_reg(23 downto 0) <= i_data_right;
-
-        -- AXI Handshake
-        if (axi_arready = '1' and loc_addr = ADATLR_ADDR) then
-          o_ack_left <= '1';
-        else
-          o_ack_left <= '0';
-        end if;
-
-        if (axi_arready = '1' and loc_addr = ADATRR_ADDR) then
-          o_ack_right <= '1';
-        else
-          o_ack_right <= '0';
-        end if;
 
       end if;
     end if;
@@ -565,40 +547,6 @@ begin
   -- EDIT CODE END Richard Tuch
 
   --dm end
-
-  -- EDIT CODE BEGIN Richard Tuch (new dm part, not in template)
-  -- TODO: checken
-
-  --dm begin
-  --dm part4b acknowledge generation on read of ADATLR/ADATRR
-  process (S_AXI_ACLK)
-  variable loc_addr : std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
-  begin
-    if rising_edge(S_AXI_ACLK) then
-      if S_AXI_ARESETN = '0' then
-        o_ack_left  <= '0';
-        o_ack_right <= '0';
-      else
-        loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
-        -- Generate ack pulse when host reads ADATLR
-        if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATLR_ADDR) then
-          o_ack_left <= '1';
-        else
-          o_ack_left <= '0';
-        end if;
-        -- Generate ack pulse when host reads ADATRR
-        if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATRR_ADDR) then
-          o_ack_right <= '1';
-        else
-          o_ack_right <= '0';
-        end if;
-      end if;
-    end if;
-  end process;
-  --dm end
-
-  -- EDIT CODE END Richard Tuch (new dm part, not in template)
-
 
   --dm begin adapted
   --dm part5 read register    
@@ -676,6 +624,35 @@ begin
   -- Interrupt generation
   o_interrupt_sla <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_interrupt_sra <= GIER_reg(0) and IPIER_reg(8) and IPISR_reg(8);
+
+  -- EDIT CODE END Richard Tuch
+
+  -- EDIT CODE BEGIN Richard Tuch (new dm part, not in template)
+  -- acknowledge generation on read of ADATLR/ADATRR
+  process (S_AXI_ACLK)
+  variable loc_addr : std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
+  begin
+    if rising_edge(S_AXI_ACLK) then
+      if S_AXI_ARESETN = '0' then
+        o_ack_left  <= '0';
+        o_ack_right <= '0';
+      else
+        loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
+        -- Generate ack pulse when host reads ADATLR
+        if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATLR_ADDR) then
+          o_ack_left <= '1';
+        else
+          o_ack_left <= '0';
+        end if;
+        -- Generate ack pulse when host reads ADATRR
+        if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATRR_ADDR) then
+          o_ack_right <= '1';
+        else
+          o_ack_right <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
 
   -- EDIT CODE END Richard Tuch
   
