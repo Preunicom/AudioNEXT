@@ -16,7 +16,7 @@ set script_dir [file dirname [info script]]
 set project_data_dir [file normalize "$script_dir/.."]
 
 set proj_name "Visualization"
-#set proj_top_module "TODO_SET"
+set proj_top_module "vis"
 set proj_part "xc7a100tcsg324-1"
 set proj_dir "[file normalize "$project_data_dir/../../xilinx/vivado/$proj_name"]"
 set proj_IP_dir "[file normalize "$project_data_dir/ip"]"
@@ -57,7 +57,7 @@ set sim_files [concat \
     [find_files $general_files_dir/sim "*.sv"] \
 ]
 set sim_bd_files [concat \
-    [find_files $general_files_dir/sim/bd "*.bd"] \
+    [find_files $project_data_dir/sim/bd "*.bd"] \
 ]
 set constr_file [lindex [find_files $project_data_dir/constraints "*.xdc"] 0]
 
