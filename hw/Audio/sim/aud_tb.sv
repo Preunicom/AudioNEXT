@@ -126,6 +126,7 @@ module aud_tb();
         @(negedge o_sclk);
       end
     end
+  end
    //end edit Maximilian Hafeneder
  
   //-------------------------------------------------------------------------------------
