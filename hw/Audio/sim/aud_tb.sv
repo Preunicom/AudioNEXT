@@ -84,6 +84,10 @@ module aud_tb();
   //SYSTEM DESIGN WRAPPER instance
   
   //start edit Maximilian Hafeneder
+  logic i_data_stim = 0;
+  parameter bit [23:0] TEST_SAMPLE_L = 24'h00AFFE;
+  parameter bit [23:0] TEST_SAMPLE_R = 24'h00EFFA;
+  
   logic interrupt_sla;
   logic interrupt_sra;
   logic o_mclk;
@@ -94,13 +98,34 @@ module aud_tb();
     .aclk(ap_clk),
     .aresetn(ap_rst_n),
     .i_audio_clk(ap_clk),
-    .i_data(1'b0),
+    .i_data(i_data_stim),
     .o_mclk(o_mclk),
     .o_lrck(o_lrck),
     .o_sclk(o_sclk),
     .o_interrupt_sla(interrupt_sla),
     .o_interrupt_sra(interrupt_sra)
   );
+  
+  //I2S Stimuli Generator
+  initial begin: I2S_STIMULI
+    i_data_stim = 0;
+    wait(ap_rst_n == 1'b1);
+    forever begin
+      @(negedge o_lrck);
+      //skip one sclk cycle
+      @(negedge o_sclk);
+      for (int i = 23; i >= 0; i--) begin
+        i_data_stim = TEST_SAMPLE_L[i];
+        @(negedge o_sclk);
+      end
+      @(posedge o_lrck);
+      //skip one sclk cycle
+      @(negedge o_sclk);
+      for (int i = 23; i >= 0; i--) begin
+        i_data_stim = TEST_SAMPLE_R[i];
+        @(negedge o_sclk);
+      end
+    end
    //end edit Maximilian Hafeneder
  
   //-------------------------------------------------------------------------------------
@@ -541,6 +566,10 @@ module aud_tb();
     //read ADATLR (deletes SLA)
     read_register(ADATLR_ADDR, adatlr_val);
     $display("ADATLR =0x%x", adatlr_val);
+    if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_L}, adatlr_val);
+    end
     
     //delete interrupt
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
@@ -550,6 +579,10 @@ module aud_tb();
     //read ADATRR (deletes SRA)
     read_register(ADATRR_ADDR, adatrr_val);
     $display("ADATRR = 0x%x", adatrr_val);
+    if (adatrr_val != {8'h00, TEST_SAMPLE_R}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_R}, adatrr_val);
+    end
     
     //delete interrupt
     blocking_write_register(IPISR_ADDR, IPISR_SRA_MASK);
@@ -574,29 +607,54 @@ module aud_tb();
     // activate sampling
     blocking_write_register(CTRL_ADDR, CTRL_SEN_MASK);
 
-    // ----- first sample -----
+    //first sample
     wait_for_interrupt_sla();
     read_register(ADATLR_ADDR, adatlr_val1);
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
     $display("Sample 1 left: 0x%x", adatlr_val1);
+    if (adatlr_val1 != {8'h00, TEST_SAMPLE_L}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_L}, adatlr_val1);
+    end
 
     wait_for_interrupt_sra();
     read_register(ADATRR_ADDR, adatrr_val1);
     blocking_write_register(IPISR_ADDR, IPISR_SRA_MASK);
     $display("Sample 1 right: 0x%x", adatrr_val1);
+    if (adatrr_val1 != {8'h00, TEST_SAMPLE_R}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_R}, adatlr_val1);
+    end
+    
 
-    // ----- second sample -----
+    //second sample
     wait_for_interrupt_sla();
     read_register(ADATLR_ADDR, adatlr_val2);
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
     $display("Sample 2 left: 0x%x", adatlr_val2);
+    if (adatlr_val2 != {8'h00, TEST_SAMPLE_L}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_L}, adatlr_val2);
+    end
 
     wait_for_interrupt_sra();
     read_register(ADATRR_ADDR, adatrr_val2);
     blocking_write_register(IPISR_ADDR, IPISR_SRA_MASK);
     $display("Sample 2 right: 0x%x", adatrr_val2);
+    if (adatrr_val2 != {8'h00, TEST_SAMPLE_R}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_R}, adatrr_val2);
+    end
 
-    $display("TEST_TWO_SAMPLES successful!");
+    if (adatlr_val1 == adatlr_val2 && adatrr_val1 == adatrr_val2) begin
+      $display("TEST_TWO_SAMPLES successful!");
+    end else if (adatlr_val1 != adatlr_val2 && adatrr_val1 != adatrr_val2) begin
+      $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on both channels");
+    end else if (adatlr_val1 != adatlr_val2) begin 
+      $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on the left channel");
+    end else if (adatrr_val1 != adatrr_val2) begin
+      $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on the right channel");
+    end
     #10;
   endtask
   
@@ -620,6 +678,10 @@ module aud_tb();
     // read left data channel
     read_register(ADATLR_ADDR, adatlr_val);
     $display("Linkes Sample: 0x%x", adatlr_val);
+    if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_L}, adatlr_val);
+    end
 
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
 
@@ -648,12 +710,20 @@ module aud_tb();
     read_register(ADATRR_ADDR, adatrr_val);
     blocking_write_register(IPISR_ADDR, IPISR_SRA_MASK);
     $display("First right channel: 0x%x", adatrr_val);
+    if (adatrr_val != {8'h00, TEST_SAMPLE_R}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_R}, adatrr_val);
+    end
 
 
     wait_for_interrupt_sla();
     read_register(ADATLR_ADDR, adatlr_val);
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
     $display("Left channel second: 0x%x", adatlr_val);
+    if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
+      $error("not matching: expected 0x%x, got 0x%x",
+             {8'h00, TEST_SAMPLE_L}, adatlr_val);
+    end
 
     $display("TEST_REVERSE_ORDER successful, changed interrupt order");
     #10;
