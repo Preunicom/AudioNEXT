@@ -154,8 +154,14 @@ begin
   o_sclk <= w_sclk;
   o_lrck <= w_lrck;
 
-  o_dol <= '1' when (w_valid_l = '1' and w_tready_l = '0') else '0';
-  o_dor <= '1' when (w_valid_r = '1' and w_tready_r = '0') else '0';
+  -- Sync as CDC needs synced input data
+  DATA_OVERRUN: process(i_audio_clk)
+  begin
+    if rising_edge(i_audio_clk) then
+      o_dol <= w_valid_l and not w_tready_l;
+      o_dor <= w_valid_r and not w_tready_r;
+    end if;
+  end process;
 
   o_data_left <= w_fifo_data_l(23 downto 0);
   o_data_right <= w_fifo_data_r(23 downto 0);

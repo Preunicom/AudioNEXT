@@ -7,11 +7,11 @@
 
 ## Clock signal
 set_property -dict {PACKAGE_PIN E3 IOSTANDARD LVCMOS33} [get_ports sys_clk_i]
-create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports sys_clk_i]
-
-# create_generated_clock -name sys_clk [get_pins VGA_CLK_INST/sys_clk] # 100 MHz
-# create_generated_clock -name audio_clk [get_pins VGA_CLK_INST/audio_clk] # 24.576 MHz
-# create_generated_clock -name pixel_clk [get_pins VGA_CLK_INST/pixel_clk] # 25.175 MHz
+# Already elsewhere constrained clocks:
+# create_clock -period 10.000 -name sys_clk_pin -waveform {0.000 5.000} -add [get_ports sys_clk_i] 
+# create_generated_clock -name sys_clk [get_pins mb_blockdesign_i/clk_wiz_0/inst/sys_clk] # 100 MHz
+# create_generated_clock -name audio_clk [get_pins mb_blockdesign_i/clk_wiz_0/inst/audio_clk] # 24.576 MHz
+# create_generated_clock -name pixel_clk [get_pins mb_blockdesign_i/clk_wiz_0/inst/pixel_clk] # 25.175 MHz
 
 ## VGA side
 # Remove timing analysis of CDC paths
@@ -34,15 +34,11 @@ set_property ASYNC_REG true [get_cells mb_blockdesign_i/Visualization_0/U0/VGA_I
 set_property ASYNC_REG true [get_cells mb_blockdesign_i/Visualization_0/U0/VGA_INST/s_vga_en_reg]
 
 ## I2S side
+set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/o_dol_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_l_aud_reg/D]
+set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/o_dor_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_r_aud_reg/D]
 set_false_path -from [get_pins mb_blockdesign_i/rst_clk_wiz_0_100M/U0/ACTIVE_LOW_PR_OUT_DFF[0].FDRE_PER_N/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_resetn_aud_reg/D]
 # Use only "-to" as the FF it will be optimized and gets a "_replica" suffix which is set while opt_design after setting the constraints
 set_false_path -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_sample_en_aud_reg/D]
-
-# Two signals to same target as we use a LUT in the path
-set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_i2s_sampling_inst/aud_i2s_shreg_inst/r_valid_r_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_r_aud_reg/D]
-set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_i2s_sampling_inst/aud_i2s_shreg_inst/r_valid_l_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_l_aud_reg/D]
-set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_channel_buffer_right/U0/inst_fifo_gen/gaxis_fifo.gaxisf.axisf/grf.rf/gntv_or_sync_fifo.gl0.wr/gwas.wsts/ram_full_i_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_r_aud_reg/D]
-set_false_path -from [get_pins mb_blockdesign_i/Audio_0/U0/aud_core_inst/aud_channel_buffer_left/U0/inst_fifo_gen/gaxis_fifo.gaxisf.axisf/grf.rf/gntv_or_sync_fifo.gl0.wr/gwas.wsts/ram_full_i_reg/C] -to [get_pins mb_blockdesign_i/Audio_0/U0/r_cdc_data_overrun_l_aud_reg/D]
 
 # Set FF to CDC mode --> Placed nearby to improve metastability resistance
 set_property ASYNC_REG true [get_cells mb_blockdesign_i/Audio_0/U0/r_cdc_*_aud_reg]

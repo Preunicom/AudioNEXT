@@ -1330,7 +1330,7 @@
       },
       "Audio_0": {
         "vlnv": "user.org:user:Audio:1.0",
-        "ip_revision": "6",
+        "ip_revision": "7",
         "xci_name": "mb_blockdesign_Audio_0_0",
         "xci_path": "ip/mb_blockdesign_Audio_0_0/mb_blockdesign_Audio_0_0.xci",
         "inst_hier_path": "Audio_0",
