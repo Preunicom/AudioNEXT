@@ -23,8 +23,8 @@
 
 // BEGIN NEW Felix Knoll
 #include <stdint.h>
-#include "at_driver.h"
-#include "at_selftest_pio.h"
+#include "aud_driver.h"
+#include "aud_selftest_pio.h"
 #include "audio_rms.h"
 
 extern int audio_rms_test(void);
@@ -43,35 +43,35 @@ int main()
     init_platform();
 
     // BEGIN NEW Felix Knoll
-    AT_Data AT_Inst;
-    AT_Data *AT_InstPtr = &AT_Inst;
+    AUD_Data AUD_Inst;
+    AUD_Data *AUD_InstPtr = &AUD_Inst;
     XStatus Status;
 
-    Status = AT_Init(AT_InstPtr, AT_BASEADDRESS);
+    Status = AUD_Init(AUD_InstPtr, AUD_BASEADDRESS);
     if (Status != XST_SUCCESS) {
-        xil_printf("error during AT_Init(). Check/Debug manually.\n\r");
+        xil_printf("error during AUD_Init(). Check/Debug manually.\n\r");
     }
 
     ///Selftests
-    AT_TestRegisters(AT_InstPtr);
-    AT_TestSampling(AT_InstPtr);
+    AUD_TestRegisters(AUD_InstPtr);
+    AUD_TestSampling(AUD_InstPtr);
     audio_rms_test();
 
     ///Main loop: RMS polling
-    AT_EnableSampling(AT_InstPtr);
+    AUD_EnableSampling(AUD_InstPtr);
     rms_reset();
 
     /* Polling
      * 32000 Samples pro Kanal entsprechen 3 Hz Ausgaberate */
     uint32_t block_overruns = 0;
     while (1) {
-        block_overruns += AT_GetOverruns(AT_InstPtr);
+        block_overruns += AUD_GetOverruns(AUD_InstPtr);
 
-        if (AT_LAvailable(AT_InstPtr)) {
-            int32_t l = AT_GetL(AT_InstPtr);
+        if (AUD_LAvailable(AUD_InstPtr)) {
+            int32_t l = AUD_GetL(AUD_InstPtr);
             int32_t r = 0;
-            if (AT_RAvailable(AT_InstPtr)) {
-                r = AT_GetR(AT_InstPtr);
+            if (AUD_RAvailable(AUD_InstPtr)) {
+                r = AUD_GetR(AUD_InstPtr);
             }
             rms_add(l, r);
 
