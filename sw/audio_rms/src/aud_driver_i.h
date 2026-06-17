@@ -1,4 +1,3 @@
-
 #ifndef AUD_DRIVER_I_H		/* prevent circular inclusions */
 #define AUD_DRIVER_I_H		/* by using protection macros */
 

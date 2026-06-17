@@ -44,14 +44,18 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
     xil_printf("******************************\n\r");
 
     // IDR/VERR read-only, CTRL nur Bit 0 beschreibbar
+    // EDIT CODE BEGIN Richard Tuch
     Statustmp = AUD_TestRegister(InstancePtr, IDR_ADDR_OFFSET, AUDIO_ID_VALUE, AUDIO_ID_VALUE);
     Status |= Statustmp;
 
     Statustmp = AUD_TestRegister(InstancePtr, VERR_ADDR_OFFSET, AUDIO_VERSION_VALUE, AUDIO_VERSION_VALUE);
     Status |= Statustmp;
+    // EDIT CODE END Richard Tuch
 
+    // BEGIN NEW Felix Knoll
     Statustmp = AUD_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, CTRL_SEN_MASK, 0x00000000);
     Status |= Statustmp;
+    // END NEW Felix Knoll
 
     if (Status == XST_SUCCESS)
         xil_printf("AUD_TESTREGISTERS erfolgreich\n\r");
@@ -62,6 +66,7 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
 }
 
 
+// BEGIN NEW Felix Knoll
 XStatus AUD_TestSampling(AUD_Data *InstancePtr)
 {
     XStatus Status = XST_SUCCESS;
@@ -130,3 +135,5 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
 
     return Status;
 }
+// END NEW Felix Knoll
+

@@ -18,6 +18,7 @@
 //however in this case here adapt it manually if there are changes in the HW platform
 
 //##INSERT YOUR CODE HERE
+// BEGIN NEW Felix Knoll
 // TODO: Basisadresse nach BSP-Update pruefen (XPAR_AUDIO_0_BASEADDR)
 AUD_Config AUD_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 	{
@@ -29,6 +30,7 @@ AUD_Config AUD_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 		NULL
 	}
 };
+// END NEW Felix Knoll
 //##INSERT YOUR CODE HERE END
 
 /************************** Function Definitions ***************************/

@@ -1,4 +1,3 @@
-
 /***************************** Include Files *******************************/
 #include "aud_driver.h"
 #include "aud_driver_i.h"
@@ -16,7 +15,9 @@
 
 /************************** Function Prototypes ****************************/
 static void AUD_StubAppHandler(void *CallBackRef);
+// BEGIN NEW Felix Knoll
 static int32_t AUD_SignExtend24(uint32_t raw);
+// END NEW Felix Knoll
 
 
 /************************** Function Definitions ***************************/
@@ -72,6 +73,7 @@ XStatus AUD_InitHw(AUD_Data *InstancePtr)
 }
 
 
+// BEGIN NEW Felix Knoll
 static int32_t AUD_SignExtend24(uint32_t raw)
 {
     raw &= 0x00FFFFFFu;
@@ -120,6 +122,10 @@ uint32_t AUD_GetOverruns(AUD_Data *InstancePtr)
     return cnt;
 }
 
+// END NEW Felix Knoll
+
+
+// EDIT CODE BEGIN Richard Tuch
 uint32_t AUD_GetId(AUD_Data *InstancePtr)
 {
     Xil_AssertNonvoid(InstancePtr != NULL);
@@ -131,3 +137,4 @@ uint32_t AUD_GetVersion(AUD_Data *InstancePtr)
     Xil_AssertNonvoid(InstancePtr != NULL);
     return AUD_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
 }
+// EDIT CODE END Richard Tuch
