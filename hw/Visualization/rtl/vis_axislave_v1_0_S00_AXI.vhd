@@ -345,7 +345,7 @@ begin
     --STATUS_reg(0) <= i_fdp; -- Optionally also show frame done in STATUS register (not needed because of interrupt)
     -- ADDRR: bits 31:13 reserved, bit 7 reserved
       ADDRR_reg(31 downto 13) <= (others => '0');
-      ADDRR_reg(7)             <= '0';
+      ADDRR_reg(7)            <= '0';
     -- VDATR: bits 31:7 reserved (CHAR is bits 6:0)
       VDATR_reg(31 downto 7) <= (others => '0');
     -- COLR: bits 31:20 reserved, bits 15:12 reserved, bits 7:4 reserved
@@ -403,10 +403,14 @@ begin
           IPIER_reg(0) <= '0';
         --IPISR_reg <= (others => '0');
         -- Begin user code (Nicolas Lonthoff)
-          CTRL_reg  <= (others => '0');
-          ADDRR_reg <= (others => '0');
-          VDATR_reg <= (others => '0');
-          COLR_reg  <= (others => '0');
+          CTRL_reg(0)  <= '0';
+          CTRL_reg(8)  <= '0';
+          ADDRR_reg(6 downto 0) <= (others => '0');
+          ADDRR_reg(12 downto 8) <= (others => '0');
+          VDATR_reg(6 downto 0) <= (others => '0');
+          COLR_reg(3 downto 0)  <= (others => '0');
+          COLR_reg(11 downto 8)  <= (others => '0');
+          COLR_reg(19 downto 16)  <= (others => '0');
         -- End user code (Nicolas Lonthoff)
         --##INSERT YOUR CODE HERE END
         

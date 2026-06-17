@@ -17,7 +17,7 @@ set script_dir [file dirname [info script]]
 set project_data_dir [file normalize "$script_dir/.."]
 
 set proj_name "AudioNEXT"
-#set proj_top_module "TODO_SET"
+set proj_top_module "mb_blockdesign_wrapper"
 set proj_part "xc7a100tcsg324-1"
 set board_part "digilentinc.com:arty-a7-100:part0:1.1"
 set proj_dir "[file normalize "$project_data_dir/../../xilinx/vivado/$proj_name"]"
@@ -147,13 +147,6 @@ update_ip_catalog
 
 set obj [get_filesets sources_1]
 foreach file $bd_files {
-    set file_obj [get_files $file]
-    set wrapper_file [make_wrapper -files $file_obj -top]
-    add_files -norecurse -fileset $obj $wrapper_file
-}
-
-set obj [get_filesets sim_1]
-foreach file $sim_bd_files {
     set file_obj [get_files $file]
     set wrapper_file [make_wrapper -files $file_obj -top]
     add_files -norecurse -fileset $obj $wrapper_file

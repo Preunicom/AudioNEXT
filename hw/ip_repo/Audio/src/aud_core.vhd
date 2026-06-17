@@ -69,7 +69,7 @@ architecture Behavioral of aud_core is
     );
   end component;  
   
-  component aud_channel_buffer is
+  component aud_channel_buf is
     Port ( 
       wr_rst_busy : out STD_LOGIC;
       rd_rst_busy : out STD_LOGIC;
@@ -122,7 +122,7 @@ begin
     o_data_r => w_data_r
   );
     
-  aud_channel_buffer_left: aud_channel_buffer port map(
+  aud_channel_buffer_left: aud_channel_buf port map(
     wr_rst_busy => open,
     rd_rst_busy => open,
     s_aclk => i_audio_clk,
@@ -136,7 +136,7 @@ begin
     m_axis_tdata => w_fifo_data_l
   );
 
-  aud_channel_buffer_right: aud_channel_buffer port map(
+  aud_channel_buffer_right: aud_channel_buf port map(
     wr_rst_busy => open,
     rd_rst_busy => open,
     s_aclk => i_audio_clk,
@@ -154,8 +154,8 @@ begin
   o_sclk <= w_sclk;
   o_lrck <= w_lrck;
 
-  o_dol <= not w_tready_l;
-  o_dor <= not w_tready_r;
+  o_dol <= '1' when (w_valid_l = '1' and w_tready_l = '0') else '0';
+  o_dor <= '1' when (w_valid_r = '1' and w_tready_r = '0') else '0';
 
   o_data_left <= w_fifo_data_l(23 downto 0);
   o_data_right <= w_fifo_data_r(23 downto 0);

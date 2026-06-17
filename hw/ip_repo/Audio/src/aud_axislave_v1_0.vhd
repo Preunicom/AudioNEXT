@@ -185,6 +185,12 @@ end component;
 -- USER CODE BEGIN Maximilian Hafender, Markus Remy
   signal r_cdc_resetn_aud : std_logic;
   signal r_synced_resetn_aud : std_logic;
+  signal r_cdc_sample_en_aud : std_logic;
+  signal r_synced_sample_en_aud : std_logic;
+  signal r_cdc_data_overrun_l_aud : std_logic;
+  signal r_synced_data_overrun_l_aud : std_logic;
+  signal r_cdc_data_overrun_r_aud : std_logic;
+  signal r_synced_data_overrun_r_aud : std_logic;
 -- USER CODE END Maximilian Hafender, Markus Remy
 
 
@@ -228,8 +234,8 @@ aud_S00_AXI_inst : aud_S00_AXI
     o_sampling_en   => w_sampling_en,
     i_sla           => w_sla,
     i_sra           => w_sra,
-    i_dol           => w_dol,
-    i_dor           => w_dor,
+    i_dol           => r_synced_data_overrun_l_aud,
+    i_dor           => r_synced_data_overrun_r_aud,
     i_data_left     => w_data_left,
     i_data_right    => w_data_right,
     o_ack_left      => w_ack_left,
@@ -246,10 +252,24 @@ aud_S00_AXI_inst : aud_S00_AXI
 
   -- USER CODE BEGIN Maximilian Hafender, Markus Remy
   -- CDC resetn from axi clk to audio clock
-  CDC_Reset: process(i_audio_clk)
+  CDC_AUD_2_AXI: process(s00_axi_aclk)
   begin
-    r_cdc_resetn_aud <= s00_axi_aresetn;
-    r_synced_resetn_aud <= r_cdc_resetn_aud;
+    if rising_edge(s00_axi_aclk) then
+      r_cdc_data_overrun_l_aud <= w_dol;
+      r_synced_data_overrun_l_aud <= r_cdc_data_overrun_l_aud;
+      r_cdc_data_overrun_r_aud <= w_dor;
+      r_synced_data_overrun_r_aud <= r_cdc_data_overrun_r_aud;
+    end if;
+  end process;
+
+  CDC_AXI_2_AUD: process(i_audio_clk)
+  begin
+    if rising_edge(i_audio_clk) then
+      r_cdc_resetn_aud <= s00_axi_aresetn;
+      r_synced_resetn_aud <= r_cdc_resetn_aud;
+      r_cdc_sample_en_aud <= w_sampling_en;
+      r_synced_sample_en_aud <= r_cdc_sample_en_aud;
+    end if;
   end process;
   -- USER CODE END Maximilian Hafender, Markus Remy
 
@@ -260,7 +280,7 @@ aud_S00_AXI_inst : aud_S00_AXI
     i_audio_clk   => i_audio_clk,
     i_clk         => s00_axi_aclk,
     i_resetn      => r_synced_resetn_aud,
-    i_sampling_en => w_sampling_en,
+    i_sampling_en => r_synced_sample_en_aud,
     i_data        => i_data,
     i_ack_left    => w_ack_left,
     i_ack_right   => w_ack_right,

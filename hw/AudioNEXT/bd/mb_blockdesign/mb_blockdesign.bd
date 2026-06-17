@@ -1330,7 +1330,7 @@
       },
       "Audio_0": {
         "vlnv": "user.org:user:Audio:1.0",
-        "ip_revision": "3",
+        "ip_revision": "6",
         "xci_name": "mb_blockdesign_Audio_0_0",
         "xci_path": "ip/mb_blockdesign_Audio_0_0/mb_blockdesign_Audio_0_0.xci",
         "inst_hier_path": "Audio_0",
@@ -1556,12 +1556,12 @@
           "microblaze_0_local_memory/LMB_Clk",
           "rst_clk_wiz_0_100M/slowest_sync_clk",
           "axi_smc/aclk",
-          "Audio_0/s00_axi_aclk",
           "microblaze_0_axi_periph/M01_ACLK",
           "microblaze_0_axi_periph/M02_ACLK",
           "axi_uartlite_0/s_axi_aclk",
           "microblaze_0_axi_periph/M03_ACLK",
-          "Visualization_0/s00_axi_aclk"
+          "Visualization_0/s00_axi_aclk",
+          "Audio_0/s00_axi_aclk"
         ]
       },
       "microblaze_0_intr": {
@@ -1624,12 +1624,12 @@
           "microblaze_0_axi_periph/S00_ARESETN",
           "microblaze_0_axi_periph/M00_ARESETN",
           "microblaze_0_axi_intc/s_axi_aresetn",
-          "Audio_0/s00_axi_aresetn",
           "microblaze_0_axi_periph/M01_ARESETN",
           "microblaze_0_axi_periph/M02_ARESETN",
           "axi_uartlite_0/s_axi_aresetn",
           "microblaze_0_axi_periph/M03_ARESETN",
-          "Visualization_0/s00_axi_aresetn"
+          "Visualization_0/s00_axi_aresetn",
+          "Audio_0/s00_axi_aresetn"
         ]
       },
       "rst_mig_7series_0_81M_peripheral_aresetn": {

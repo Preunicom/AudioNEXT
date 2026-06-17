@@ -126,7 +126,8 @@ module aud_tb();
         @(negedge o_sclk);
       end
     end
-   //end edit Maximilian Hafeneder
+  end
+  //end edit Maximilian Hafeneder
  
   //-------------------------------------------------------------------------------------
   //FUNCTIONS AND TASKS
