@@ -129,7 +129,7 @@ module aud_tb();
       i_data_stim = 0;
     end
   end
-   //end edit Maximilian Hafeneder
+  //end edit Maximilian Hafeneder
  
   //-------------------------------------------------------------------------------------
   //FUNCTIONS AND TASKS
@@ -506,7 +506,6 @@ module aud_tb();
     
 //     blocking_write_register(GIER_ADDR, GIER_GIE_MASK);
             
-//     //TB_auto_restart<='1'; (7)    
 //     //TB_ap_start <='1'; (0)
 //     blocking_write_register(GCSR_ADDR, 32'h00000081);    
    

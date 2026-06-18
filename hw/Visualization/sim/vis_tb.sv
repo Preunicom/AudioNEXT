@@ -303,7 +303,7 @@ module vis_tb();
       $display("FDP after end of frame HIGH ... NOT OK");
     end
 
-    $display("Waiting for begin of fourth frame");
+    $display("Waiting for begin of third frame");
     @(posedge o_vsync) // End of frame
 
     // Wait for  10 hsync (Start of first line of the frame)
@@ -421,10 +421,10 @@ module vis_tb();
     #10
  
     // USER CODE BEGIN Markus Remy
-    CHECK_REGISTERS();
+    //CHECK_REGISTERS();
     //TEST_FRAME_DATA_PROCESSED();
     //TEST_FRAME_DATA_PROCESSED_INT();
-    //TEST_WRITE_FRAME();
+    TEST_WRITE_FRAME();
     // USER CODE END Markus Remy
  
     $finish(); 

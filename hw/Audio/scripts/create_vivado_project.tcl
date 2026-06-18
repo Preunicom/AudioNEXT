@@ -57,7 +57,7 @@ set sim_files [concat \
     [find_files $general_files_dir/sim "*.sv"] \
 ]
 set sim_bd_files [concat \
-    [find_files $general_files_dir/sim/bd "*.bd"] \
+    [find_files $project_data_dir/sim/bd "*.bd"] \
 ]
 set constr_file [lindex [find_files $project_data_dir/constraints "*.xdc"] 0]
 
