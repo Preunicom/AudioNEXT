@@ -18,10 +18,31 @@ collect(PROJECT_LIB_DEPS xiltimer)
 
 
 
+
+
+
+
+
+
+
+
+
 collect(PROJECT_LIB_DEPS gcc)
 collect(PROJECT_LIB_DEPS c)
 
+collect (PROJECT_LIB_SOURCES vis_core.c)
+collect (PROJECT_LIB_SOURCES vis_driver_sinit.c)
+collect (PROJECT_LIB_SOURCES vis_core_selftest.c)
+collect (PROJECT_LIB_SOURCES vis_driver_l.c)
+collect (PROJECT_LIB_SOURCES vis_event.c)
 collect (PROJECT_LIB_SOURCES platform.c)
+collect (PROJECT_LIB_SOURCES vis_selftest_int.c)
+collect (PROJECT_LIB_SOURCES vis_selftest_main.c)
+collect (PROJECT_LIB_SOURCES vis_driver_g.c)
+collect (PROJECT_LIB_SOURCES vis_driver_int.c)
+collect (PROJECT_LIB_SOURCES vis_driver.c)
+collect (PROJECT_LIB_SOURCES vis_selftest_pio.c)
+collector_list (_sources PROJECT_LIB_SOURCES)
 # BEGIN NEW Felix Knoll
 collect (PROJECT_LIB_SOURCES audio_rms_main.c)
 collect (PROJECT_LIB_SOURCES audio_rms.c)
@@ -32,7 +53,6 @@ collect (PROJECT_LIB_SOURCES at_driver_g.c)
 collect (PROJECT_LIB_SOURCES at_driver_sinit.c)
 collect (PROJECT_LIB_SOURCES at_selftest_pio.c)
 # END NEW Felix Knoll
-collector_list (_sources PROJECT_LIB_SOURCES)
 foreach (source ${_sources})
     get_filename_component(ext ${source} EXT)
     list(APPEND src_ext ${ext})
