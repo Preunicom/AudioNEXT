@@ -4,7 +4,7 @@
     "xci_name": "mb_blockdesign_Audio_0_0",
     "cell_name": "Audio_0",
     "component_reference": "user.org:user:Audio:1.0",
-    "ip_revision": "7",
+    "ip_revision": "8",
     "gen_directory": ".",
     "parameters": {
       "component_parameters": {
@@ -31,7 +31,7 @@
       },
       "runtime_parameters": {
         "IPCONTEXT": [ { "value": "IP_Integrator" } ],
-        "IPREVISION": [ { "value": "7" } ],
+        "IPREVISION": [ { "value": "8" } ],
         "MANAGED": [ { "value": "TRUE" } ],
         "OUTPUTDIR": [ { "value": "." } ],
         "SELECTEDSIMMODEL": [ { "value": "" } ],
