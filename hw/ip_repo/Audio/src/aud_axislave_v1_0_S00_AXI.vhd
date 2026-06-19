@@ -163,6 +163,11 @@ architecture arch_imp of aud_S00_AXI is
   signal reg_data_out  : std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
   signal byte_index    : integer;
   signal aw_en         : std_logic;
+
+  signal sla_consumed  : std_logic;
+  signal sra_consumed  : std_logic;
+  signal sla_flag      : std_logic;
+  signal sra_flag      : std_logic;
   
   --Register Adresses    
   constant GSCR_ADDR   : std_logic_vector(OPT_MEM_ADDR_BITS downto 0) := x"0"; --offset x"00"
@@ -494,9 +499,9 @@ begin
           STATUS_reg(7 downto 1) <= (others => '0'); --reserved
           STATUS_reg(8)  <= i_dor; -- DOR
           STATUS_reg(15 downto 9) <= (others => '0'); --reserved
-          STATUS_reg(16) <= i_sla; -- SLA
+          STATUS_reg(16) <= sla_flag; -- SLA
           STATUS_reg(23 downto 17) <= (others => '0'); --reserved
-          STATUS_reg(24) <= i_sra; -- SRA
+          STATUS_reg(24) <= sra_flag; -- SRA
           STATUS_reg(31 downto 25) <= (others => '0'); --reserved
         --ADATLR_reg
           ADATLR_reg(23 downto 0) <= i_data_left;
@@ -625,6 +630,10 @@ begin
   o_interrupt_sla <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_interrupt_sra <= GIER_reg(0) and IPIER_reg(8) and IPISR_reg(8);
 
+  -- SLA/SRA flags: masked by consumed to avoid stale reads due to CDC FIFO latency
+  sla_flag <= i_sla and not sla_consumed;
+  sra_flag <= i_sra and not sra_consumed;
+
   -- EDIT CODE END Richard Tuch
 
   -- EDIT CODE BEGIN Richard Tuch (new dm part, not in template)
@@ -634,21 +643,31 @@ begin
   begin
     if rising_edge(S_AXI_ACLK) then
       if S_AXI_ARESETN = '0' then
-        o_ack_left  <= '0';
-        o_ack_right <= '0';
+        o_ack_left   <= '0';
+        o_ack_right  <= '0';
+        sla_consumed <= '0';
+        sra_consumed <= '0';
       else
         loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         -- Generate ack pulse when host reads ADATLR
         if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATLR_ADDR) then
-          o_ack_left <= '1';
+          o_ack_left   <= '1';
+          sla_consumed <= '1';
         else
           o_ack_left <= '0';
+          if (i_sla = '0') then
+            sla_consumed <= '0';
+          end if;
         end if;
         -- Generate ack pulse when host reads ADATRR
         if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATRR_ADDR) then
-          o_ack_right <= '1';
+          o_ack_right  <= '1';
+          sra_consumed <= '1';
         else
           o_ack_right <= '0';
+          if (i_sra = '0') then
+            sra_consumed <= '0';
+          end if;
         end if;
       end if;
     end if;
