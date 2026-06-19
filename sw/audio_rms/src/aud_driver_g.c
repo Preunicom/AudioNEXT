@@ -1,14 +1,14 @@
-//at_driver_g.c
+//aud_driver_g.c
 
 /****************** Include Files ********************/
 //#include "xparameters.h"
 
-#include "at_driver.h"
-#include "at_driver_i.h"
+#include "aud_driver.h"
+#include "aud_driver_i.h"
 
 
 /************************** Constant Definitions ***************************/
-//shared constant definitions should be done in at_driver.h
+//shared constant definitions should be done in aud_driver.h
 
 /**************************** Type Definitions *****************************/
 
@@ -18,8 +18,9 @@
 //however in this case here adapt it manually if there are changes in the HW platform
 
 //##INSERT YOUR CODE HERE
+// BEGIN NEW Felix Knoll
 // TODO: Basisadresse nach BSP-Update pruefen (XPAR_AUDIO_0_BASEADDR)
-AT_Config AT_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
+AUD_Config AUD_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 	{
 		"xlnx,audio-1.0.0",
 		XPAR_AUDIO_0_BASEADDR,
@@ -29,6 +30,7 @@ AT_Config AT_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 		NULL
 	}
 };
+// END NEW Felix Knoll
 //##INSERT YOUR CODE HERE END
 
 /************************** Function Definitions ***************************/
