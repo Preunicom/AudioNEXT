@@ -1316,7 +1316,7 @@
       },
       "Visualization_0": {
         "vlnv": "user.org:user:Visualization:1.0",
-        "ip_revision": "1",
+        "ip_revision": "2",
         "xci_name": "mb_blockdesign_Visualization_0_0",
         "xci_path": "ip/mb_blockdesign_Visualization_0_0/mb_blockdesign_Visualization_0_0.xci",
         "inst_hier_path": "Visualization_0",

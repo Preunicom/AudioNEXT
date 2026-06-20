@@ -339,9 +339,9 @@ begin
 			if i_reset = '1' then
 				s_h_sync <= '1';
 			else
-				if (s_h_count = c_H_DISPLAYpx + c_H_BACKPORCHpx - 1) then
+				if (s_h_count = c_H_DISPLAYpx + c_H_FRONTPORCHpx - 1) then
 					s_h_sync <= '0';
-				elsif (s_h_count = c_H_PERIODpx - c_H_FRONTPORCHpx - 1) then
+				elsif (s_h_count = c_H_PERIODpx - c_H_BACKPORCHpx - 1) then
 					s_h_sync <= '1';
 				end if;
 			end if;
@@ -358,9 +358,9 @@ begin
 			if i_reset = '1' then
 				s_v_sync <= '1';
 			else
-				if (s_v_count = (c_V_DISPLAYln + c_V_BACKPORCHln)) then -- First line of vsync
+				if (s_v_count = (c_V_DISPLAYln + c_V_FRONTPORCHln)) then -- First line of vsync
 					s_v_sync <= '0';
-				elsif (s_v_count = (c_V_PERIODln - c_V_FRONTPORCHln)) then -- First line after vsync
+				elsif (s_v_count = (c_V_PERIODln - c_V_BACKPORCHln)) then -- First line after vsync
 					s_v_sync <= '1';
 				end if;
 			end if;
