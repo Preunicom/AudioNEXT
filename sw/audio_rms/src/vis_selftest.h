@@ -30,8 +30,10 @@ XStatus VIS_Core_TestFormat(void);
 /* Unit test: bar width calculation (no hardware required) */
 XStatus VIS_Core_TestBarWidth(void);
 
-/* Integration test: full render pipeline (requires display hardware) */
+/* Hardware tests (require display hardware) */
 XStatus VIS_Core_TestRender(VIS_Data *InstancePtr);
+XStatus VIS_Core_TestFDP(VIS_Data *InstancePtr);
+XStatus VIS_Core_TestScrolling(VIS_Data *InstancePtr);
 
 #endif // VIS_SELFTEST_H
 //end edit Maximilian Hafeneder / Nicolas Lonthoff
