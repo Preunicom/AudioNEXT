@@ -21,11 +21,7 @@
 
 //begin edit Maximilian Hafeneder
 #include "vis_driver.h"
-#include "vis_driver_i.h"
-#include "vis_selftest_pio.h"
-#include "vis_core_selftest.h"
-
-#include "vis_selftest_int.h"
+#include "vis_selftest.h"
 
 
 /************************** Constant Definitions ***************************/

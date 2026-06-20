@@ -1,17 +1,104 @@
-
-//begin edit Nicolas Lonthoff
-#include "vis_core_selftest.h"
+#include "vis_selftest.h"
+#include "vis_driver_i.h"
+#include "vis_driver_int.h"
 #include "xil_printf.h"
 
 
-/************************** Static Helpers ***************************/
+/*****************************************************************************
+ * PIO register selftests (originally vis_selftest_pio.c)
+ *****************************************************************************/
 
-/*
- * Compare two char arrays of length len.
- * Prints the first mismatching position and returns XST_FAILURE.
- */
+XStatus VIS_TestRegister(VIS_Data *InstancePtr, uint32_t AddrOffset,
+                         uint32_t ExspectedReadRegValWriteFF,
+                         uint32_t ExspectedReadRegValWrite00)
+{
+    XStatus Status = XST_SUCCESS;
+    uint32_t val;
+
+    VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0xffffffff);
+    val = VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
+    if (val != ExspectedReadRegValWriteFF) {
+        xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r",
+                   AddrOffset, ExspectedReadRegValWriteFF, val);
+        Status = XST_FAILURE;
+    }
+
+    VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0x00000000);
+    val = VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
+    if (val != ExspectedReadRegValWrite00) {
+        xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r",
+                   AddrOffset, ExspectedReadRegValWrite00, val);
+        Status = XST_FAILURE;
+    }
+
+    return Status;
+}
+
+
+XStatus VIS_TestRegisters(VIS_Data *InstancePtr)
+{
+    XStatus Status = XST_SUCCESS, Statustmp = XST_SUCCESS;
+    uint32_t expectedval;
+
+    xil_printf("******************************\n\r");
+    xil_printf("*VIS_TESTREGISTERS\n\r");
+    xil_printf("******************************\n\r");
+
+    Statustmp = VIS_TestRegister(InstancePtr, GCSR_ADDR_OFFSET, 0x00000000, 0x00000000);
+    Status |= Statustmp;
+    expectedval = GIER_GIE_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, GIER_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+    expectedval = IPIER_FIE_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, IPIER_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+    Statustmp = VIS_TestRegister(InstancePtr, IPISR_ADDR_OFFSET, 0x00000000, 0x00000000); // W1C
+    Status |= Statustmp;
+    Statustmp = VIS_TestRegister(InstancePtr, IDR_ADDR_OFFSET, 0x0000D15C, 0x0000D15C);
+    Status |= Statustmp;
+    Statustmp = VIS_TestRegister(InstancePtr, VERR_ADDR_OFFSET, 0x00000001, 0x00000001);
+    Status |= Statustmp;
+    expectedval = CTRL_VEN_MASK | CTRL_WD_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+    Statustmp = VIS_TestRegister(InstancePtr, STATUS_ADDR_OFFSET, 0x00000000, 0x00000000);
+    Status |= Statustmp;
+    expectedval = ADDRR_XA_MASK | ADDRR_YA_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, ADDRR_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+    expectedval = VDATR_CHAR_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, VDATR_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+    expectedval = COLR_COL_MASK;
+    Statustmp = VIS_TestRegister(InstancePtr, COLR_ADDR_OFFSET, expectedval, 0x00000000);
+    Status |= Statustmp;
+
+    if (Status == XST_SUCCESS)
+        xil_printf("VIS_TESTREGISTERS was successful\n\r");
+    else
+        xil_printf("VIS_TESREGISTERS failed\n\r");
+
+    return Status;
+}
+
+
+/*****************************************************************************
+ * Interrupt selftest handler (originally vis_selftest_int.c)
+ *****************************************************************************/
+
+void VIS_AppHandler_SelfTest(void *CallBackRef)
+{
+    (void)CallBackRef;
+    /* Application-specific handler called by VIS_InterruptHandler — no-op */
+}
+
+
+/*****************************************************************************
+ * Core selftests (originally vis_core_selftest.c)
+ *****************************************************************************/
+
 static XStatus check_str(const char *expected, const char *actual,
-                          u8 len, const char *test_name)
+                         u8 len, const char *test_name)
 {
     u8 i;
     for (i = 0; i < len; i++) {
@@ -26,9 +113,6 @@ static XStatus check_str(const char *expected, const char *actual,
     return XST_SUCCESS;
 }
 
-/*
- * Check a single bar-width result and print on mismatch.
- */
 static XStatus check_bar_width(uint16_t rms, u8 expected, const char *label)
 {
     u8 got = VIS_Core_CalcBarWidth(rms);
@@ -41,15 +125,6 @@ static XStatus check_bar_width(uint16_t rms, u8 expected, const char *label)
 }
 
 
-/************************** Test Functions ***************************/
-
-/*
- * Unit test: VIS_Core_FormatRmsText
- *
- * Verifies the 17-character output "  Level: XXX.YY %" for boundary
- * values of the 7.2 fixed-point input.
- * No hardware required.
- */
 XStatus VIS_Core_TestFormat(void)
 {
     XStatus Status = XST_SUCCESS, tmp;
@@ -59,7 +134,6 @@ XStatus VIS_Core_TestFormat(void)
     xil_printf("* VIS_CORE_TESTFORMAT\n\r");
     xil_printf("******************************\n\r");
 
-    /* All four fractional variants at integer 0 */
     VIS_Core_FormatRmsText(0, buf);
     tmp = check_str("  Level: 000.00 %", buf, 17, "rms=0 (0.00%)");
     Status |= tmp;
@@ -76,17 +150,14 @@ XStatus VIS_Core_TestFormat(void)
     tmp = check_str("  Level: 000.75 %", buf, 17, "rms=3 (0.75%)");
     Status |= tmp;
 
-    /* Integer increment: 4 = 1.00% */
     VIS_Core_FormatRmsText(4, buf);
     tmp = check_str("  Level: 001.00 %", buf, 17, "rms=4 (1.00%)");
     Status |= tmp;
 
-    /* Exact 100% */
     VIS_Core_FormatRmsText(400, buf);
     tmp = check_str("  Level: 100.00 %", buf, 17, "rms=400 (100.00%)");
     Status |= tmp;
 
-    /* Maximum representable value: 127.75% */
     VIS_Core_FormatRmsText(511, buf);
     tmp = check_str("  Level: 127.75 %", buf, 17, "rms=511 (127.75%)");
     Status |= tmp;
@@ -100,13 +171,6 @@ XStatus VIS_Core_TestFormat(void)
 }
 
 
-/*
- * Unit test: VIS_Core_CalcBarWidth
- *
- * Verifies bar column count for key points in the 0-511 input range.
- * Expected: 100% (rms=400) fills all 80 columns; values above 100% are capped.
- * No hardware required.
- */
 XStatus VIS_Core_TestBarWidth(void)
 {
     XStatus Status = XST_SUCCESS, tmp;
@@ -115,7 +179,6 @@ XStatus VIS_Core_TestBarWidth(void)
     xil_printf("* VIS_CORE_TESTBARWIDTH\n\r");
     xil_printf("******************************\n\r");
 
-    /* Silence */
     tmp = check_bar_width(0,   0,  "rms=0   (0%)");
     Status |= tmp;
 
@@ -148,13 +211,6 @@ XStatus VIS_Core_TestBarWidth(void)
 }
 
 
-/*
- * Integration test: VIS_Core_RenderLoudness
- *
- * Calls the full render pipeline for representative loudness values and
- * verifies it completes without hanging. Requires display hardware.
- * Visual output on screen is the final verification.
- */
 XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
 {
     xil_printf("******************************\n\r");
@@ -184,4 +240,3 @@ XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
     xil_printf("VIS_CORE_TESTRENDER passed (verify display output visually)\n\r");
     return XST_SUCCESS;
 }
-//end edit Nicolas Lonthoff
