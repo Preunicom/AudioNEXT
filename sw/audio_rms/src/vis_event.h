@@ -13,7 +13,7 @@
 /**************************** Type Definitions *****************************/
 typedef uint8_t vis_event_type;
 //volatile vis_event_type vis_event=0; //move this to global section of a c-file 
-extern vis_event_type vis_event;
+extern volatile vis_event_type vis_event;
 
 /************************** Function Prototypes ****************************/
 

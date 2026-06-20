@@ -1,3 +1,5 @@
+//begin edit Maximilian Hafeneder / Nicolas Lonthoff
+/***************************** Include Files *******************************/
 #include "vis_selftest.h"
 #include "vis_driver_i.h"
 #include "vis_driver_int.h"
@@ -8,97 +10,797 @@
  * PIO register selftests (originally vis_selftest_pio.c)
  *****************************************************************************/
 
-XStatus VIS_TestRegister(VIS_Data *InstancePtr, uint32_t AddrOffset,
-                         uint32_t ExspectedReadRegValWriteFF,
-                         uint32_t ExspectedReadRegValWrite00)
+XStatus VIS_TestRegister(VIS_Data *InstancePtr, uint32_t AddrOffset, uint32_t ExspectedReadRegValWriteFF, uint32_t ExspectedReadRegValWrite00)
 {
-    XStatus Status = XST_SUCCESS;
-    uint32_t val;
+  XStatus Status=XST_SUCCESS;
+  uint32_t val;
 
-    VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0xffffffff);
-    val = VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
-    if (val != ExspectedReadRegValWriteFF) {
-        xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r",
-                   AddrOffset, ExspectedReadRegValWriteFF, val);
-        Status = XST_FAILURE;
-    }
+  VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0xffffffff);
+  val=VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
+  if (val != ExspectedReadRegValWriteFF)
+  {
+    xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r", AddrOffset, ExspectedReadRegValWriteFF, val);
+    Status = XST_FAILURE;
+  }
 
-    VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0x00000000);
-    val = VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
-    if (val != ExspectedReadRegValWrite00) {
-        xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r",
-                   AddrOffset, ExspectedReadRegValWrite00, val);
-        Status = XST_FAILURE;
-    }
+  VIS_mWriteReg(InstancePtr->BaseAddress, AddrOffset, 0x00000000);
+  val=VIS_mReadReg(InstancePtr->BaseAddress, AddrOffset);
+  if (val != ExspectedReadRegValWrite00)
+  {
+    xil_printf("Value mismatch: A:0x%0x : Expected 0x%x -> Got 0x%x\n\r", AddrOffset, ExspectedReadRegValWrite00, val);
+    Status = XST_FAILURE;
+  }
 
-    return Status;
+  return Status;
 }
 
 
 XStatus VIS_TestRegisters(VIS_Data *InstancePtr)
 {
-    XStatus Status = XST_SUCCESS, Statustmp = XST_SUCCESS;
-    uint32_t expectedval;
+  XStatus Status=XST_SUCCESS, Statustmp=XST_SUCCESS;
+  uint32_t val, expectedval;
 
-    xil_printf("******************************\n\r");
-    xil_printf("*VIS_TESTREGISTERS\n\r");
-    xil_printf("******************************\n\r");
+  xil_printf("******************************\n\r");
+	xil_printf("*VIS_TESTREGISTERS\n\r");
+	xil_printf("******************************\n\r");
 
-    Statustmp = VIS_TestRegister(InstancePtr, GCSR_ADDR_OFFSET, 0x00000000, 0x00000000);
-    Status |= Statustmp;
-    expectedval = GIER_GIE_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, GIER_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
-    expectedval = IPIER_FIE_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, IPIER_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
-    Statustmp = VIS_TestRegister(InstancePtr, IPISR_ADDR_OFFSET, 0x00000000, 0x00000000); // W1C
-    Status |= Statustmp;
-    Statustmp = VIS_TestRegister(InstancePtr, IDR_ADDR_OFFSET, 0x0000D15C, 0x0000D15C);
-    Status |= Statustmp;
-    Statustmp = VIS_TestRegister(InstancePtr, VERR_ADDR_OFFSET, 0x00000001, 0x00000001);
-    Status |= Statustmp;
-    expectedval = CTRL_VEN_MASK | CTRL_WD_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
-    Statustmp = VIS_TestRegister(InstancePtr, STATUS_ADDR_OFFSET, 0x00000000, 0x00000000);
-    Status |= Statustmp;
-    expectedval = ADDRR_XA_MASK | ADDRR_YA_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, ADDRR_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
-    expectedval = VDATR_CHAR_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, VDATR_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
-    expectedval = COLR_COL_MASK;
-    Statustmp = VIS_TestRegister(InstancePtr, COLR_ADDR_OFFSET, expectedval, 0x00000000);
-    Status |= Statustmp;
+  Statustmp=VIS_TestRegister(InstancePtr, GCSR_ADDR_OFFSET, 0x00000000, 0x00000000);
+  Status |= Statustmp;
+  expectedval=GIER_GIE_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, GIER_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
+  expectedval=IPIER_FIE_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, IPIER_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
+  expectedval=IPISR_FDP_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, IPISR_ADDR_OFFSET, 0x00000000, 0x00000000); // W1C
+  Status |= Statustmp;
+  Statustmp=VIS_TestRegister(InstancePtr, IDR_ADDR_OFFSET, 0x0000D15C, 0x0000D15C);
+  Status |= Statustmp;
+  Statustmp=VIS_TestRegister(InstancePtr, VERR_ADDR_OFFSET, 0x00000001, 0x00000001);
+  Status |= Statustmp;
+  expectedval=CTRL_VEN_MASK | CTRL_WD_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
+  Statustmp=VIS_TestRegister(InstancePtr, STATUS_ADDR_OFFSET, 0x00000000, 0x00000000);
+  Status |= Statustmp;
+  expectedval=ADDRR_XA_MASK | ADDRR_YA_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, ADDRR_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
+  expectedval=VDATR_CHAR_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, VDATR_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
+  expectedval=COLR_COL_MASK;
+  Statustmp=VIS_TestRegister(InstancePtr, COLR_ADDR_OFFSET, expectedval, 0x00000000);
+  Status |= Statustmp;
 
-    if (Status == XST_SUCCESS)
-        xil_printf("VIS_TESTREGISTERS was successful\n\r");
-    else
-        xil_printf("VIS_TESREGISTERS failed\n\r");
-
-    return Status;
+  if (Status==XST_SUCCESS){
+    xil_printf("VIS_TESTREGISTERS was successful\n\r");
+  }else {
+    xil_printf("VIS_TESREGISTERS failed\n\r");
+  }
+  return Status;
 }
+
+
+//XStatus VIS_TestUp(VIS_Data *InstancePtr)
+//{
+//  XStatus Status;
+//  uint32_t val, val2;
+
+//  xil_printf("******************************\n\r");
+//	xil_printf("*VIS_TESTUP\n\r");
+//	xil_printf("******************************\n\r");
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, IDR_ADDR_OFFSET);
+//  xil_printf("IDR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
+//  xil_printf("VERR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//  xil_printf("LR0: 0x%x\n\r", val);
+//  #endif
+
+//  VIS_mWriteReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET, LR0_10S_100MHZ); //LR0_40NS_100MHZ LR0_655US_100MHZ LR0_10S_100MHZ
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//  xil_printf("LR0: 0x%x\n\r", val);
+//  #endif
+
+  //TB_ud0 <='1'; (5)
+  //TB_load0 <='0'; (4)
+  //TB_ent0_out <='1'; (2)
+  //VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, 0x00000024);
+//  VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, SCSR_ENT0_OUT_MASK | SCSR_UD0_MASK);
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET);
+//  xil_printf("SCSR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+//  #endif
+  //TB_auto_restart<='0'; (7)
+  //TB_ap_start <='1'; (0)
+//  VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+  //Note this control read will cause hanghup in polling loop if the LR0 value is too short!!!
+//  #endif
+
+
+//  val=VIS_PollDone(InstancePtr);
+
+
+//  #ifdef VIS_DEBUG_P
+//  xil_printf("GCSR break: 0x%x\n\r", val);
+//  #endif
+
+
+
+//  #ifdef VIS_DEBUG_P
+  //check if done and start reset is done
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, CR0_ADDR_OFFSET);
+//  xil_printf("CR0: 0x%x\n\r", val);
+//  #endif
+
+//  xil_printf("VIS_TestUP passed\n\r");
+
+//  return XST_SUCCESS;
+//}
+
+
+//XStatus VIS_TestUpAutoRestart(VIS_Data *InstancePtr)
+//{
+//  XStatus Status;
+//  uint32_t val, val2;
+
+//  xil_printf("******************************\n\r");
+//	xil_printf("*VIS_TESTUPAUTORESTART\n\r");
+//	xil_printf("******************************\n\r");
+
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, IDR_ADDR_OFFSET);
+//  xil_printf("IDR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
+//  xil_printf("VERR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//  xil_printf("LR0: 0x%x\n\r", val);
+//  #endif
+
+//  VIS_mWriteReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET, LR0_1S_100MHZ);
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//  xil_printf("LR0: 0x%x\n\r", val);
+//  #endif
+
+  //TB_ud0 <='1'; (5)
+  //TB_load0 <='0'; (4)
+  //TB_ent0_out <='1'; (2)
+  //VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, 0x00000024);
+//  VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, SCSR_ENT0_OUT_MASK | SCSR_UD0_MASK);
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET);
+//  xil_printf("SCSR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+//  #endif
+  //TB_auto_restart<='1'; (7)
+  //TB_ap_start <='1'; (0)
+  //VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, 0x00000081);
+//  VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK | GCSR_AUTO_RESTART_MASK);
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+  //Note this control read will cause hanghup in polling loop if the LR0 value is too short!!!
+//  #endif
+
+
+//  val=VIS_PollDone(InstancePtr);
+
+
+//  #ifdef VIS_DEBUG_P
+//  xil_printf("GCSR break: 0x%x\n\r", val);
+//  #endif
+
+
+
+//  #ifdef VIS_DEBUG_P
+  //check if done and start reset is done
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//  xil_printf("GCSR: 0x%x\n\r", val);
+//  #endif
+
+//  #ifdef VIS_DEBUG_P
+//  val=VIS_mReadReg(InstancePtr->BaseAddress, CR0_ADDR_OFFSET);
+//  xil_printf("CR0: 0x%x\n\r", val);
+//  #endif
+
+//  xil_printf("VIS_TestUP passed\n\r");
+//}
 
 
 /*****************************************************************************
- * Interrupt selftest handler (originally vis_selftest_int.c)
+ * Interrupt selftests (originally vis_selftest_int.c)
  *****************************************************************************/
+
+//##INSERT YOUR CODE HERE
 
 void VIS_AppHandler_SelfTest(void *CallBackRef)
 {
-    (void)CallBackRef;
-    /* Application-specific handler called by VIS_InterruptHandler — no-op */
+	VIS_Data *InstancePtr = (VIS_Data *)CallBackRef;
+
+  //Application specific handler called by VIS_InterruptHandler
+  //here do nothing so far ...
+
 }
+
+// XStatus VIS_TestUp_int(VIS_Data *InstancePtr){
+
+//   int Status=XST_SUCCESS;
+//   uint32_t val=0;
+
+//   xil_printf("******************************\n\r");
+// 	xil_printf("*VIS_TESTUP_int\n\r");
+// 	xil_printf("******************************\n\r");
+
+//   ///Setup interrupt
+//   Status = XSetupInterruptSystem(InstancePtr, (XInterruptHandler)VIS_InterruptHandler, \
+// 				       InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent, \
+// 				       XINTERRUPT_DEFAULT_PRIORITY);
+
+//   //Register the AT app handler if neccesary
+//   //VIS_SetAppHandlerApp(InstancePtr, VIS_AppHandler_SelfTest, InstancePtr);
+
+
+//   ///Do the normal setup of the AT component
+
+//   //Check device id (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IDR_ADDR_OFFSET);
+//   xil_printf("IDR: 0x%x\n\r", val);
+//   #endif
+
+//   //Check version number (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
+//   xil_printf("VERR: 0x%x\n\r", val);
+//   #endif
+
+//   //Set value load reagister / count limit for counter register
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+//   VIS_mWriteReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET, LR0_10S_100MHZ); //LR0_40NS_100MHZ LR0_655US_100MHZ LR0_10S_100MHZ
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+
+//   //Set AT Special Control and Status Register
+//   //TB_ud0 <='1'; (5)
+//   //TB_load0 <='0'; (4)
+//   //TB_ent0_out <='1'; (2)
+//   //VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, 0x00000024);
+//   VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, SCSR_ENT0_OUT_MASK | SCSR_UD0_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET);
+//   xil_printf("SCSR: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Setup AT interrupt
+//   //Enable AT IP interrupts
+//   VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, IPIER_IPIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//   xil_printf("IPER: 0x%x\n\r", val);
+//   #endif
+
+//   //Enable AT global interrupt
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, GIER_GIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//   xil_printf("GIER: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Start the AT component / ipcore
+//   //Check Global Control and Status Register before starting (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   //Actual set of Global Control and Status Register (initiate start)
+//   //TB_auto_restart<='0'; (7)
+//   //TB_ap_start <='1'; (0)
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//   //Check Global Control and Status Register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   //Note this control read will cause hangup in polling loop if the LR0 value is too short!!!
+//   #endif
+
+
+//   ///Sync Interrupt
+//   val=VIS_WaitForInt(InstancePtr);
+
+//   //Check IPISR value after interrupt (reset correctly?) (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IPISR_ADDR_OFFSET);
+//   xil_printf("Int sync done - IPISR: 0x%x\n\r", val);
+//   #endif
+
+
+
+//   ///Do wrap up / checks after sync interrupt
+
+//   //disable AT Interrupt again? - not necessary in this case here
+//   /*
+//   //Disable IP specific part
+//     //Disable AT global interrupt
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, (val & ~GIER_GIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//     xil_printf("GIER: 0x%x\n\r", val);
+//     #endif
+
+
+//     //Disable AT IP interrupts
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, (val & ~IPIER_IPIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//     xil_printf("IPER: 0x%x\n\r", val);
+//     #endif
+
+//   //Disable platform specific part (xinterrupt_wrap.h/c in
+//   //  platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/standalone/src/common/intr/xinterupt_wrap.c/h)
+//   //Deregister interrupt handler in interrupt controller
+//    XDisableIntrId(InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent);
+//    */
+
+
+//   //reset done; this read has to be here since we use interrupt
+//   //and do not longer have a polling loop for done where the done signal is reset
+//   //so this is our read wich resets the done signal
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   #ifdef VIS_DEBUG_P
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   //check again if done and start reset is accomplished (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+
+//   //check value counter register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, CR0_ADDR_OFFSET);
+//   xil_printf("CR0: 0x%x\n\r", val);
+//   #endif
+
+
+//   if (Status != XST_SUCCESS) {
+// 		xil_printf("VIS_TestUP_int failed\r\n");
+// 		return XST_FAILURE;
+// 	}
+
+// 	xil_printf("VIS_TestUP_int passed\n\r");
+// 	return XST_SUCCESS;
+// }
+
+
+// XStatus VIS_TestUpAutoRestart_int(VIS_Data *InstancePtr){
+
+// //##INSERT YOUR CODE HERE
+
+// int Status=XST_SUCCESS;
+//   uint32_t val=0;
+
+//   xil_printf("******************************\n\r");
+// 	xil_printf("*VIS_TESTUPAUTORESTART_int\n\r");
+// 	xil_printf("******************************\n\r");
+
+//   ///Setup interrupts
+//   Status = XSetupInterruptSystem(InstancePtr, (XInterruptHandler)VIS_InterruptHandler, \
+// 				       InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent, \
+// 				       XINTERRUPT_DEFAULT_PRIORITY);
+
+//   //Register the AT app handler if neccesary
+//   //VIS_SetAppHandlerApp(InstancePtr, VIS_AppHandler_SelfTest, InstancePtr);
+
+
+//   ///Do the normal setup of the AT component
+
+//   //Check device id (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IDR_ADDR_OFFSET);
+//   xil_printf("IDR: 0x%x\n\r", val);
+//   #endif
+
+//   //Check version number (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
+//   xil_printf("VERR: 0x%x\n\r", val);
+//   #endif
+
+//   //Set value load reagister / count limit for counter register
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+//   VIS_mWriteReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET, LR0_10S_100MHZ); //LR0_40NS_100MHZ LR0_655US_100MHZ LR0_10S_100MHZ
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+
+//   //Set AT Special Control and Status Regsiter
+//   //TB_ud0 <='1'; (5)
+//   //TB_load0 <='0'; (4)
+//   //TB_ent0_out <='1'; (2)
+//   //VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, 0x00000024);
+//   VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, SCSR_ENT0_OUT_MASK | SCSR_UD0_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET);
+//   xil_printf("SCSR: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Setup AT interrupt
+//   //Enable AT IP interrupts
+//   VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, IPIER_IPIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//   xil_printf("IPER: 0x%x\n\r", val);
+//   #endif
+
+//   //Enable AT global interrupt
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, GIER_GIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//   xil_printf("GIER: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Start the AT component / ipcore
+//   //Check Global Control and Status Register before starting (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   //Actual set of Global Control and Status Register (initiate start)
+//   //TB_auto_restart<='0'; (7)
+//   //TB_ap_start <='1'; (0)
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//   //Check Global Control and Status Register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   //Note this control read will cause hangup in polling loop if the LR0 value is too short!!!
+//   #endif
+
+
+//   while (1)
+//   {
+//     ///Sync Interrupt
+//     val=VIS_WaitForInt(InstancePtr);
+
+//     //Check IPISR value after interrupt (reset correctly?) (debug only)
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, IPISR_ADDR_OFFSET);
+//     xil_printf("Int sync done - IPISR: 0x%x\n\r", val);
+//     #endif
+
+//     ///Restart the AT component / ipcore
+//     /*
+//     //Check Global Control and Status Register
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//     #ifdef VIS_DEBUG_P
+//     xil_printf("GCSR: 0x%x\n\r", val);
+//     #endif
+//     */
+//     //TB_auto_restart<='0'; (7)
+//     //TB_ap_start <='1'; (0)
+//     //VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//     //Check Global Control and Status Register (debug only)
+//     /*
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//     xil_printf("GCSR: 0x%x\n\r", val);
+//     //Note this control read will cause hangup in polling loop if the LR0 value is too short!!!
+//     #endif
+//     */
+//   }
+
+
+
+//   ///Do wrap up / checks after sync interrupt
+
+//   //disable AT Interrupt again? - not necessary in this case here
+//   /*
+//   //Disable IP specific part
+//     //Disable AT global interrupt
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, (val & ~GIER_GIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//     xil_printf("GIER: 0x%x\n\r", val);
+//     #endif
+
+
+//     //Disable AT IP interrupts
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, (val & ~IPIER_IPIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//     xil_printf("IPER: 0x%x\n\r", val);
+//     #endif
+
+//   //Disable platform specific part (xinterrupt_wrap.h/c in
+//   //  platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/standalone/src/common/intr/xinterupt_wrap.c/h)
+//     //Deregister interrupt handler in interrupt controller
+//     XDisableIntrId(InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent);
+//   */
+
+//   //reset done; this read has to be here since we use interrupt
+//   //and do not longer have a polling loop for done where the done signal is reset
+//   //so this is our read wich resets the done signal
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   #ifdef VIS_DEBUG_P
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   //check again if done and start reset is accomplished (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+
+//   //check value counter register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, CR0_ADDR_OFFSET);
+//   xil_printf("CR0: 0x%x\n\r", val);
+//   #endif
+
+
+//   if (Status != XST_SUCCESS) {
+// 		xil_printf("VIS_TestUpAutoRestart_int dailed\r\n");
+// 		return XST_FAILURE;
+// 	}
+
+// 	xil_printf("VIS_TestUpAutoRestart_int passed\n\r");
+// 	return XST_SUCCESS;
+
+//   //##INSERT YOUR CODE HERE END
+// }
+
+
+// XStatus VIS_TestUp_int_AutorestartSW(VIS_Data *InstancePtr)
+// {
+//   //##INSERT YOUR CODE HERE
+
+//   int Status=XST_SUCCESS;
+//   uint32_t val=0;
+
+//   xil_printf("******************************\n\r");
+// 	xil_printf("*VIS_TestUp_int_AutorestartSW\n\r");
+// 	xil_printf("******************************\n\r");
+
+//   ///Setup interrupts
+//   Status = XSetupInterruptSystem(InstancePtr, (XInterruptHandler)VIS_InterruptHandler, \
+// 				       InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent, \
+// 				       XINTERRUPT_DEFAULT_PRIORITY);
+
+//   //Register the AT app handler if neccesary
+//   //VIS_SetAppHandlerApp(InstancePtr, VIS_AppHandler_SelfTest, InstancePtr);
+
+
+//   ///Do the normal setup of the AT component
+
+//   //Check device id (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IDR_ADDR_OFFSET);
+//   xil_printf("IDR: 0x%x\n\r", val);
+//   #endif
+
+//   //Check version number (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, VERR_ADDR_OFFSET);
+//   xil_printf("VERR: 0x%x\n\r", val);
+//   #endif
+
+//   //Set value load reagister / count limit for counter register
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+//   VIS_mWriteReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET, LR0_10S_100MHZ); //LR0_40NS_100MHZ LR0_655US_100MHZ LR0_10S_100MHZ
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, LR0_ADDR_OFFSET);
+//   xil_printf("LR0: 0x%x\n\r", val);
+//   #endif
+
+//   //Set AT Special Control and Status Regsiter
+//   //TB_ud0 <='1'; (5)
+//   //TB_load0 <='0'; (4)
+//   //TB_ent0_out <='1'; (2)
+//   //VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, 0x00000024);
+//   VIS_mWriteReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET, SCSR_ENT0_OUT_MASK | SCSR_UD0_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, SCSR_ADDR_OFFSET);
+//   xil_printf("SCSR: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Setup AT interrupt
+//   //Enable AT IP interrupts
+//   VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, IPIER_IPIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//   xil_printf("IPER: 0x%x\n\r", val);
+//   #endif
+
+//   //Enable AT global interrupt
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, GIER_GIE_MASK);
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//   xil_printf("GIER: 0x%x\n\r", val);
+//   #endif
+
+
+//   ///Start the AT component / ipcore
+//   //Check Global Control and Status Register before starting (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   //Actual set of Global Control and Status Register (initiate start)
+//   //TB_auto_restart<='0'; (7)
+//   //TB_ap_start <='1'; (0)
+//   VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//   //Check Global Control and Status Register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   //Note this control read will cause hangup in polling loop if the LR0 value is too short!!!
+//   #endif
+
+//   while (1)
+//   {
+//     ///Sync Interrupt
+//     val=VIS_WaitForInt(InstancePtr);
+
+//     //IPISR value after interrupt (reset correctly?) (debug only)
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, IPISR_ADDR_OFFSET);
+//     xil_printf("Int sync done - IPISR: 0x%x\n\r", val);
+//     #endif
+
+//     ///Restart the AT component / ipcore
+//     /*
+//     //Check Global Control and Status Register
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//     #ifdef VIS_DEBUG_P
+//     xil_printf("GCSR: 0x%x\n\r", val);
+//     #endif
+//     */
+//     //TB_auto_restart<='0'; (7)
+//     //TB_ap_start <='1'; (0)
+//     VIS_mWriteReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET, GCSR_START_MASK);
+
+//     //Check Global Control and Status Register (debug only)
+//     /*
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//     xil_printf("GCSR: 0x%x\n\r", val);
+//     //Note this control read will cause hangup in polling loop if the LR0 value is too short!!!
+//     #endif
+//     */
+//   }
+
+//   ///Do wrap up / checks after sync interrupt
+
+//   ///disable AT Interrupt again? - not necessary in this case here
+//   /*
+//   //Disable IP specific part
+//     //Disable AT global interrupt
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET, (val & ~GIER_GIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress,  GIER_ADDR_OFFSET);
+//     xil_printf("GIER: 0x%x\n\r", val);
+//     #endif
+
+
+//     //Disable AT IP interrupts
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, GIER_ADDR_OFFSET);
+//     VIS_mWriteReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET, (val & ~IPIER_IPIE_MASK));
+//     #ifdef VIS_DEBUG_P
+//     val=VIS_mReadReg(InstancePtr->BaseAddress, IPIER_ADDR_OFFSET);
+//     xil_printf("IPER: 0x%x\n\r", val);
+//     #endif
+
+//   //Disable platform specific part (xinterrupt_wrap.h/c in
+//   //  platform/microblaze_0/standalone_microblaze_0/bsp/libsrc/standalone/src/common/intr/xinterupt_wrap.c/h)
+//     //Deregister interrupt handler in interrupt controller
+//     XDisableIntrId(InstancePtr->Config.IntrId, InstancePtr->Config.IntrParent);
+//   */
+
+//   //check if done and start reset is done (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, GCSR_ADDR_OFFSET);
+//   xil_printf("GCSR: 0x%x\n\r", val);
+//   #endif
+
+//   //check value counter register (debug only)
+//   #ifdef VIS_DEBUG_P
+//   val=VIS_mReadReg(InstancePtr->BaseAddress, CR0_ADDR_OFFSET);
+//   xil_printf("CR0: 0x%x\n\r", val);
+//   #endif
+
+//   if (Status != XST_SUCCESS) {
+// 		xil_printf("VIS_TestUP_int failed\r\n");
+// 		return XST_FAILURE;
+// 	}
+
+// 	xil_printf("VIS_TestUP_int passed\n\r");
+// 	return XST_SUCCESS;
+
+//   //##INSERT YOUR CODE HERE END
+// }
+
+//##INSERT YOUR CODE HERE END
 
 
 /*****************************************************************************
  * Core selftests (originally vis_core_selftest.c)
  *****************************************************************************/
 
+/*
+ * Compare two char arrays of length len.
+ * Prints the first mismatching position and returns XST_FAILURE.
+ */
 static XStatus check_str(const char *expected, const char *actual,
-                         u8 len, const char *test_name)
+                          u8 len, const char *test_name)
 {
     u8 i;
     for (i = 0; i < len; i++) {
@@ -113,6 +815,9 @@ static XStatus check_str(const char *expected, const char *actual,
     return XST_SUCCESS;
 }
 
+/*
+ * Check a single bar-width result and print on mismatch.
+ */
 static XStatus check_bar_width(uint16_t rms, u8 expected, const char *label)
 {
     u8 got = VIS_Core_CalcBarWidth(rms);
@@ -125,6 +830,13 @@ static XStatus check_bar_width(uint16_t rms, u8 expected, const char *label)
 }
 
 
+/*
+ * Unit test: VIS_Core_FormatRmsText
+ *
+ * Verifies the 17-character output "  Level: XXX.YY %" for boundary
+ * values of the 7.2 fixed-point input.
+ * No hardware required.
+ */
 XStatus VIS_Core_TestFormat(void)
 {
     XStatus Status = XST_SUCCESS, tmp;
@@ -134,6 +846,7 @@ XStatus VIS_Core_TestFormat(void)
     xil_printf("* VIS_CORE_TESTFORMAT\n\r");
     xil_printf("******************************\n\r");
 
+    /* All four fractional variants at integer 0 */
     VIS_Core_FormatRmsText(0, buf);
     tmp = check_str("  Level: 000.00 %", buf, 17, "rms=0 (0.00%)");
     Status |= tmp;
@@ -150,14 +863,17 @@ XStatus VIS_Core_TestFormat(void)
     tmp = check_str("  Level: 000.75 %", buf, 17, "rms=3 (0.75%)");
     Status |= tmp;
 
+    /* Integer increment: 4 = 1.00% */
     VIS_Core_FormatRmsText(4, buf);
     tmp = check_str("  Level: 001.00 %", buf, 17, "rms=4 (1.00%)");
     Status |= tmp;
 
+    /* Exact 100% */
     VIS_Core_FormatRmsText(400, buf);
     tmp = check_str("  Level: 100.00 %", buf, 17, "rms=400 (100.00%)");
     Status |= tmp;
 
+    /* Maximum representable value: 127.75% */
     VIS_Core_FormatRmsText(511, buf);
     tmp = check_str("  Level: 127.75 %", buf, 17, "rms=511 (127.75%)");
     Status |= tmp;
@@ -171,6 +887,13 @@ XStatus VIS_Core_TestFormat(void)
 }
 
 
+/*
+ * Unit test: VIS_Core_CalcBarWidth
+ *
+ * Verifies bar column count for key points in the 0-511 input range.
+ * Expected: 100% (rms=400) fills all 80 columns; values above 100% are capped.
+ * No hardware required.
+ */
 XStatus VIS_Core_TestBarWidth(void)
 {
     XStatus Status = XST_SUCCESS, tmp;
@@ -179,6 +902,7 @@ XStatus VIS_Core_TestBarWidth(void)
     xil_printf("* VIS_CORE_TESTBARWIDTH\n\r");
     xil_printf("******************************\n\r");
 
+    /* Silence */
     tmp = check_bar_width(0,   0,  "rms=0   (0%)");
     Status |= tmp;
 
@@ -211,6 +935,13 @@ XStatus VIS_Core_TestBarWidth(void)
 }
 
 
+/*
+ * Integration test: VIS_Core_RenderLoudness
+ *
+ * Calls the full render pipeline for representative loudness values and
+ * verifies it completes without hanging. Requires display hardware.
+ * Visual output on screen is the final verification.
+ */
 XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
 {
     xil_printf("******************************\n\r");
@@ -240,3 +971,4 @@ XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
     xil_printf("VIS_CORE_TESTRENDER passed (verify display output visually)\n\r");
     return XST_SUCCESS;
 }
+//end edit Maximilian Hafeneder / Nicolas Lonthoff

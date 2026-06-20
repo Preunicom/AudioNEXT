@@ -30,13 +30,10 @@
 extern int audio_rms_test(void);
 // END NEW Felix Knoll
 
-// BEGIN NEW Felix Knoll
-/* TODO: echte Ausgabe nach implementierung ersetzen. */
-void print_on_display(uint16_t value)
-{
-    xil_printf("value: 0x%03x\n\r", value);
-}
-// END NEW Felix Knoll
+// BEGIN NEW Nicolas Lonthoff
+#include "vis_driver.h"
+#include "vis_core.h"
+// END NEW Nicolas Lonthoff
 
 int main()
 {
@@ -51,6 +48,16 @@ int main()
     if (Status != XST_SUCCESS) {
         xil_printf("error during AUD_Init(). Check/Debug manually.\n\r");
     }
+
+    // BEGIN NEW Nicolas Lonthoff
+    VIS_Data VIS_Inst;
+    VIS_Data *VIS_InstPtr = &VIS_Inst;
+
+    Status = VIS_Init(VIS_InstPtr, VIS_BASEADDRESS);
+    if (Status != XST_SUCCESS) {
+        xil_printf("error during VIS_Init(). Check/Debug manually.\n\r");
+    }
+    // END NEW Nicolas Lonthoff
 
     ///Selftests
     AUD_TestRegisters(AUD_InstPtr);
@@ -76,7 +83,7 @@ int main()
             rms_add(l, r);
 
             if (rms_block_full()) {
-                print_on_display(rms_value_fp72());
+                VIS_Core_RenderLoudness(VIS_InstPtr, rms_value_fp72());
                 if (block_overruns > 0) {
                     xil_printf("%u Overruns\n\r", block_overruns);
                 }
