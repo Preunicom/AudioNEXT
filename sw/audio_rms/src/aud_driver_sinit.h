@@ -1,5 +1,5 @@
-#ifndef AT_DRIVER_SINIT_H
-#define AT_DRIVER_SINIT_H
+#ifndef AUD_DRIVER_SINIT_H
+#define AUD_DRIVER_SINIT_H
 
 /****************** Include Files ********************/
 
@@ -16,4 +16,4 @@
 /************************** Function Definitions ***************************/
 
 
-#endif // AT_DRIVER_SINIT_H
+#endif // AUD_DRIVER_SINIT_H

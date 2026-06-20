@@ -1,9 +1,7 @@
-//begin edit Maximilian Hafeneder
-#ifndef VIS_DRIVER_SINIT_H
-#define VIS_DRIVER_SINIT_H
-
 /****************** Include Files ********************/
-
+#include "aud_driver.h"
+#include "aud_driver_i.h"
+#include "aud_driver_l.h"
 
 /************************** Constant Definitions ***************************/
 
@@ -11,11 +9,7 @@
 /**************************** Type Definitions *****************************/
 
 
-/************************** Function Prototypes ****************************/
+/************************** Variable Definitions ***************************/
 
 
 /************************** Function Definitions ***************************/
-
-
-#endif // VIS_DRIVER_SINIT_H
-//end edit Maximilian Hafeneder
