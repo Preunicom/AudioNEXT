@@ -41,7 +41,6 @@ int main()
     VIS_Data VIS_Inst;
     VIS_Data *VIS_InstPtr = &VIS_Inst;
     XStatus Status;
-    uint32_t val, val2;
 
     init_platform();
     #ifdef VIS_DEBUG_P
@@ -60,6 +59,10 @@ int main()
     //VIS_TestUp_int(VIS_InstPtr);
     //VIS_TestUpAutoRestart_int(VIS_InstPtr);
     //VIS_TestUp_int_AutorestartSW(VIS_InstPtr);
+    VIS_Core_TestFormat();
+    VIS_Core_TestBarWidth();
+    VIS_Core_TestFDP(VIS_InstPtr);
+    VIS_Core_TestScrolling(VIS_InstPtr);
     VIS_Core_TestRender(VIS_InstPtr);
 
 //end edit Maximilian Hafeneder

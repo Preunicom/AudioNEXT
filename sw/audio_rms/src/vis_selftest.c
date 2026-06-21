@@ -936,11 +936,19 @@ XStatus VIS_Core_TestBarWidth(void)
 
 
 /*
- * Integration test: VIS_Core_RenderLoudness
+ * Integration test: VIS_Core_RenderLoudness (scrolling bar chart)
  *
- * Calls the full render pipeline for representative loudness values and
- * verifies it completes without hanging. Requires display hardware.
- * Visual output on screen is the final verification.
+ * Each call appends one column to the 80-column ring buffer and redraws the
+ * full display. Requires display hardware; visual output is the final check.
+ *
+ * Expected on screen after this test:
+ *   col 0-73: empty (rms=0, no bar)
+ *   col 74:   ~7 rows green   (rms=100, 25%)
+ *   col 75:   15 rows green   (rms=200, 50%)
+ *   col 76:   18 rows yellow  (rms=240, 60%)
+ *   col 77:   24 rows red     (rms=320, 80%)
+ *   col 78:   30 rows red     (rms=400, 100%)
+ *   col 79:   30 rows red     (rms=511, >100%, capped)
  */
 XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
 {
@@ -951,24 +959,94 @@ XStatus VIS_Core_TestRender(VIS_Data *InstancePtr)
     VIS_Core_Clear(InstancePtr);
 
     VIS_Core_RenderLoudness(InstancePtr, 0);
-    xil_printf("  Rendered rms=0   (0.00%%  - silent, empty bar)\n\r");
+    xil_printf("  col+1: rms=0   (0.00%%  - empty column)\n\r");
+
+    VIS_Core_RenderLoudness(InstancePtr, 100);
+    xil_printf("  col+2: rms=100 (25.00%% - short green column)\n\r");
 
     VIS_Core_RenderLoudness(InstancePtr, 200);
-    xil_printf("  Rendered rms=200 (50.00%% - green bar, half width)\n\r");
+    xil_printf("  col+3: rms=200 (50.00%% - mid green column)\n\r");
 
     VIS_Core_RenderLoudness(InstancePtr, 240);
-    xil_printf("  Rendered rms=240 (60.00%% - yellow bar threshold)\n\r");
+    xil_printf("  col+4: rms=240 (60.00%% - enters yellow zone)\n\r");
 
     VIS_Core_RenderLoudness(InstancePtr, 320);
-    xil_printf("  Rendered rms=320 (80.00%% - red bar threshold)\n\r");
+    xil_printf("  col+5: rms=320 (80.00%% - enters red zone)\n\r");
 
     VIS_Core_RenderLoudness(InstancePtr, 400);
-    xil_printf("  Rendered rms=400 (100.00%% - full red bar)\n\r");
+    xil_printf("  col+6: rms=400 (100.00%% - full height column)\n\r");
 
     VIS_Core_RenderLoudness(InstancePtr, 511);
-    xil_printf("  Rendered rms=511 (127.75%% - over-range, capped bar)\n\r");
+    xil_printf("  col+7: rms=511 (127.75%% - over-range, capped at full height)\n\r");
 
     xil_printf("VIS_CORE_TESTRENDER passed (verify display output visually)\n\r");
+    return XST_SUCCESS;
+}
+
+
+/*
+ * Hardware protocol test: STATUS.FDP asserts within one frame period.
+ *
+ * Clears any pending FDP, writes one character to trigger a display update,
+ * then polls STATUS.FDP with a timeout (~3 frame periods at 60 Hz / 100 MHz).
+ * Returns XST_FAILURE if FDP never arrives, so a broken sync line is caught
+ * as a test failure rather than an infinite hang.
+ * Requires display hardware.
+ */
+XStatus VIS_Core_TestFDP(VIS_Data *InstancePtr)
+{
+    uint32_t timeout = 5000000u;
+
+    xil_printf("******************************\n\r");
+    xil_printf("* VIS_CORE_TESTFDP\n\r");
+    xil_printf("******************************\n\r");
+
+    /* Clear any FDP left over from a previous operation */
+    VIS_mWriteReg(InstancePtr->BaseAddress, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
+
+    /* Write one character — this sets CTRL_WD and triggers the hardware */
+    VIS_WriteChar(InstancePtr, 0, 0, (u8)'*',
+                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+
+    /* Poll with timeout instead of spinning forever */
+    while ((VIS_mReadReg(InstancePtr->BaseAddress, STATUS_ADDR_OFFSET) & STATUS_FDP_MASK) == 0) {
+        if (--timeout == 0) {
+            xil_printf("  FAIL: STATUS.FDP never asserted (display hardware not responding)\n\r");
+            return XST_FAILURE;
+        }
+    }
+    VIS_mWriteReg(InstancePtr->BaseAddress, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
+
+    xil_printf("VIS_CORE_TESTFDP passed\n\r");
+    return XST_SUCCESS;
+}
+
+
+/*
+ * Ring buffer wrap test: fill all 80 columns once with a rising ramp.
+ *
+ * Calls VIS_Core_RenderLoudness exactly VIS_CORE_COLS (80) times, driving
+ * rms linearly from 0 to 100% (400). After the last call the ring buffer
+ * has wrapped once and the display should show a smooth staircase rising
+ * from left (empty) to right (full height).
+ * Requires display hardware; visual output is the final check.
+ */
+XStatus VIS_Core_TestScrolling(VIS_Data *InstancePtr)
+{
+    u8 i;
+
+    xil_printf("******************************\n\r");
+    xil_printf("* VIS_CORE_TESTSCROLLING\n\r");
+    xil_printf("******************************\n\r");
+
+    VIS_Core_Clear(InstancePtr);
+
+    for (i = 0; i < VIS_CORE_COLS; i++) {
+        uint16_t rms = (uint16_t)((u32)i * VIS_CORE_RMS_100PCT / (VIS_CORE_COLS - 1U));
+        VIS_Core_RenderLoudness(InstancePtr, rms);
+    }
+
+    xil_printf("VIS_CORE_TESTSCROLLING passed (verify rising staircase on display)\n\r");
     return XST_SUCCESS;
 }
 //end edit Maximilian Hafeneder / Nicolas Lonthoff

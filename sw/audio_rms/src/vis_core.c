@@ -3,8 +3,6 @@
 #include "vis_core.h"
 
 /************************** Constant Definitions ***************************/
-static const char HDR_STR[] = "  AudioNEXT - RMS Loudness Meter";
-#define HDR_LEN 32U
 
 /* Fractional digit pairs for 7.2 fixed-point: 0->.00  1->.25  2->.50  3->.75 */
 static const char FRAC_TAB[4][2] = {
@@ -14,23 +12,41 @@ static const char FRAC_TAB[4][2] = {
     {'7', '5'}
 };
 
+/* Ring buffer: one RMS sample per display column, oldest at head, newest before head */
+static uint16_t s_history[VIS_CORE_COLS];
+static u8       s_history_head = 0;
+
 
 /************************** Static Helper Functions ***************************/
 
 /*
- * Write exactly VIS_CORE_COLS characters on one row.
- * Uses the first str_len chars from str, then pads the rest with spaces.
+ * Return bar height in rows (0-VIS_CORE_ROWS) for a given rms_7p2 value.
+ * 100% (rms=400) maps to VIS_CORE_ROWS; values above 100% are capped.
  */
-static void write_row(VIS_Data *inst, u8 row, const char *str, u8 str_len,
-                      u8 cr, u8 cg, u8 cb)
+static u8 calc_bar_height(uint16_t rms_7p2)
 {
-    u8 x;
-    for (x = 0; x < VIS_CORE_COLS; x++) {
-        u8 c = (x < str_len) ? (u8)str[x] : (u8)' ';
-        VIS_WriteChar(inst, x, row, c, cr, cg, cb);
+    if (rms_7p2 >= VIS_CORE_RMS_100PCT)
+        return (u8)VIS_CORE_ROWS;
+    return (u8)((u32)rms_7p2 * VIS_CORE_ROWS / VIS_CORE_RMS_100PCT);
+}
+
+/*
+ * Return bar cell color based on absolute row position.
+ * Top third (rows 0..9) -> red, middle (rows 10..19) -> yellow, bottom (rows 20..29) -> green.
+ */
+static void bar_color(u8 y, u8 *cr, u8 *cg, u8 *cb)
+{
+    if (y < VIS_CORE_ROWS / 3U) {
+        *cr = VIS_CORE_CR_RED;    *cg = VIS_CORE_CG_RED;    *cb = VIS_CORE_CB_RED;
+    } else if (y < (2U * VIS_CORE_ROWS / 3U)) {
+        *cr = VIS_CORE_CR_YELLOW; *cg = VIS_CORE_CG_YELLOW; *cb = VIS_CORE_CB_YELLOW;
+    } else {
+        *cr = VIS_CORE_CR_GREEN;  *cg = VIS_CORE_CG_GREEN;  *cb = VIS_CORE_CB_GREEN;
     }
 }
 
+
+/************************** Public Functions ***************************/
 
 /*
  * Format rms_7p2 into buf as "  Level: XXX.YY %" (17 chars).
@@ -69,90 +85,57 @@ u8 VIS_Core_CalcBarWidth(uint16_t rms_7p2)
 }
 
 
-/*
- * Write the bar row: bar_width filled '|' cells, rest empty ' '.
- * Colour: green < 60%, yellow 60-80%, red >= 80%.
- * Bar maps 100% (rms_7p2=400) to 80 columns.
- */
-static void write_bar(VIS_Data *inst, u8 row, uint16_t rms_7p2)
-{
-    u8 bar_width;
-    u8 cr, cg, cb;
-    u8 x;
-
-    bar_width = VIS_Core_CalcBarWidth(rms_7p2);
-
-    if (rms_7p2 >= VIS_CORE_RMS_RED_THR) {
-        cr = VIS_CORE_CR_RED;    cg = VIS_CORE_CG_RED;    cb = VIS_CORE_CB_RED;
-    } else if (rms_7p2 >= VIS_CORE_RMS_YELLOW_THR) {
-        cr = VIS_CORE_CR_YELLOW; cg = VIS_CORE_CG_YELLOW; cb = VIS_CORE_CB_YELLOW;
-    } else {
-        cr = VIS_CORE_CR_GREEN;  cg = VIS_CORE_CG_GREEN;  cb = VIS_CORE_CB_GREEN;
-    }
-
-    for (x = 0; x < VIS_CORE_COLS; x++) {
-        u8 c = (x < bar_width) ? (u8)'|' : (u8)' ';
-        VIS_WriteChar(inst, x, row, c, cr, cg, cb);
-    }
-}
-
-
-/*
- * Write the scale row: "0%" at the left edge, "100%" at the right edge,
- * spaces in between.
- */
-static void write_scale(VIS_Data *inst, u8 row)
-{
-    static const char LEFT[]  = "0%";
-    static const char RIGHT[] = "100%";
-    u8 x;
-
-    for (x = 0; x < VIS_CORE_COLS; x++) {
-        u8 c;
-        if (x < 2U) {
-            c = (u8)LEFT[x];
-        } else if (x >= (VIS_CORE_COLS - 4U)) {    /* last 4 cols: "100%" */
-            c = (u8)RIGHT[x - (VIS_CORE_COLS - 4U)];
-        } else {
-            c = (u8)' ';
-        }
-        VIS_WriteChar(inst, x, row, c,
-                      VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
-    }
-}
-
-
-/************************** Public Functions ***************************/
-
 void VIS_Core_Clear(VIS_Data *InstancePtr)
 {
     u8 x, y;
+
     for (y = 0; y < VIS_CORE_ROWS; y++) {
         for (x = 0; x < VIS_CORE_COLS; x++) {
             VIS_WriteChar(InstancePtr, x, y, (u8)' ',
                           VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
         }
     }
+
+    /* Reset history so the next render starts from a blank slate */
+    for (x = 0; x < VIS_CORE_COLS; x++)
+        s_history[x] = 0U;
+    s_history_head = 0U;
+
     VIS_PollFDP(InstancePtr);
 }
 
 
+/*
+ * Scrolling bar-chart renderer.
+ *
+ * Each call appends rms_7p2 to a ring buffer and redraws all 80 columns.
+ * Column x=0 holds the oldest sample, x=79 the newest.
+ * Each column is a vertical bar growing from the bottom; the bar character
+ * is coloured green (bottom third), yellow (middle third), or red (top third).
+ */
 void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
 {
-    char text_buf[18];
+    u8 x, y;
 
-    write_row(InstancePtr, VIS_CORE_ROW_HEADER,
-              HDR_STR, HDR_LEN,
-              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+    s_history[s_history_head] = rms_7p2;
+    s_history_head = (u8)((s_history_head + 1U) % VIS_CORE_COLS);
 
-    VIS_Core_FormatRmsText(rms_7p2, text_buf);
-    write_row(InstancePtr, VIS_CORE_ROW_TEXT,
-              text_buf, 17U,
-              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+    for (x = 0; x < VIS_CORE_COLS; x++) {
+        u8 idx    = (u8)(((u16)s_history_head + x) % VIS_CORE_COLS);
+        u8 bar_h  = calc_bar_height(s_history[idx]);
 
-    write_bar(InstancePtr, VIS_CORE_ROW_BAR, rms_7p2);
-
-    write_scale(InstancePtr, VIS_CORE_ROW_SCALE);
+        for (y = 0; y < VIS_CORE_ROWS; y++) {
+            /* row y is inside the bar when its distance from the bottom < bar_h */
+            if ((VIS_CORE_ROWS - 1U - y) < bar_h) {
+                u8 cr, cg, cb;
+                bar_color(y, &cr, &cg, &cb);
+                VIS_WriteChar(InstancePtr, x, y, (u8)'|', cr, cg, cb);
+            } else {
+                VIS_WriteChar(InstancePtr, x, y, (u8)' ',
+                              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+            }
+        }
+    }
 
     VIS_PollFDP(InstancePtr);
 }
