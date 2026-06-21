@@ -1,0 +1,28 @@
+\section{Lösung / Implementierung}
+\begin{frame}{Lösung / Implementierung}
+    @Remy \& Knoll \& Hafeneder \& Tuch \& Lonthoff
+    \begin{itemize}
+        \item TODO: Umsetzung der einzelnen Komponenten beschreiben.
+        \item TODO: Wichtige Implementierungsentscheidungen.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Lösung / Implementierung -- State-Chart}
+    @ Hafeneder?
+    % TODO: State-Chart einer relevanten Zustandsmaschine einfügen,
+    %       z.B. VGA-Steuerung oder Audio-Sampling.
+    %       Entweder als Grafik (\includegraphics{...}) oder als TikZ-Automat:
+    \begin{figure}
+        \centering
+        \begin{tikzpicture}[->, >=Stealth, node distance=2.8cm, on grid, auto]
+            \node[state, initial] (s0) {IDLE};
+            \node[state] (s1) [right=of s0] {STATE\,1};
+            \node[state] (s2) [right=of s1] {STATE\,2};
+            \path
+                (s0) edge node {bedingung} (s1)
+                (s1) edge node {bedingung} (s2)
+                (s2) edge [bend left=45] node {reset} (s0);
+        \end{tikzpicture}
+        \caption{Platzhalter -- State-Chart (TODO: durch reale FSM ersetzen).}
+    \end{figure}
+\end{frame}

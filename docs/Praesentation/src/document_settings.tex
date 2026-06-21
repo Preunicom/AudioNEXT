@@ -1,0 +1,37 @@
+% Umlaute
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% Sprache
+\usepackage[ngerman]{babel}
+\usepackage{csquotes}
+
+% Literaturverzeichnis (biblatex -> unterstützt @online mit url/urldate)
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\addbibresource{references.bib}
+
+% Layout
+\usetheme{metropolis}
+\metroset{
+    numbering=fraction,     % Seitennummerierung mit Gesamtanzahl
+    block=fill,             % Blöcke mit Hintergrundfarbe
+    sectionpage=none,       % keine Trennfolien pro Kapitel
+    subsectionpage=none,    % keine Trennfolien pro Unterkapitel
+    titleformat=regular     % Kapitelnamen nicht umformatieren
+}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{bibliography item}[text]
+\setbeamertemplate{frametitle continuation}{} % keine Nummeerierung bei allowframebreaks
+
+% Bilder
+\usepackage{graphicx}
+\graphicspath{{files/}}
+
+% Tabellen
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+
+% Diagramme
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, automata, fit}

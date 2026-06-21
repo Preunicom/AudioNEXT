@@ -1,0 +1,42 @@
+\documentclass[aspectratio=169, 11pt]{beamer}
+
+\input{document_settings} % Theme und Pakete
+
+% Metadaten
+\title[AudioNEXT]{AudioNEXT}
+\subtitle{Lautstärkeanalyse und VGA-Visualisierung auf dem Arty A7}
+\author[Team 05 -- Die Audiophilen]{
+    Felix Knoll \and
+    Maximilian Hafeneder \and
+    Nicolas Lonthoff \and
+    Markus Remy \and
+    Richard Tuch
+}
+\institute[]{Team 05 -- Die Audiophilen \\ CSA - Computer System Architektur}
+\date{\today}
+
+\begin{document}
+
+% Titelfolie
+\begin{frame}[plain]
+    \titlepage
+\end{frame}
+
+% Gliederung
+\begin{frame}{Gliederung}
+    \tableofcontents
+\end{frame}
+
+% Kapitel
+\input{chapters/01_einleitung_motivation}
+\input{chapters/02_notwendige_grundlagen}
+\input{chapters/03_aufgabenstellung_zielsetzung}
+\input{chapters/04_loesungsansatz_konzept}
+\input{chapters/05_loesung_implementierung}
+\input{chapters/06_evaluierung_ergebnisse}
+\input{chapters/07_diskussion}
+\input{chapters/08_schlusszusammenfassung}
+\input{chapters/09_literaturverzeichnis}
+\input{chapters/10_quellcodeuebersicht}
+
+\end{document}
