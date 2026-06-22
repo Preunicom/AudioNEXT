@@ -115,6 +115,9 @@ void VIS_Core_Clear(VIS_Data *InstancePtr)
  */
 void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
 {
+    // Wait for previous frame to be fully displayed before starting to write the next one, otherwise we get tearing artifacts and/or dropped frames.
+    VIS_PollFDP(InstancePtr);
+
     u8 x, y;
 
     s_history[s_history_head] = rms_7p2;
@@ -132,11 +135,14 @@ void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
                 VIS_WriteChar(InstancePtr, x, y, (u8)'|', cr, cg, cb);
             } else {
                 VIS_WriteChar(InstancePtr, x, y, (u8)' ',
-                              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+                VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
             }
+            // Poll for write done after each character to avoid overwhelming the IP and causing tearing artifacts and/or dropped frames. 
+            // This is necessary because the IP needs some time to process each character and update the display, 
+            // and if we write too fast, we might end up with a backlog of writes that the IP cannot handle in time.
+            VIS_PollWD(InstancePtr);
         }
     }
 
-    VIS_PollFDP(InstancePtr);
 }
 //end edit Nicolas Lonthoff

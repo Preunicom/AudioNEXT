@@ -100,7 +100,7 @@ void VIS_WriteChar(VIS_Data *InstancePtr, u8 x, u8 y, u8 ch, u8 cr, u8 cg, u8 cb
   VIS_mWriteReg(baseaddr, CTRL_ADDR_OFFSET,  CTRL_VEN_MASK | CTRL_WD_MASK);
 }
 
-
+// Poll for frame done
 void VIS_PollFDP(VIS_Data *InstancePtr)
 {
   UINTPTR baseaddr = InstancePtr->BaseAddress;
@@ -108,6 +108,14 @@ void VIS_PollFDP(VIS_Data *InstancePtr)
   while ((VIS_mReadReg(baseaddr, STATUS_ADDR_OFFSET) & STATUS_FDP_MASK) == 0) {}
 
   VIS_mWriteReg(baseaddr, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
+}
+
+// Poll for write done
+void VIS_PollWD(VIS_Data *InstancePtr)
+{
+  UINTPTR baseaddr = InstancePtr->BaseAddress;
+
+  while ((VIS_mReadReg(baseaddr, CTRL_ADDR_OFFSET) & CTRL_WD_MASK) != 0) {}
 }
 // End user code (Nicolas Lonthoff)
 //end edit Maximilian Hafeneder / Nicolas Lonthoff
