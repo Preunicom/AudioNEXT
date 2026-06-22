@@ -1,10 +1,36 @@
 \section{Lösung / Implementierung}
-\begin{frame}{Lösung / Implementierung}
-    @Remy \& Knoll \& Hafeneder \& Tuch \& Lonthoff
+\begin{frame}{Lösung / Implementierung - TODO - MAX}
+
+\end{frame}
+\begin{frame}{Lösung / Implementierung - TODO - FELIX}
+
+\end{frame}
+\begin{frame}{Lösung / Implementierung - TODO - RICHI}
+
+\end{frame}
+\begin{frame}{Lösung / Implementierung - TODO - NICOLAS}
+
+\end{frame}
+\begin{frame}{Lösung / Implementierung - VGA - Übersicht [Remy]}
     \begin{itemize}
-        \item TODO: Umsetzung der einzelnen Komponenten beschreiben.
-        \item TODO: Wichtige Implementierungsentscheidungen.
+        \item 8x16 Pixelblöcke für ein Zeichen
+        \item ROM mit 8x16 Pixelmaps für die ASCII Daten für niedrige Speichernutzung
+        \item Nur Verweis auf ASCII Daten im ROM werden im Textframebuffer gespeichert
+        \item 12 Bit Farbe pro Zeichen
+        \item Schreiben neuer Werte in den Farb- \& Textframebuffer während des nicht sichtbaren Bereichs
     \end{itemize}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - VGA - Steuerung [Remy]}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.9\textheight, keepaspectratio]{VGA_Bufferbefuellung}
+    \end{figure}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - VGA - Bildausgabe [Remy]}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.9\textheight, keepaspectratio]{VGA_Textmodus}
+    \end{figure}
 \end{frame}
 
 \begin{frame}{Lösung / Implementierung -- State-Chart}
