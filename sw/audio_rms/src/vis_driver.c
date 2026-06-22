@@ -109,5 +109,13 @@ void VIS_PollFDP(VIS_Data *InstancePtr)
 
   VIS_mWriteReg(baseaddr, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
 }
+
+// Poll for write done
+void VIS_PollWD(VIS_Data *InstancePtr)
+{
+  UINTPTR baseaddr = InstancePtr->BaseAddress;
+
+  while ((VIS_mReadReg(baseaddr, CTRL_ADDR_OFFSET) & CTRL_WD_MASK) != 0) {}
+}
 // End user code (Nicolas Lonthoff)
 //end edit Maximilian Hafeneder / Nicolas Lonthoff
