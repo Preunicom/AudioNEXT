@@ -31,6 +31,22 @@ static u8 calc_bar_height(uint16_t rms_7p2)
 }
 
 /*
+ * Write a string of exactly len characters starting at (x, y) with the given colour.
+ * Caller must ensure x + len <= VIS_CORE_COLS.
+ */
+static void write_str(VIS_Data *InstancePtr, u8 x, u8 y,
+                      const char *str, u8 len,
+                      u8 cr, u8 cg, u8 cb)
+{
+    u8 i;
+    for (i = 0; i < len; i++) {
+        VIS_WriteChar(InstancePtr, x + i, y, (u8)str[i], cr, cg, cb);
+        VIS_PollWD(InstancePtr);
+    }
+}
+
+
+/*
  * Return bar cell color based on absolute row position.
  * Top third (rows 0..9) -> red, middle (rows 10..19) -> yellow, bottom (rows 20..29) -> green.
  */
@@ -137,12 +153,24 @@ void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
                 VIS_WriteChar(InstancePtr, x, y, (u8)' ',
                 VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
             }
-            // Poll for write done after each character to avoid overwhelming the IP and causing tearing artifacts and/or dropped frames. 
-            // This is necessary because the IP needs some time to process each character and update the display, 
+            // Poll for write done after each character to avoid overwhelming the IP and causing tearing artifacts and/or dropped frames.
+            // This is necessary because the IP needs some time to process each character and update the display,
             // and if we write too fast, we might end up with a backlog of writes that the IP cannot handle in time.
             VIS_PollWD(InstancePtr);
         }
     }
+
+    /* Overlay title and current RMS value on top of the bar chart */
+    char rms_buf[18];
+    VIS_Core_FormatRmsText(rms_7p2, rms_buf);
+
+    write_str(InstancePtr, 0, VIS_CORE_ROW_HEADER,
+              VIS_CORE_TITLE, VIS_CORE_TITLE_LEN,
+              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+
+    write_str(InstancePtr, 0, VIS_CORE_ROW_TEXT,
+              rms_buf, 17U,
+              VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
 
 }
 //end edit Nicolas Lonthoff

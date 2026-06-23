@@ -57,7 +57,7 @@ uint16_t rms_value_fp72(void)
     mean_sq = sq_acc / ((uint64_t)pair_cnt * 2u);
     rms = isqrt(mean_sq);
 
-    fp72 = (rms * 400u) / RMS_FULLSCALE;
+    fp72 = (rms * 3200u) / RMS_FULLSCALE;
     if (fp72 > 0x1FFu) {
         fp72 = 0x1FFu;
     }

@@ -86,22 +86,22 @@ int main()
             int32_t r = 0;
             if (AUD_RAvailable(AUD_InstPtr)) {
                 r = AUD_GetR(AUD_InstPtr);
-            }else {
+            } else {
                 xil_printf("not av rechts\n\r");
             }
             rms_add(l, r);
 
-        if (rms_block_full()) {
-            xil_printf("Block full \n\r");
-            uint16_t loud = rms_value_fp72();
-            VIS_Core_RenderLoudness(VIS_InstPtr, loud);  /* 7.2-Fixed-Point, 400 = 100% */
-            /* fp72: Ganzteil = loud>>2, Nachkomma = (loud&3)*25 (Schritte 0.25).
-             * maxAbs zeigt ob ueberhaupt Audio ankommt (0 => stille/keine Quelle). */
-            xil_printf("Lautstaerke: %u.%02u  (ovr=%u)\n\r",
-                       loud >> 2, (loud & 3u) * 25u,  block_overruns);
-            block_overruns = 0;
-            rms_reset();
-        }
+            if (rms_block_full()) {
+                xil_printf("Block full \n\r");
+                uint16_t loud = rms_value_fp72();
+                VIS_Core_RenderLoudness(VIS_InstPtr, loud);  /* 7.2-Fixed-Point, 400 = 100% */
+                /* fp72: Ganzteil = loud>>2, Nachkomma = (loud&3)*25 (Schritte 0.25).
+                 * maxAbs zeigt ob ueberhaupt Audio ankommt (0 => stille/keine Quelle). */
+                xil_printf("Lautstaerke: %u.%02u  (ovr=%u)\n\r",
+                           loud >> 2, (loud & 3u) * 25u,  block_overruns);
+                block_overruns = 0;
+                rms_reset();
+            }
         } else {
             xil_printf("not av links\n\r");
         }

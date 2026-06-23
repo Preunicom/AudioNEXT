@@ -105,7 +105,7 @@ void VIS_WriteChar(VIS_Data *InstancePtr, u8 x, u8 y, u8 ch, u8 cr, u8 cg, u8 cb
 
 /* Polling sync: block until STATUS.FDP is set, then clear IPISR.FDP */
 void VIS_PollFDP(VIS_Data *InstancePtr);
-void VIS_PollWD(VIS_Data *InstancePtr)
+void VIS_PollWD(VIS_Data *InstancePtr);
 // End user code (Nicolas Lonthoff)
 
 /************************** Function Definitions ***************************/
