@@ -1,8 +1,8 @@
-\documentclass[aspectratio=169, 11pt]{beamer}
+\documentclass[aspectratio=43, 10pt]{beamer}
 
-\input{document_settings} % Theme und Pakete
+\input{document_settings} % Layout and packages
 
-% Metadaten
+% Metadata
 \title[AudioNEXT]{AudioNEXT}
 \subtitle{Lautstärkeanalyse und VGA-Visualisierung auf dem Arty A7}
 \author[Team 05 -- Die Audiophilen]{
@@ -17,17 +17,16 @@
 
 \begin{document}
 
-% Titelfolie
-\begin{frame}[plain]
+% Title slide
+% (No [plain] -> Header and footer identical layout as no title slides)
+\begin{frame}
     \titlepage
 \end{frame}
 
-% Gliederung
 \begin{frame}{Gliederung}
     \tableofcontents
 \end{frame}
 
-% Kapitel
 \input{chapters/01_einleitung_motivation}
 \input{chapters/02_notwendige_grundlagen}
 \input{chapters/03_aufgabenstellung_zielsetzung}
