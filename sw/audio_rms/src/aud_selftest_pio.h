@@ -16,9 +16,11 @@ XStatus AUD_TestRegister(AUD_Data *InstancePtr, uint32_t AddrOffset,
 
 XStatus AUD_TestRegisters(AUD_Data *InstancePtr);
 
-// BEGIN NEW Felix Knoll
-XStatus AUD_TestSampling(AUD_Data *InstancePtr);
-// END NEW Felix Knoll
+// BEGIN NEW Richard Tuch / Felix Knoll
+XStatus AUD_TestSamplingEnable(AUD_Data *InstancePtr);
+XStatus AUD_TestSamplingL(AUD_Data *InstancePtr);
+XStatus AUD_TestSamplingR(AUD_Data *InstancePtr);
+// END NEW Richard Tuch / Felix Knoll
 
 
 /************************** Function Definitions ***************************/
