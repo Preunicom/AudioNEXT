@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 cmake_minimum_required(VERSION 3.16)
 
+include(${CMAKE_CURRENT_SOURCE_DIR}/Hello_worldExample.cmake)
 include(${CMAKE_CURRENT_SOURCE_DIR}/UserConfig.cmake)
 set(APP_NAME audio_rms)
 project(${APP_NAME})
@@ -11,20 +12,6 @@ find_package(common)
 collect(PROJECT_LIB_DEPS xilstandalone)
 collect(PROJECT_LIB_DEPS xil)
 collect(PROJECT_LIB_DEPS xiltimer)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -52,29 +39,6 @@ collect (PROJECT_LIB_SOURCES aud_selftest_pio.c)
 collect (PROJECT_LIB_SOURCES audio_rms_test.c)
 collect (PROJECT_LIB_SOURCES vis_selftest.c)
 collector_list (_sources PROJECT_LIB_SOURCES)
-# vis_selftest_main.c excluded: its main() collides with audio_rms_main.c main()
-# collect (PROJECT_LIB_SOURCES vis_selftest_main.c)
-collect (PROJECT_LIB_SOURCES vis_driver_g.c)
-collect (PROJECT_LIB_SOURCES vis_driver_int.c)
-collect (PROJECT_LIB_SOURCES vis_driver.c)
-# helloworld.c excluded: AMD template main() collides with audio_rms_main.c main()
-# collect (PROJECT_LIB_SOURCES helloworld.c)
-collect (PROJECT_LIB_SOURCES aud_driver_g.c)
-collect (PROJECT_LIB_SOURCES aud_selftest_pio.c)
-collect (PROJECT_LIB_SOURCES audio_rms_test.c)
-collect (PROJECT_LIB_SOURCES vis_selftest.c)
-# vis_selftest_main.c excluded: its main() collides with audio_rms_main.c main()
-# collect (PROJECT_LIB_SOURCES vis_selftest_main.c)
-# helloworld.c excluded: AMD template main() collides with audio_rms_main.c main()
-# collect (PROJECT_LIB_SOURCES helloworld.c)
-collect (PROJECT_LIB_SOURCES vis_driver_g.c)
-collect (PROJECT_LIB_SOURCES vis_driver_int.c)
-collect (PROJECT_LIB_SOURCES vis_driver.c)
-collect (PROJECT_LIB_SOURCES aud_driver_g.c)
-collect (PROJECT_LIB_SOURCES aud_selftest_pio.c)
-collect (PROJECT_LIB_SOURCES audio_rms_test.c)
-collect (PROJECT_LIB_SOURCES vis_selftest.c)
-
 foreach (source ${_sources})
     get_filename_component(ext ${source} EXT)
     list(APPEND src_ext ${ext})

@@ -111,13 +111,6 @@ module aud_tb();
     i_data_stim = 0;
     wait(ap_rst_n == 1'b1);
     forever begin
-      @(negedge o_lrck);
-      //skip one sclk cycle
-      @(negedge o_sclk);
-      for (int i = 23; i >= 0; i--) begin
-        i_data_stim = TEST_SAMPLE_L[i];
-        @(negedge o_sclk);
-      end
       @(posedge o_lrck);
       //skip one sclk cycle
       @(negedge o_sclk);
@@ -125,6 +118,15 @@ module aud_tb();
         i_data_stim = TEST_SAMPLE_R[i];
         @(negedge o_sclk);
       end
+      i_data_stim = 0;
+      @(negedge o_lrck);
+      //skip one sclk cycle
+      @(negedge o_sclk);
+      for (int i = 23; i >= 0; i--) begin
+        i_data_stim = TEST_SAMPLE_L[i];
+        @(negedge o_sclk);
+      end
+      i_data_stim = 0;
     end
   end
   //end edit Maximilian Hafeneder
@@ -504,7 +506,6 @@ module aud_tb();
     
 //     blocking_write_register(GIER_ADDR, GIER_GIE_MASK);
             
-//     //TB_auto_restart<='1'; (7)    
 //     //TB_ap_start <='1'; (0)
 //     blocking_write_register(GCSR_ADDR, 32'h00000081);    
    
@@ -550,6 +551,7 @@ module aud_tb();
   task automatic TEST_SEN_AND_INTERRUPT;  
     bit [31:0] adatlr_val =0;
     bit [31:0] adatrr_val =0;
+    bit test_failed = 0;
   
     $display("---------------------------------------------------------------");
     $display(" START TEST_SEN_AND_INTERRUPT");
@@ -570,6 +572,7 @@ module aud_tb();
     if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_L}, adatlr_val);
+      test_failed = 1;
     end
     
     //delete interrupt
@@ -583,12 +586,19 @@ module aud_tb();
     if (adatrr_val != {8'h00, TEST_SAMPLE_R}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_R}, adatrr_val);
+      test_failed = 1;
     end
     
     //delete interrupt
     blocking_write_register(IPISR_ADDR, IPISR_SRA_MASK);
     
-    $display("TEST_SEN_AND_INTERRUPT successful!");
+    if (!test_failed) begin
+      $display("TEST_SEN_AND_INTERRUPT successful!");
+    end else begin
+      $display("TEST_SEN_AND_INTERRUPT failed");
+    end
+    
+    
     #10;      
   endtask
   
@@ -596,6 +606,7 @@ module aud_tb();
   task automatic TEST_TWO_SAMPLES;
     bit [31:0] adatlr_val1, adatrr_val1;
     bit [31:0] adatlr_val2, adatrr_val2;
+    bit test_failed = 0;
 
     $display("---------------------------------------------------------------");
     $display(" START TEST_TWO_SAMPLES");
@@ -616,6 +627,7 @@ module aud_tb();
     if (adatlr_val1 != {8'h00, TEST_SAMPLE_L}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_L}, adatlr_val1);
+      test_failed = 1;
     end
 
     wait_for_interrupt_sra();
@@ -625,6 +637,7 @@ module aud_tb();
     if (adatrr_val1 != {8'h00, TEST_SAMPLE_R}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_R}, adatlr_val1);
+      test_failed = 1;
     end
     
 
@@ -636,6 +649,7 @@ module aud_tb();
     if (adatlr_val2 != {8'h00, TEST_SAMPLE_L}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_L}, adatlr_val2);
+      test_failed = 1;
     end
 
     wait_for_interrupt_sra();
@@ -645,23 +659,30 @@ module aud_tb();
     if (adatrr_val2 != {8'h00, TEST_SAMPLE_R}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_R}, adatrr_val2);
+      test_failed = 1;
     end
 
-    if (adatlr_val1 == adatlr_val2 && adatrr_val1 == adatrr_val2) begin
+    if (test_failed) begin
+      $display("TEST_TWO_SAMPLES failed");
+    end else if (adatlr_val1 == adatlr_val2 && adatrr_val1 == adatrr_val2) begin
       $display("TEST_TWO_SAMPLES successful!");
     end else if (adatlr_val1 != adatlr_val2 && adatrr_val1 != adatrr_val2) begin
       $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on both channels");
     end else if (adatlr_val1 != adatlr_val2) begin 
       $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on the left channel");
-    end else if (adatrr_val1 != adatrr_val2) begin
+    end else begin 
       $display("TEST_TWO_SAMPLES failed! Sample 1 and 2 do not match on the right channel");
     end
+      
+ 
+    
     #10;
   endtask
   
   
   task automatic TEST_SLA_ONLY;
     bit [31:0] adatlr_val;
+    bit test_failed = 0;
 
     $display("---------------------------------------------------------------");
     $display(" START TEST_SLA_ONLY");
@@ -682,18 +703,25 @@ module aud_tb();
     if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_L}, adatlr_val);
+      test_failed = 1;
     end
 
     blocking_write_register(IPISR_ADDR, IPISR_SLA_MASK);
 
     #500;
 
-    $display("TEST_SLA_ONLY successful! Ignored right channel");
+    if (!test_failed) begin
+      $display("TEST_SLA_ONLY successful! Ignored right channel");
+    end else begin
+      $display("TEST_SLA_ONLY failed");
+    end
+      
     #10;
   endtask
   
   task automatic TEST_REVERSE_ORDER;
     bit [31:0] adatlr_val, adatrr_val;
+    bit test_failed = 0;
 
     $display("---------------------------------------------------------------");
     $display(" START TEST_REVERSE_ORDER (right then left)");
@@ -714,6 +742,7 @@ module aud_tb();
     if (adatrr_val != {8'h00, TEST_SAMPLE_R}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_R}, adatrr_val);
+      test_failed = 1;
     end
 
 
@@ -724,9 +753,15 @@ module aud_tb();
     if (adatlr_val != {8'h00, TEST_SAMPLE_L}) begin
       $error("not matching: expected 0x%x, got 0x%x",
              {8'h00, TEST_SAMPLE_L}, adatlr_val);
+      test_failed = 1;
     end
 
-    $display("TEST_REVERSE_ORDER successful, changed interrupt order");
+    if (!test_failed) begin
+      $display("TEST_REVERSE_ORDER successful, changed interrupt order");
+    end else begin
+      $display("TEST_REVERSE_ORDER failed");
+    end
+    
     #10;
   endtask
   

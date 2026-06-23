@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 /* 96 kHz pro Kanal, mit 3 Hz Darstellung 96000Hz/3Hz = 32000*/
-#define RMS_SAMPLES_PER_CH 32000u
+#define RMS_SAMPLES_PER_CH 533u
 
 void     rms_reset(void);
 void     rms_add(int32_t l, int32_t r);

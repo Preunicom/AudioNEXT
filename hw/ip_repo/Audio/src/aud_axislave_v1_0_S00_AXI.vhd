@@ -629,7 +629,6 @@ begin
   -- Interrupt generation
   o_interrupt_sla <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_interrupt_sra <= GIER_reg(0) and IPIER_reg(8) and IPISR_reg(8);
-
   -- EDIT CODE END Richard Tuch
 
 
