@@ -98,6 +98,11 @@ void VIS_WriteChar(VIS_Data *InstancePtr, u8 x, u8 y, u8 ch, u8 cr, u8 cg, u8 cb
   VIS_mWriteReg(baseaddr, VDATR_ADDR_OFFSET, (u32)ch);
   VIS_mWriteReg(baseaddr, COLR_ADDR_OFFSET,  ((u32)cb << 16) | ((u32)cg << 8) | (u32)cr);
   VIS_mWriteReg(baseaddr, CTRL_ADDR_OFFSET,  CTRL_VEN_MASK | CTRL_WD_MASK);
+
+  // Poll for write done after each character to avoid overwhelming the IP and causing tearing artifacts and/or dropped frames.
+  // This is necessary because the IP needs some time to process each character and update the display,
+  // and if we write too fast, we might end up with a backlog of writes that the IP cannot handle in time.
+  VIS_PollWD(InstancePtr);
 }
 
 // Poll for frame done
