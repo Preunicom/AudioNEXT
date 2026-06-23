@@ -57,6 +57,14 @@ docs/*/src/*.log
 docs/*/src/*.out
 docs/*/src/*.synctex.gz
 docs/*/src/*.pdf
+docs/*/src/*.bbl
+docs/*/src/*.bcf
+docs/*/src/*.blg
+docs/*/src/*.nav
+docs/*/src/*.run.xml
+docs/*/src/*.snm
+
+
 # Vivado logs
 vivado.jou
 vivado.log
