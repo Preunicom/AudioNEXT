@@ -76,6 +76,7 @@ int main()
     VIS_Core_TestRender(VIS_InstPtr);
 
     ///Main loop: RMS polling
+    VIS_Core_Clear(VIS_InstPtr);
     AUD_EnableSampling(AUD_InstPtr);
     rms_reset();
 
