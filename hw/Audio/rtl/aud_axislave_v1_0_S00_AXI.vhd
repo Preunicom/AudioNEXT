@@ -499,9 +499,9 @@ begin
           STATUS_reg(7 downto 1) <= (others => '0'); --reserved
           STATUS_reg(8)  <= i_dor; -- DOR
           STATUS_reg(15 downto 9) <= (others => '0'); --reserved
-          STATUS_reg(16) <= sla_flag; -- SLA
+          STATUS_reg(16) <= i_sla; -- SLA
           STATUS_reg(23 downto 17) <= (others => '0'); --reserved
-          STATUS_reg(24) <= sra_flag; -- SRA
+          STATUS_reg(24) <= i_sra; -- SRA
           STATUS_reg(31 downto 25) <= (others => '0'); --reserved
         --ADATLR_reg
           ADATLR_reg(23 downto 0) <= i_data_left;
@@ -535,14 +535,14 @@ begin
           if (axi_wready = '1' and loc_addr = IPISR_ADDR
                    and S_AXI_WSTRB(0) = '1') then
             IPISR_reg(0) <= IPISR_reg(0) xor S_AXI_WDATA(0); --toggle on write (W1C)
-          elsif (i_sla = '1' and IPIER_reg(0) = '1') then
+          elsif (sla_flag = '1' and IPIER_reg(0) = '1') then
             IPISR_reg(0) <= '1';
           end if;
         --IPISR_reg SRA (Bit 8)
           if (axi_wready = '1' and loc_addr = IPISR_ADDR
                    and S_AXI_WSTRB(1) = '1') then
             IPISR_reg(8) <= IPISR_reg(8) xor S_AXI_WDATA(8); --toggle on write (W1C)
-          elsif (i_sra = '1' and IPIER_reg(8) = '1') then
+          elsif (sra_flag = '1' and IPIER_reg(8) = '1') then
             IPISR_reg(8) <= '1';
           end if;
       end if;
@@ -655,7 +655,7 @@ begin
           sla_consumed <= '1';
         else
           o_ack_left <= '0';
-          if (i_sla = '0') then
+          if (i_sla = '1') then
             sla_consumed <= '0';
           end if;
         end if;
@@ -665,7 +665,7 @@ begin
           sra_consumed <= '1';
         else
           o_ack_right <= '0';
-          if (i_sra = '0') then
+          if (i_sra = '1') then
             sra_consumed <= '0';
           end if;
         end if;

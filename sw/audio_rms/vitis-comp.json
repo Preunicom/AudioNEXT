@@ -1,7 +1,7 @@
 {
   "name": "audio_rms",
   "type": "HOST",
-  "platform": "/home/user/Data/4_IT6_CSA/Projekt/AudioNEXT/sw/AudioNEXT_platform/export/AudioNEXT_platform/AudioNEXT_platform.xpfm",
+  "platform": "/home/user/1work/AudioNEXT/sw/AudioNEXT_platform/export/AudioNEXT_platform/AudioNEXT_platform.xpfm",
   "domain": "standalone_microblaze_0",
   "cpuInstance": "microblaze_0",
   "cpuType": "microblaze",
