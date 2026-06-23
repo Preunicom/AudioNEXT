@@ -8,8 +8,27 @@
 \begin{frame}{Lösung / Implementierung - TODO - RICHI}
 
 \end{frame}
-\begin{frame}{Lösung / Implementierung - TODO - NICOLAS}
-
+\begin{frame}{Lösung / Implementierung - VIS AXI HW [Lonthoff]}
+    \begin{itemize}
+        \item AXI4-Lite Slave Interface für Registerzugriff
+        \item AXI4-Stream Master Interface für Datenübertragung an VGA IP
+    \end{itemize}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - VIS CORE SW  [Lonthoff]}
+   \begin{itemize}
+        \item Software-API für die VIS CORE IP
+        \item Initialisierung der IP und Konfiguration der Register
+        \item Polling der IP-Statusregister (FDP, WD)
+        \item Schreiben von Zeichen in den Textframebuffer
+        \item Berechnung der Farbe für die Lautstärkebalken
+    \end{itemize}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - VIS CORE SW TB [Lonthoff]}
+    \begin{itemize}
+        \item Testbench für die VIS CORE Software-API
+        \item Testet die Initialisierung, Registerkonfiguration und Zeichenanzeige
+        \item Simuliert die Lautstärkebalkenanzeige
+    \end{itemize}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - VGA - Übersicht [Remy]}
     \begin{itemize}
