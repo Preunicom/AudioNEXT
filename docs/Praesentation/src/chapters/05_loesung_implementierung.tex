@@ -2,8 +2,45 @@
 \begin{frame}{Lösung / Implementierung - TODO - MAX}
 
 \end{frame}
-\begin{frame}{Lösung / Implementierung - TODO - FELIX}
+\begin{frame}{Lösung / Implementierung - Audio Software [Knoll]}
+    \begin{columns}[T]
+        \begin{column}{0.60\textwidth}
+            \begin{itemize}
+                \item Software API für die Audio IP (aud\_driver)
+                \item Sampling über das CTRL Register aktivieren
+                \item Statusbits SLA und SRA pollen
+                \item 24 Bit Samples mit Vorzeichenerweiterung lesen
+                \item Pufferüberläufe über DOL und DOR erkennen
+                \item RMS berechnen und an die Visualization IP geben
+                \item Funktionstest und Selbsttests prüfen Register, Sampling und RMS Berechnung automatisch beim Programmstart
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.40\textwidth}
+            \centering
+            \begin{tikzpicture}[
+                >=Stealth, ->,
+                node distance=0.5cm,
+                font=\scriptsize,
+                box/.style={rectangle, rounded corners, draw, fill=black!5,
+                            text width=2.6cm, align=center, minimum height=0.55cm, inner sep=2pt},
+                dec/.style={diamond, draw, fill=black!5, aspect=2.2,
+                            align=center, inner sep=1pt}
+            ]
+                \node[box] (aud) {Audio IP};
+                \node[box, below=of aud] (read) {Samples L und R lesen};
+                \node[box, below=of read] (acc) {$l^2 + r^2$ aufsummieren\\Zähler erhöhen};
+                \node[dec, below=of acc] (full) {Block voll?\\(533)};
+                \node[box, below=of full] (out) {RMS berechnen und an Visualization IP};
 
+                \draw (aud) -- (read);
+                \draw (read) -- (acc);
+                \draw (acc) -- (full);
+                \draw (full) -- node[right] {ja} (out);
+                \draw (full.west) -- node[above] {nein} ++(-0.65,0) |- (read.west);
+                \draw (out.east) -- ++(0.95,0) node[midway, above] {Reset} |- (read.east);
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - TODO - RICHI}
 

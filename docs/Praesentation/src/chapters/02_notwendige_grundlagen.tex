@@ -5,9 +5,21 @@
 
 \end{frame}
 \begin{frame}{Notwendige Grundlagen - RMS [Knoll]}
-    % TODO
-    TODO
-
+    \begin{itemize}
+        \item RMS (Root Mean Square) ist der quadratische Mittelwert eines Signals
+        \item Er beschreibt die mittlere Leistung und damit die wahrgenommene Lautstärke
+        \item Werte quadrieren, über einen Block mitteln und die Wurzel ziehen
+        \item Linker und rechter Kanal werden gemeinsam ausgewertet
+    \end{itemize}
+    \vspace{0.4em}
+    \[
+        x_{\mathrm{RMS}} = \sqrt{\frac{1}{2N} \sum_{i=1}^{N} \left( l_i^2 + r_i^2 \right)}
+    \]
+    \vspace{0.2em}
+    \begin{itemize}
+        \item Ergebnis als Prozent der Vollaussteuerung im 7.2 Festkommaformat
+        \item Ganzzahlige Wurzel (isqrt) für die Berechnung ohne Gleitkomma
+    \end{itemize}
 \end{frame}
 \begin{frame}{Notwendige Grundlagen - VGA Bildaufbau~\cite{digilent_pmod_vga,digilent_vga_controller} [Remy]}
     \begin{itemize}
