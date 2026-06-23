@@ -223,8 +223,10 @@ begin
 	s_char_col_rgb((2*c_CHR_COLOR_BIT_DEPTH_W) - 1 downto c_CHR_COLOR_BIT_DEPTH_W) <= i_char_col_green;
 	s_char_col_rgb(c_CHR_COLOR_DATA_BUS_W - 1 downto 2*c_CHR_COLOR_BIT_DEPTH_W) <= i_char_col_blue;
 
-	 -- Porch is in address, so we have 800 pixel --> Need one more bit but this is alway zero as we cannot write in the porch
-	s_char_address_yx <= i_char_address_y & '0' & i_char_address_x;
+	-- Porch is in address of the VGA read 
+	--> Need 525 lines --> 32,x char lines --> 33 Char Lines of address space needed --> Needs 6 Bits
+	-- No problem with x address spase as 800 lines = 100 char lines needs also 7 Bits as 640 lines = 80 char lines
+	s_char_address_yx <= '0' & i_char_address_y & i_char_address_x;
 
 	u0_chars_RAM: vis_RAM
 		generic map (
