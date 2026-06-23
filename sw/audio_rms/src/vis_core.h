@@ -34,6 +34,10 @@
 #define VIS_CORE_ROW_BAR     14U
 #define VIS_CORE_ROW_SCALE   15U
 
+/* Project title shown in the top-left corner of the display */
+#define VIS_CORE_TITLE      "  AudioNEXT - RMS Loudness Meter  "
+#define VIS_CORE_TITLE_LEN  13U
+
 /* RMS input: 7.2 fixed-point (bits 8:2 = integer 0-127, bits 1:0 = frac .00/.25/.50/.75)
  * Represents loudness in %; 100.00% is encoded as 400 (= 100 * 4). */
 #define VIS_CORE_RMS_100PCT  400U
