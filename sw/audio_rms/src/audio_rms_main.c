@@ -66,7 +66,9 @@ int main()
 
     ///Selftests
     AUD_TestRegisters(AUD_InstPtr);
-    AUD_TestSampling(AUD_InstPtr);
+    AUD_TestSamplingEnable(AUD_InstPtr);
+    AUD_TestSamplingL(AUD_InstPtr);
+    AUD_TestSamplingR(AUD_InstPtr);
     audio_rms_test();
 
     ///Visualization selftests (from vis_selftest_main.c)

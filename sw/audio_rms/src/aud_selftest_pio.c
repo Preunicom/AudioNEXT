@@ -16,6 +16,9 @@
 
 /************************** Function Definitions ***************************/
 
+/* Testet ein einzelnes Register: schreibt 0xFFFFFFFF und 0x00000000 und
+   vergleicht den gelesenen Wert mit dem erwarteten. Fuer read-only Register
+   muessen beide Erwartungswerte den konstanten Registerinhalt enthalten. */
 XStatus AUD_TestRegister(AUD_Data *InstancePtr, uint32_t AddrOffset,
                         uint32_t ExpectedReadRegValWriteFF,
                         uint32_t ExpectedReadRegValWrite00)
@@ -43,6 +46,9 @@ XStatus AUD_TestRegister(AUD_Data *InstancePtr, uint32_t AddrOffset,
 }
 
 
+/* Testet IDR (ID), VERR (Version) und CTRL (Sampling Enable) Register
+   auf korrekte Lese-/Schreibbarkeit. IDR und VERR sind read-only und
+   muessen konstante Werte liefern. CTRL erlaubt nur Bit 0 (SEN). */
 XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
 {
     XStatus Status = XST_SUCCESS, Statustmp = XST_SUCCESS;
@@ -75,18 +81,19 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
 
 
 // BEGIN NEW Richard Tuch / Felix Knoll
-XStatus AUD_TestSampling(AUD_Data *InstancePtr)
+/* Aktiviert das Sampling (SEN-Bit im CTRL-Register) und prueft:
+   1. Ob das SEN-Bit nach dem Schreiben tatsaechlich gesetzt ist.
+   2. Ob keine Data-Overruns (DOL/DOR) direkt nach dem Enable vorliegen.
+   Voraussetzung: Sampling war vorher deaktiviert. */
+XStatus AUD_TestSamplingEnable(AUD_Data *InstancePtr)
 {
     XStatus Status = XST_SUCCESS;
-    int32_t sample;
-    uint32_t timeout;
 
     xil_printf("******************************\n\r");
-    xil_printf("*AUD_TESTSAMPLING\n\r");
+    xil_printf("*AUD_TESTSAMPLINGENABLE\n\r");
     xil_printf("******************************\n\r");
 
     AUD_EnableSampling(InstancePtr);
-    xil_printf("DBG: nach EnableSampling\n\r");
     if ((AUD_mReadReg(InstancePtr->BaseAddress, CTRL_ADDR_OFFSET) & CTRL_SEN_MASK) == 0) {
         xil_printf("FAIL: Sampling nicht aktiviert\n\r");
         Status = XST_FAILURE;
@@ -97,39 +104,46 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
         Status = XST_FAILURE;
     }
 
-    xil_printf("DBG: warte auf L-Sample...\n\r");
+    if (Status == XST_SUCCESS)
+        xil_printf("AUD_TestSamplingEnable erfolgreich\n\r");
+    else
+        xil_printf("AUD_TestSamplingEnable fehlgeschlagen\n\r");
+
+    return Status;
+}
+
+
+/* Testet den linken Audio-Kanal:
+   1. Wartet bis SLA (Sample Left Available) im STATUS-Register gesetzt wird.
+   2. Liest das erste L-Sample ueber AUD_GetL (ADATLR-Register).
+   3. Drainet den FIFO: liest solange weitere Samples bis SLA geloescht ist.
+   4. Prueft ob SLA nach dem Drain tatsaechlich 0 ist.
+   5. Prueft ob der Sample-Wert im gueltigen 24-Bit-Bereich liegt.
+   Voraussetzung: Sampling muss vorher aktiviert sein (AUD_TestSamplingEnable). */
+XStatus AUD_TestSamplingL(AUD_Data *InstancePtr)
+{
+    XStatus Status = XST_SUCCESS;
+    int32_t sample;
+    uint32_t timeout;
+
+    xil_printf("******************************\n\r");
+    xil_printf("*AUD_TESTSAMPLINGL\n\r");
+    xil_printf("******************************\n\r");
+
     timeout = 200000u;
     while (!AUD_LAvailable(InstancePtr) && timeout > 0) timeout--;
-    xil_printf("DBG: L-wait fertig, timeout=%u SLA=%d\n\r",
-               (unsigned)timeout, AUD_LAvailable(InstancePtr));
     if (!AUD_LAvailable(InstancePtr)) {
         xil_printf("FAIL: L-Sample kam nicht an\n\r");
         Status = XST_FAILURE;
     }
 
     sample = AUD_GetL(InstancePtr);
-    xil_printf("DBG: nach erstem AUD_GetL, SLA=%d\n\r", AUD_LAvailable(InstancePtr));
-    /* Durchgehend lesen bis Leser schneller ist als FIFO schreibt und SLA
-       geloescht wird (FIFO leer). Kein Delay. Abbruch nach Timeout. */
     {
-        uint32_t reads = 0u;
-        uint32_t changes = 0u;
-        int ever_zero = 0;
-        int32_t prev = sample;
-        int32_t vmin = sample, vmax = sample;
-        uint32_t i;
-        for (i = 0u; i < 2000u; i++) {
-            if (!AUD_LAvailable(InstancePtr)) { ever_zero = 1; break; }
+        uint32_t drain = AUD_DRAIN_TIMEOUT;
+        while (AUD_LAvailable(InstancePtr) && drain > 0u) {
             sample = AUD_GetL(InstancePtr);
-            reads++;
-            if (sample != prev) { changes++; prev = sample; }
-            if (sample < vmin) vmin = sample;
-            if (sample > vmax) vmax = sample;
+            drain--;
         }
-        xil_printf("DBG: L reads=%u changes=%u SLA0=%d finalSLA=%d min=%d max=%d ovr=%u\n\r",
-                   (unsigned)reads, (unsigned)changes, ever_zero,
-                   AUD_LAvailable(InstancePtr), (int)vmin, (int)vmax,
-                   (unsigned)AUD_GetOverruns(InstancePtr));
     }
     if (AUD_LAvailable(InstancePtr)) {
         xil_printf("FAIL: SLA nicht geloescht nach AUD_GetL\n\r");
@@ -143,6 +157,32 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
     xil_printf("L: %d\n\r", (int)sample);
     #endif
 
+    if (Status == XST_SUCCESS)
+        xil_printf("AUD_TestSamplingL erfolgreich\n\r");
+    else
+        xil_printf("AUD_TestSamplingL fehlgeschlagen\n\r");
+
+    return Status;
+}
+
+
+/* Testet den rechten Audio-Kanal:
+   1. Wartet bis SRA (Sample Right Available) im STATUS-Register gesetzt wird.
+   2. Liest das erste R-Sample ueber AUD_GetR (ADATRR-Register).
+   3. Drainet den FIFO: liest solange weitere Samples bis SRA geloescht ist.
+   4. Prueft ob SRA nach dem Drain tatsaechlich 0 ist.
+   5. Prueft ob der Sample-Wert im gueltigen 24-Bit-Bereich liegt.
+   Voraussetzung: Sampling muss vorher aktiviert sein (AUD_TestSamplingEnable). */
+XStatus AUD_TestSamplingR(AUD_Data *InstancePtr)
+{
+    XStatus Status = XST_SUCCESS;
+    int32_t sample;
+    uint32_t timeout;
+
+    xil_printf("******************************\n\r");
+    xil_printf("*AUD_TESTSAMPLINGR\n\r");
+    xil_printf("******************************\n\r");
+
     timeout = 200000u;
     while (!AUD_RAvailable(InstancePtr) && timeout > 0) timeout--;
     if (!AUD_RAvailable(InstancePtr)) {
@@ -151,8 +191,6 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
     }
 
     sample = AUD_GetR(InstancePtr);
-    /* Durchgehend lesen bis Leser schneller ist als FIFO schreibt und SRA
-       geloescht wird (FIFO leer). Kein Delay. Abbruch nach Timeout. */
     {
         uint32_t drain = AUD_DRAIN_TIMEOUT;
         while (AUD_RAvailable(InstancePtr) && drain > 0u) {
@@ -173,9 +211,9 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
     #endif
 
     if (Status == XST_SUCCESS)
-        xil_printf("AUD_TestSampling erfolgreich\n\r");
+        xil_printf("AUD_TestSamplingR erfolgreich\n\r");
     else
-        xil_printf("AUD_TestSampling fehlgeschlagen\n\r");
+        xil_printf("AUD_TestSamplingR fehlgeschlagen\n\r");
 
     return Status;
 }
