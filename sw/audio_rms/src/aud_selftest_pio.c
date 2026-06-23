@@ -80,7 +80,7 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
 }
 
 
-// BEGIN NEW Richard Tuch / Felix Knoll
+// BEGIN NEW Felix Knoll
 /* Aktiviert Sampling und prüft: SEN-Bit ist gesetzt und
    keine Overruns direkt nach dem Enable. */
 XStatus AUD_TestSamplingEnable(AUD_Data *InstancePtr)
@@ -203,5 +203,5 @@ XStatus AUD_TestSamplingR(AUD_Data *InstancePtr)
 
     return Status;
 }
-// END NEW Richard Tuch / Felix Knoll
+// END NEW Felix Knoll
 
