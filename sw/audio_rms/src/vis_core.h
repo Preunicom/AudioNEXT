@@ -30,7 +30,7 @@
 
 /* Layout: row indices for each display element */
 #define VIS_CORE_ROW_HEADER   1U
-#define VIS_CORE_ROW_TEXT    12U
+#define VIS_CORE_ROW_TEXT     2U
 #define VIS_CORE_ROW_BAR     14U
 #define VIS_CORE_ROW_SCALE   15U
 
