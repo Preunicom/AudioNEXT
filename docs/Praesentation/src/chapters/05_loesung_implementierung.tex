@@ -30,13 +30,14 @@
         \item Simuliert die Lautstärkebalkenanzeige
     \end{itemize}
 \end{frame}
-\begin{frame}{Lösung / Implementierung - VGA - Übersicht [Remy]}
+\begin{frame}{Lösung / Implementierung - VGA - Funktionsübersicht [Remy]}
     \begin{itemize}
-        \item 8x16 Pixelblöcke für ein Zeichen
-        \item ROM mit 8x16 Pixelmaps für die ASCII Daten für niedrige Speichernutzung
-        \item Nur Verweis auf ASCII Daten im ROM werden im Textframebuffer gespeichert
-        \item 12 Bit Farbe pro Zeichen
+        \item Bildaufteilung in 8x16 Pixel Blöcke für je ein Zeichen
         \item Schreiben neuer Werte in den Farb- \& Textframebuffer während des nicht sichtbaren Bereichs
+        \item Textframebuffer: Verweis auf ASCII-Zeichen im ROM pro Block
+        \item Farbframebuffer: 12 Bit Textfarbe pro Zeichenblock
+        \item ROM: 8x16 Pixelmap pro Zeichen (1 = Text, 0 = Hintergrund)
+        \item Pmod VGA zur Ausgabe des Signals
     \end{itemize}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - VGA - Steuerung [Remy]}

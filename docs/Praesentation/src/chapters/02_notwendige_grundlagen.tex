@@ -10,6 +10,26 @@
 
 \end{frame}
 \begin{frame}{Notwendige Grundlagen - VGA Bildaufbau [Remy]}
+    \begin{itemize}
+        \item Auflösung: 640x480@60 Hz
+        \item Signale~\cite{digilent_pmod_vga}:
+        \begin{itemize}
+            \item HSync
+            \item VSync
+            \item Red
+            \item Green
+            \item Blue
+        \end{itemize}
+        \item Bildaufbau (hor./vert.)~\cite{digilent_vga_controller}:
+        \begin{itemize}
+            \item Aktiver Bildbereich
+            \item Frontporch
+            \item Sync
+            \item Backporch
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Notwendige Grundlagen - VGA Bildaufbau [Remy]}
     \begin{figure}
         \centering
         \includegraphics[height=0.80\textheight, keepaspectratio]{VGA_Bildaufbau}
