@@ -60,10 +60,10 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
     Status |= Statustmp;
     // EDIT CODE END Richard Tuch
 
-    // BEGIN NEW Felix Knoll
+    // BEGIN NEW Richard Tuch / Felix Knoll
     Statustmp = AUD_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, CTRL_SEN_MASK, 0x00000000);
     Status |= Statustmp;
-    // END NEW Felix Knoll
+    // END NEW Richard Tuch / Felix Knoll
 
     if (Status == XST_SUCCESS)
         xil_printf("AUD_TESTREGISTERS erfolgreich\n\r");
@@ -74,7 +74,7 @@ XStatus AUD_TestRegisters(AUD_Data *InstancePtr)
 }
 
 
-// BEGIN NEW Felix Knoll
+// BEGIN NEW Richard Tuch / Felix Knoll
 XStatus AUD_TestSampling(AUD_Data *InstancePtr)
 {
     XStatus Status = XST_SUCCESS;
@@ -179,5 +179,5 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
 
     return Status;
 }
-// END NEW Felix Knoll
+// END NEW Richard Tuch / Felix Knoll
 

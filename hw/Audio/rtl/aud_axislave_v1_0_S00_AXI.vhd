@@ -164,8 +164,8 @@ architecture arch_imp of aud_S00_AXI is
   signal byte_index    : integer;
   signal aw_en         : std_logic;
 
-  signal sla_consumed  : std_logic;
-  signal sra_consumed  : std_logic;
+  signal r_sla_ack    : std_logic;
+  signal r_sra_ack    : std_logic;
   signal sla_flag      : std_logic;
   signal sra_flag      : std_logic;
   
@@ -629,12 +629,8 @@ begin
   -- Interrupt generation
   o_interrupt_sla <= GIER_reg(0) and IPIER_reg(0) and IPISR_reg(0);
   o_interrupt_sra <= GIER_reg(0) and IPIER_reg(8) and IPISR_reg(8);
-
-  -- SLA/SRA flags: masked by consumed to avoid stale reads due to CDC FIFO latency
-  sla_flag <= i_sla and not sla_consumed;
-  sra_flag <= i_sra and not sra_consumed;
-
   -- EDIT CODE END Richard Tuch
+
 
   -- EDIT CODE BEGIN Richard Tuch (new dm part, not in template)
   -- acknowledge generation on read of ADATLR/ADATRR
@@ -645,33 +641,31 @@ begin
       if S_AXI_ARESETN = '0' then
         o_ack_left   <= '0';
         o_ack_right  <= '0';
-        sla_consumed <= '0';
-        sra_consumed <= '0';
+        r_sla_ack    <= '0';
+        r_sra_ack    <= '0';
       else
         loc_addr := axi_araddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
         -- Generate ack pulse when host reads ADATLR
         if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATLR_ADDR) then
           o_ack_left   <= '1';
-          sla_consumed <= '1';
+          r_sla_ack    <= '1';
         else
           o_ack_left <= '0';
-          if (i_sla = '1') then
-            sla_consumed <= '0';
-          end if;
+          r_sla_ack  <= '0';
         end if;
         -- Generate ack pulse when host reads ADATRR
         if (axi_arready = '1' and S_AXI_ARVALID = '1' and loc_addr = ADATRR_ADDR) then
           o_ack_right  <= '1';
-          sra_consumed <= '1';
+          r_sra_ack    <= '1';
         else
           o_ack_right <= '0';
-          if (i_sra = '1') then
-            sra_consumed <= '0';
-          end if;
+          r_sra_ack  <= '0';
         end if;
       end if;
     end if;
   end process;
+  sla_flag <= '0' when (r_sla_ack = '1' and i_sla = '1') else i_sla;
+  sra_flag <= '0' when (r_sra_ack = '1' and i_sra = '1') else i_sra;
 
   -- EDIT CODE END Richard Tuch
   
