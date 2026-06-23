@@ -18,9 +18,13 @@
  *   ps7_uart    115200 (configured by bootrom/bsp)
  */
 
+#define __MICROBLAZE__
+
 #include <stdio.h>
 #include "platform.h"
 #include "xil_printf.h"
+
+#include "xil_cache.h"
 
 // BEGIN NEW Felix Knoll
 #include <stdint.h>
@@ -43,6 +47,10 @@ extern int audio_rms_test(void);
 int main()
 {
     init_platform();
+
+    // Enable Cache
+    Xil_ICacheEnable();
+    Xil_DCacheEnable();
 
     // BEGIN NEW Felix Knoll
     AUD_Data AUD_Inst;
@@ -95,11 +103,11 @@ int main()
             rms_add(l, r);
 
             if (rms_block_full()) {
-                xil_printf("Block full \n\r");
+                //xil_printf("Block full \n\r");
                 uint16_t loud = rms_value_fp72();
                 VIS_Core_RenderLoudness(VIS_InstPtr, loud);  /* 7.2-Fixed-Point, 400 = 100% */
-                xil_printf("Lautstaerke: %u.%02u  (ovr=%u)\n\r",
-                           loud >> 2, (loud & 3u) * 25u,  block_overruns);
+                //xil_printf("Lautstaerke: %u.%02u  (ovr=%u)\n\r",
+                //           loud >> 2, (loud & 3u) * 25u,  block_overruns);
                 block_overruns = 0;
                 rms_reset();
             }
