@@ -3,6 +3,14 @@
 #include "aud_driver_i.h"
 #include "aud_selftest_pio.h"
 
+/* Sicherheits-Timeout (Iterationen) fuer das Leer-Lesen der FIFOs.
+   Kein HW-Timer im BSP verfuegbar (XTime_GetTime nicht gelinkt), daher
+   Iterationszaehler statt echter Sekunden. Erfolg (FIFO leer) tritt in
+   Mikrosekunden ein; dieser Wert begrenzt nur den Fehlerfall.
+   Bei Debug-Build (-O0) ca. 3 us/Iteration -> ~10 Mio ≈ 30 s.
+   Wert bei Bedarf anpassen. */
+#define AUD_DRAIN_TIMEOUT 100000u
+
 /************************** Constant Definitions ***************************/
 
 
@@ -78,6 +86,7 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
     xil_printf("******************************\n\r");
 
     AUD_EnableSampling(InstancePtr);
+    xil_printf("DBG: nach EnableSampling\n\r");
     if ((AUD_mReadReg(InstancePtr->BaseAddress, CTRL_ADDR_OFFSET) & CTRL_SEN_MASK) == 0) {
         xil_printf("FAIL: Sampling nicht aktiviert\n\r");
         Status = XST_FAILURE;
@@ -88,14 +97,40 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
         Status = XST_FAILURE;
     }
 
+    xil_printf("DBG: warte auf L-Sample...\n\r");
     timeout = 200000u;
     while (!AUD_LAvailable(InstancePtr) && timeout > 0) timeout--;
+    xil_printf("DBG: L-wait fertig, timeout=%u SLA=%d\n\r",
+               (unsigned)timeout, AUD_LAvailable(InstancePtr));
     if (!AUD_LAvailable(InstancePtr)) {
         xil_printf("FAIL: L-Sample kam nicht an\n\r");
         Status = XST_FAILURE;
     }
 
     sample = AUD_GetL(InstancePtr);
+    xil_printf("DBG: nach erstem AUD_GetL, SLA=%d\n\r", AUD_LAvailable(InstancePtr));
+    /* Durchgehend lesen bis Leser schneller ist als FIFO schreibt und SLA
+       geloescht wird (FIFO leer). Kein Delay. Abbruch nach Timeout. */
+    {
+        uint32_t reads = 0u;
+        uint32_t changes = 0u;
+        int ever_zero = 0;
+        int32_t prev = sample;
+        int32_t vmin = sample, vmax = sample;
+        uint32_t i;
+        for (i = 0u; i < 2000u; i++) {
+            if (!AUD_LAvailable(InstancePtr)) { ever_zero = 1; break; }
+            sample = AUD_GetL(InstancePtr);
+            reads++;
+            if (sample != prev) { changes++; prev = sample; }
+            if (sample < vmin) vmin = sample;
+            if (sample > vmax) vmax = sample;
+        }
+        xil_printf("DBG: L reads=%u changes=%u SLA0=%d finalSLA=%d min=%d max=%d ovr=%u\n\r",
+                   (unsigned)reads, (unsigned)changes, ever_zero,
+                   AUD_LAvailable(InstancePtr), (int)vmin, (int)vmax,
+                   (unsigned)AUD_GetOverruns(InstancePtr));
+    }
     if (AUD_LAvailable(InstancePtr)) {
         xil_printf("FAIL: SLA nicht geloescht nach AUD_GetL\n\r");
         Status = XST_FAILURE;
@@ -116,6 +151,15 @@ XStatus AUD_TestSampling(AUD_Data *InstancePtr)
     }
 
     sample = AUD_GetR(InstancePtr);
+    /* Durchgehend lesen bis Leser schneller ist als FIFO schreibt und SRA
+       geloescht wird (FIFO leer). Kein Delay. Abbruch nach Timeout. */
+    {
+        uint32_t drain = AUD_DRAIN_TIMEOUT;
+        while (AUD_RAvailable(InstancePtr) && drain > 0u) {
+            sample = AUD_GetR(InstancePtr);
+            drain--;
+        }
+    }
     if (AUD_RAvailable(InstancePtr)) {
         xil_printf("FAIL: SRA nicht geloescht nach AUD_GetR\n\r");
         Status = XST_FAILURE;

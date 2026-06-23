@@ -7,11 +7,11 @@
 #include "xil_printf.h"
 #include "xparameters.h"
 #include "aud_driver_l.h"
-
+#include "platform.h"
 #define AUD_DEBUG_P 1
 
 // TODO: BSP-Platform von XSA aktualisieren, damit xparameters.h XPAR_AUDIO_0_BASEADDR definiert
-#define AUD_BASEADDRESS XPAR_AUDIO_0_BASEADDR
+#define AUD_BASEADDRESS 0x10000
 
 // Registeroffsets
 #define IDR_ADDR_OFFSET    0x010  // ID-Register (read-only)

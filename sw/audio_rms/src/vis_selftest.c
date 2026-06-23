@@ -59,7 +59,7 @@ XStatus VIS_TestRegisters(VIS_Data *InstancePtr)
   Status |= Statustmp;
   Statustmp=VIS_TestRegister(InstancePtr, VERR_ADDR_OFFSET, 0x00000001, 0x00000001);
   Status |= Statustmp;
-  expectedval=CTRL_VEN_MASK | CTRL_WD_MASK;
+  expectedval=CTRL_VEN_MASK; // CTRL_WD_MASK is cleared almost instantly
   Statustmp=VIS_TestRegister(InstancePtr, CTRL_ADDR_OFFSET, expectedval, 0x00000000);
   Status |= Statustmp;
   Statustmp=VIS_TestRegister(InstancePtr, STATUS_ADDR_OFFSET, 0x00000000, 0x00000000);

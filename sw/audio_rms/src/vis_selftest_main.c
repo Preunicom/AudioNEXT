@@ -35,7 +35,12 @@
 
 /************************** Function Definitions ***************************/
 
-
+/* Standalone visualization selftest entry point.
+ * Disabled by default: audio_rms_main.c is the application main and already
+ * runs VIS_TestRegisters/VIS_Core_TestRender. Define VIS_SELFTEST_STANDALONE
+ * to build this as its own program instead.
+ */
+#ifdef VIS_SELFTEST_STANDALONE
 int main()
 {
     VIS_Data VIS_Inst;
@@ -72,3 +77,4 @@ int main()
     cleanup_platform();
     return 0;
 }
+#endif /* VIS_SELFTEST_STANDALONE */

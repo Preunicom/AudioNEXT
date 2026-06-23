@@ -274,7 +274,7 @@
         "vlnv": "xilinx.com:ip:mig_7series:4.2",
         "ip_revision": "1",
         "xci_name": "mb_blockdesign_mig_7series_0_0",
-        "xci_path": "ip/mb_blockdesign_mig_7series_0_0/mb_blockdesign_mig_7series_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_mig_7series_0_0_1/mb_blockdesign_mig_7series_0_0.xci",
         "inst_hier_path": "mig_7series_0",
         "parameters": {
           "BOARD_MIG_PARAM": {
@@ -289,7 +289,7 @@
         "vlnv": "xilinx.com:ip:util_vector_logic:2.0",
         "ip_revision": "3",
         "xci_name": "mb_blockdesign_util_vector_logic_0_0",
-        "xci_path": "ip/mb_blockdesign_util_vector_logic_0_0/mb_blockdesign_util_vector_logic_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_util_vector_logic_0_0_1/mb_blockdesign_util_vector_logic_0_0.xci",
         "inst_hier_path": "util_vector_logic_0",
         "parameters": {
           "C_OPERATION": {
@@ -304,7 +304,7 @@
         "vlnv": "xilinx.com:ip:clk_wiz:6.0",
         "ip_revision": "13",
         "xci_name": "mb_blockdesign_clk_wiz_0_0",
-        "xci_path": "ip/mb_blockdesign_clk_wiz_0_0/mb_blockdesign_clk_wiz_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_clk_wiz_0_0_1/mb_blockdesign_clk_wiz_0_0.xci",
         "inst_hier_path": "clk_wiz_0",
         "parameters": {
           "CLKOUT1_JITTER": {
@@ -370,7 +370,7 @@
         "vlnv": "xilinx.com:ip:microblaze:11.0",
         "ip_revision": "12",
         "xci_name": "mb_blockdesign_microblaze_0_0",
-        "xci_path": "ip/mb_blockdesign_microblaze_0_0/mb_blockdesign_microblaze_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_microblaze_0_0_1/mb_blockdesign_microblaze_0_0.xci",
         "inst_hier_path": "microblaze_0",
         "parameters": {
           "C_CACHE_BYTE_SIZE": {
@@ -511,7 +511,7 @@
             "vlnv": "xilinx.com:ip:lmb_v10:3.0",
             "ip_revision": "13",
             "xci_name": "mb_blockdesign_dlmb_v10_0",
-            "xci_path": "ip/mb_blockdesign_dlmb_v10_0/mb_blockdesign_dlmb_v10_0.xci",
+            "xci_path": "ip/mb_blockdesign_dlmb_v10_0_1/mb_blockdesign_dlmb_v10_0.xci",
             "inst_hier_path": "microblaze_0_local_memory/dlmb_v10",
             "interface_ports": {
               "LMB_M": {
@@ -527,7 +527,7 @@
             "vlnv": "xilinx.com:ip:lmb_v10:3.0",
             "ip_revision": "13",
             "xci_name": "mb_blockdesign_ilmb_v10_0",
-            "xci_path": "ip/mb_blockdesign_ilmb_v10_0/mb_blockdesign_ilmb_v10_0.xci",
+            "xci_path": "ip/mb_blockdesign_ilmb_v10_0_1/mb_blockdesign_ilmb_v10_0.xci",
             "inst_hier_path": "microblaze_0_local_memory/ilmb_v10",
             "interface_ports": {
               "LMB_M": {
@@ -543,7 +543,7 @@
             "vlnv": "xilinx.com:ip:lmb_bram_if_cntlr:4.0",
             "ip_revision": "23",
             "xci_name": "mb_blockdesign_dlmb_bram_if_cntlr_0",
-            "xci_path": "ip/mb_blockdesign_dlmb_bram_if_cntlr_0/mb_blockdesign_dlmb_bram_if_cntlr_0.xci",
+            "xci_path": "ip/mb_blockdesign_dlmb_bram_if_cntlr_0_1/mb_blockdesign_dlmb_bram_if_cntlr_0.xci",
             "inst_hier_path": "microblaze_0_local_memory/dlmb_bram_if_cntlr",
             "parameters": {
               "C_ECC": {
@@ -565,7 +565,7 @@
             "vlnv": "xilinx.com:ip:lmb_bram_if_cntlr:4.0",
             "ip_revision": "23",
             "xci_name": "mb_blockdesign_ilmb_bram_if_cntlr_0",
-            "xci_path": "ip/mb_blockdesign_ilmb_bram_if_cntlr_0/mb_blockdesign_ilmb_bram_if_cntlr_0.xci",
+            "xci_path": "ip/mb_blockdesign_ilmb_bram_if_cntlr_0_1/mb_blockdesign_ilmb_bram_if_cntlr_0.xci",
             "inst_hier_path": "microblaze_0_local_memory/ilmb_bram_if_cntlr",
             "parameters": {
               "C_ECC": {
@@ -577,7 +577,7 @@
             "vlnv": "xilinx.com:ip:blk_mem_gen:8.4",
             "ip_revision": "7",
             "xci_name": "mb_blockdesign_lmb_bram_0",
-            "xci_path": "ip/mb_blockdesign_lmb_bram_0/mb_blockdesign_lmb_bram_0.xci",
+            "xci_path": "ip/mb_blockdesign_lmb_bram_0_1/mb_blockdesign_lmb_bram_0.xci",
             "inst_hier_path": "microblaze_0_local_memory/lmb_bram",
             "parameters": {
               "Memory_Type": {
@@ -785,7 +785,7 @@
             "vlnv": "xilinx.com:ip:axi_crossbar:2.1",
             "ip_revision": "30",
             "xci_name": "mb_blockdesign_xbar_0",
-            "xci_path": "ip/mb_blockdesign_xbar_0/mb_blockdesign_xbar_0.xci",
+            "xci_path": "ip/mb_blockdesign_xbar_0_1/mb_blockdesign_xbar_0.xci",
             "inst_hier_path": "microblaze_0_axi_periph/xbar",
             "parameters": {
               "NUM_MI": {
@@ -1193,7 +1193,7 @@
         "vlnv": "xilinx.com:ip:axi_intc:4.1",
         "ip_revision": "18",
         "xci_name": "mb_blockdesign_microblaze_0_axi_intc_0",
-        "xci_path": "ip/mb_blockdesign_microblaze_0_axi_intc_0/mb_blockdesign_microblaze_0_axi_intc_0.xci",
+        "xci_path": "ip/mb_blockdesign_microblaze_0_axi_intc_0_1/mb_blockdesign_microblaze_0_axi_intc_0.xci",
         "inst_hier_path": "microblaze_0_axi_intc",
         "parameters": {
           "C_HAS_FAST": {
@@ -1217,21 +1217,21 @@
         "vlnv": "xilinx.com:ip:mdm:3.2",
         "ip_revision": "25",
         "xci_name": "mb_blockdesign_mdm_1_0",
-        "xci_path": "ip/mb_blockdesign_mdm_1_0/mb_blockdesign_mdm_1_0.xci",
+        "xci_path": "ip/mb_blockdesign_mdm_1_0_1/mb_blockdesign_mdm_1_0.xci",
         "inst_hier_path": "mdm_1"
       },
       "rst_clk_wiz_0_100M": {
         "vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
         "ip_revision": "14",
         "xci_name": "mb_blockdesign_rst_clk_wiz_0_100M_0",
-        "xci_path": "ip/mb_blockdesign_rst_clk_wiz_0_100M_0/mb_blockdesign_rst_clk_wiz_0_100M_0.xci",
+        "xci_path": "ip/mb_blockdesign_rst_clk_wiz_0_100M_0_1/mb_blockdesign_rst_clk_wiz_0_100M_0.xci",
         "inst_hier_path": "rst_clk_wiz_0_100M"
       },
       "axi_smc": {
         "vlnv": "xilinx.com:ip:smartconnect:1.0",
         "ip_revision": "21",
         "xci_name": "mb_blockdesign_axi_smc_0",
-        "xci_path": "ip/mb_blockdesign_axi_smc_0/mb_blockdesign_axi_smc_0.xci",
+        "xci_path": "ip/mb_blockdesign_axi_smc_0_1/mb_blockdesign_axi_smc_0.xci",
         "inst_hier_path": "axi_smc",
         "parameters": {
           "NUM_CLKS": {
@@ -1311,14 +1311,14 @@
         "vlnv": "xilinx.com:ip:proc_sys_reset:5.0",
         "ip_revision": "14",
         "xci_name": "mb_blockdesign_rst_mig_7series_0_81M_0",
-        "xci_path": "ip/mb_blockdesign_rst_mig_7series_0_81M_0/mb_blockdesign_rst_mig_7series_0_81M_0.xci",
+        "xci_path": "ip/mb_blockdesign_rst_mig_7series_0_81M_0_1/mb_blockdesign_rst_mig_7series_0_81M_0.xci",
         "inst_hier_path": "rst_mig_7series_0_81M"
       },
       "Visualization_0": {
         "vlnv": "user.org:user:Visualization:1.0",
-        "ip_revision": "2",
+        "ip_revision": "1",
         "xci_name": "mb_blockdesign_Visualization_0_0",
-        "xci_path": "ip/mb_blockdesign_Visualization_0_0/mb_blockdesign_Visualization_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_Visualization_0_0_1/mb_blockdesign_Visualization_0_0.xci",
         "inst_hier_path": "Visualization_0",
         "interface_ports": {
           "s00_axi": {
@@ -1330,9 +1330,9 @@
       },
       "Audio_0": {
         "vlnv": "user.org:user:Audio:1.0",
-        "ip_revision": "8",
+        "ip_revision": "2",
         "xci_name": "mb_blockdesign_Audio_0_0",
-        "xci_path": "ip/mb_blockdesign_Audio_0_0/mb_blockdesign_Audio_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_Audio_0_0_1/mb_blockdesign_Audio_0_0.xci",
         "inst_hier_path": "Audio_0",
         "interface_ports": {
           "s00_axi": {
@@ -1346,7 +1346,7 @@
         "vlnv": "xilinx.com:ip:axi_uartlite:2.0",
         "ip_revision": "33",
         "xci_name": "mb_blockdesign_axi_uartlite_0_0",
-        "xci_path": "ip/mb_blockdesign_axi_uartlite_0_0/mb_blockdesign_axi_uartlite_0_0.xci",
+        "xci_path": "ip/mb_blockdesign_axi_uartlite_0_0_1/mb_blockdesign_axi_uartlite_0_0.xci",
         "inst_hier_path": "axi_uartlite_0",
         "parameters": {
           "C_BAUDRATE": {
@@ -1560,8 +1560,8 @@
           "microblaze_0_axi_periph/M02_ACLK",
           "axi_uartlite_0/s_axi_aclk",
           "microblaze_0_axi_periph/M03_ACLK",
-          "Audio_0/s00_axi_aclk",
-          "Visualization_0/s00_axi_aclk"
+          "Visualization_0/s00_axi_aclk",
+          "Audio_0/s00_axi_aclk"
         ]
       },
       "microblaze_0_intr": {
@@ -1628,8 +1628,8 @@
           "microblaze_0_axi_periph/M02_ARESETN",
           "axi_uartlite_0/s_axi_aresetn",
           "microblaze_0_axi_periph/M03_ARESETN",
-          "Audio_0/s00_axi_aresetn",
-          "Visualization_0/s00_axi_aresetn"
+          "Visualization_0/s00_axi_aresetn",
+          "Audio_0/s00_axi_aresetn"
         ]
       },
       "rst_mig_7series_0_81M_peripheral_aresetn": {

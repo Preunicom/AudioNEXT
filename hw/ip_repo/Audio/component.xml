@@ -273,7 +273,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e492297f</spirit:value>
+            <spirit:value>f914a9cd</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -292,7 +292,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e492297f</spirit:value>
+            <spirit:value>f914a9cd</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -300,14 +300,14 @@
         <spirit:name>xilinx_testbench</spirit:name>
         <spirit:displayName>Test Bench</spirit:displayName>
         <spirit:envIdentifier>:vivado.xilinx.com:simulation.testbench</spirit:envIdentifier>
-        <spirit:modelName>aud_tb</spirit:modelName>
+        <spirit:modelName>tb_aud_i2s_all</spirit:modelName>
         <spirit:fileSetRef>
           <spirit:localName>xilinx_testbench_view_fileset</spirit:localName>
         </spirit:fileSetRef>
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ad876ead</spirit:value>
+            <spirit:value>63728dc8</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -892,25 +892,9 @@
     <spirit:fileSet>
       <spirit:name>xilinx_testbench_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>src/aud_db_axi_vip_0_0_pkg.sv</spirit:name>
-        <spirit:fileType>systemVerilogSource</spirit:fileType>
-        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
-        <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
-        <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
-        <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/aud_db_wrapper.vhd</spirit:name>
+        <spirit:name>src/tb_aud_i2s_all.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
         <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
-        <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
-        <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/aud_tb.sv</spirit:name>
-        <spirit:fileType>systemVerilogSource</spirit:fileType>
-        <spirit:userFileType>IMPORTED_FILE</spirit:userFileType>
-        <spirit:userFileType>USED_IN_implementation</spirit:userFileType>
         <spirit:userFileType>USED_IN_simulation</spirit:userFileType>
         <spirit:userFileType>USED_IN_synthesis</spirit:userFileType>
       </spirit:file>
@@ -925,7 +909,7 @@
       </spirit:file>
     </spirit:fileSet>
   </spirit:fileSets>
-  <spirit:description>I2S audio receiver with fixed sampling rate</spirit:description>
+  <spirit:description>Audio_v1_0</spirit:description>
   <spirit:parameters>
     <spirit:parameter>
       <spirit:name>C_S00_AXI_DATA_WIDTH</spirit:name>
@@ -971,17 +955,17 @@
         <xilinx:xpmLibrary>XPM_CDC</xilinx:xpmLibrary>
         <xilinx:xpmLibrary>XPM_MEMORY</xilinx:xpmLibrary>
       </xilinx:xpmLibraries>
-      <xilinx:coreRevision>8</xilinx:coreRevision>
+      <xilinx:coreRevision>2</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>user.org:user:aud:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2026-06-18T13:42:23Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2026-06-23T07:10:29Z</xilinx:coreCreationDateTime>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2023.2</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="06a140a8"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="0c04c4c2"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="d349ae4e"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="f391b25b"/>
       <xilinx:checksum xilinx:scope="ports" xilinx:value="4df98414"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="e9c11669"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="2aee20d7"/>

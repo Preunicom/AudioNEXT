@@ -118,10 +118,10 @@ begin
         resetn <= '1';
         sen    <= '1';
 
-        wait until falling_edge(lrck);
+        wait until rising_edge(lrck);
         wait until rising_edge(sclk);
 
-        -- frame 1: links 0, rechts alles 1
+        -- frame 1: rechts 0, links alles 1
         send_frame(X"000000", X"FFFFFF", data_in);
         -- frame 2: nur MSB / nur LSB
         send_frame(X"800000", X"000001", data_in);
@@ -131,25 +131,24 @@ begin
 
     CHECK: process
     begin
-        wait until valid_l = '1';
-        wait until valid_l = '1';
-        assert data_l = X"000000"
-            report "Frame 1 links: daten falsch"
-            severity failure;
-
         wait until valid_r = '1';
-        assert data_r = X"FFFFFF"
+        assert data_r = X"000000"
             report "Frame 1 rechts: daten falsch"
             severity failure;
 
         wait until valid_l = '1';
-        assert data_l = X"800000"
-            report "Frame 2 links: MSB-only fehlgeschlagen"
+        assert data_l = X"FFFFFF"
+            report "Frame 1 links: daten falsch"
             severity failure;
 
         wait until valid_r = '1';
-        assert data_r = X"000001"
-            report "Frame 2 rechts: LSB-only fehlgeschlagen"
+        assert data_r = X"800000"
+            report "Frame 2 rechts: MSB-only fehlgeschlagen"
+            severity failure;
+
+        wait until valid_l = '1';
+        assert data_l = X"000001"
+            report "Frame 2 links: LSB-only fehlgeschlagen"
             severity failure;
 
         report "TEST PASSED!" severity note;

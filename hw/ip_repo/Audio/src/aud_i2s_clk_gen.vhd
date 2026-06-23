@@ -64,7 +64,7 @@ begin
   if (i_mclk='1' and i_mclk'event) then
     --reset
     if i_resetn ='0' then
-      r_cntlrck <= (others=>'0');
+      r_cntlrck <= (others=>'1');
       r_lrck <= '0';
     else      
       --sampling enabled

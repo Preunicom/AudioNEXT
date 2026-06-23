@@ -23,7 +23,7 @@
 AUD_Config AUD_ConfigTable[] __attribute__ ((section (".drvcfg_sec"))) = {
 	{
 		"xlnx,audio-1.0.0",
-		XPAR_AUDIO_0_BASEADDR,
+		0x10000,
 		0x5F5E100,
 	},
 	{
