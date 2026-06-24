@@ -12,6 +12,8 @@ static const char FRAC_TAB[4][2] = {
     {'7', '5'}
 };
 
+static const u8 PERCENTAGE_SAMPLES = 4U; /* Number of samples to average for the percentage display */
+
 /* Ring buffer: one RMS sample per display column, oldest at head, newest before head */
 static uint16_t s_history[VIS_CORE_COLS];
 static uint16_t s_history_sum = 0;
@@ -177,12 +179,12 @@ void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
     }
 
 
-    /* Update the five dynamic digit characters of the percentage value every 8 frames */
-    if (s_history_head % 8 == 0U) {
+    /* Update the five dynamic digit characters of the percentage value every PERCENTAGE_SAMPLES frames */
+    if (s_history_head % PERCENTAGE_SAMPLES == 0U) {
 
-        // Divide s_history_sum by 8 through 3 right shifts to get the average RMS value over the last 8 samples.
-        // Then reset s_history_sum to 0 for the next 8 samples.
-        uint16_t average_rms_7p2 = (uint16_t)(s_history_sum >> 3);
+        // Divide s_history_sum by PERCENTAGE_SAMPLES through 3 right shifts to get the average RMS value over the last PERCENTAGE_SAMPLES samples.
+        // Then reset s_history_sum to 0 for the next PERCENTAGE_SAMPLES samples.
+        uint16_t average_rms_7p2 = (uint16_t)(s_history_sum / PERCENTAGE_SAMPLES);
         s_history_sum = 0U;
 
         u8 integer_part = (u8)(average_rms_7p2 >> 2);
