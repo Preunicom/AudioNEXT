@@ -1,5 +1,6 @@
 *
 # Allow GitHub related files
+!.gitattributes
 !.gitignore
 !.github
 !.github/**/*
@@ -70,3 +71,7 @@ vivado.jou
 vivado.log
 # Apple Files
 .DS_Store
+
+# Abgabe
+!ABGABE/
+!ABGABE/**/*
