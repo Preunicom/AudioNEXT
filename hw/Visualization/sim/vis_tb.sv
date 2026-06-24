@@ -279,10 +279,10 @@ module vis_tb();
     $display("Waiting for end of first frame");
     @(posedge o_vsync);
 
-    // Wait for 480 + 10 hsync (Start of last line of the frame))
+    // Wait for 480 + 33 hsync (Start of last line of the frame))
     // 10 frontporch, 480 visible frame (-1 because start of last line)
     $display("Waiting for end of second frame");
-    for (int i = 0; i < 10 + 480 - 1; i++) begin
+    for (int i = 0; i < 33 + 480 - 1; i++) begin
       @(posedge o_hsync);
     end
 
@@ -306,12 +306,12 @@ module vis_tb();
     $display("Waiting for begin of third frame");
     @(posedge o_vsync) // End of frame
 
-    // Wait for  10 hsync (Start of first line of the frame)
-    for (int i = 0; i < 10; i++) begin
+    // Wait for 33 hsync (Start of first line of the frame)
+    for (int i = 0; i < 33; i++) begin
       @(posedge o_hsync);
     end
-    // Wait for 16 pixels frontporch + 1 pixel CDC
-    for (int i = 0; i < 16 + 1; i++) begin
+    // Wait for 48 pixels backporch + 1 pixel CDC
+    for (int i = 0; i < 48 + 1; i++) begin
       @(posedge i_pixel_clk);
     end
     // Check if FDP is LOW again 
@@ -422,9 +422,9 @@ module vis_tb();
  
     // USER CODE BEGIN Markus Remy
     //CHECK_REGISTERS();
-    //TEST_FRAME_DATA_PROCESSED();
+    TEST_FRAME_DATA_PROCESSED();
     //TEST_FRAME_DATA_PROCESSED_INT();
-    TEST_WRITE_FRAME();
+    //TEST_WRITE_FRAME();
     // USER CODE END Markus Remy
  
     $finish(); 
