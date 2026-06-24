@@ -110,8 +110,11 @@ void VIS_PollFDP(VIS_Data *InstancePtr)
 {
   UINTPTR baseaddr = InstancePtr->BaseAddress;
 
-  while ((VIS_mReadReg(baseaddr, STATUS_ADDR_OFFSET) & STATUS_FDP_MASK) == 0) {}
-
+  // Clear any stale FDP event so we always wait for the NEXT frame boundary.
+  // STATUS_FDP stays HIGH during H-blanking of visible rows and is therefore
+  // unreliable; IPISR_FDP is a true one-shot event flag (W1C, set once per frame).
+  VIS_mWriteReg(baseaddr, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
+  while ((VIS_mReadReg(baseaddr, IPISR_ADDR_OFFSET) & IPISR_FDP_MASK) == 0) {}
   VIS_mWriteReg(baseaddr, IPISR_ADDR_OFFSET, IPISR_FDP_MASK);
 }
 
