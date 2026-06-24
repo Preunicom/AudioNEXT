@@ -12,8 +12,11 @@ static const char FRAC_TAB[4][2] = {
     {'7', '5'}
 };
 
+static const u8 PERCENTAGE_SAMPLES = 4U; /* Number of samples to average for the percentage display */
+
 /* Ring buffer: one RMS sample per display column, oldest at head, newest before head */
 static uint16_t s_history[VIS_CORE_COLS];
+static uint16_t s_history_sum = 0;
 static u8       s_history_head = 0;
 
 
@@ -151,6 +154,7 @@ void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
     u8 x, y;
 
     s_history[s_history_head] = rms_7p2;
+    s_history_sum += rms_7p2;
     s_history_head = (u8)((s_history_head + 1U) % VIS_CORE_COLS);
 
     for (x = 0; x < VIS_CORE_COLS; x++) {
@@ -174,24 +178,33 @@ void VIS_Core_RenderLoudness(VIS_Data *InstancePtr, uint16_t rms_7p2)
         }
     }
 
-    /* Update only the five dynamic digit characters of the percentage value */
-    u8 integer_part = (u8)(rms_7p2 >> 2);
-    u8 frac_idx     = (u8)(rms_7p2 & 0x3U);
 
-    VIS_WriteChar(InstancePtr,  9, VIS_CORE_ROW_TEXT,
-                  (u8)('0' + integer_part / 100),
-                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
-    VIS_WriteChar(InstancePtr, 10, VIS_CORE_ROW_TEXT,
-                  (u8)('0' + (integer_part / 10) % 10),
-                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
-    VIS_WriteChar(InstancePtr, 11, VIS_CORE_ROW_TEXT,
-                  (u8)('0' + integer_part % 10),
-                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
-    VIS_WriteChar(InstancePtr, 13, VIS_CORE_ROW_TEXT,
-                  (u8)FRAC_TAB[frac_idx][0],
-                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
-    VIS_WriteChar(InstancePtr, 14, VIS_CORE_ROW_TEXT,
-                  (u8)FRAC_TAB[frac_idx][1],
-                  VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+    /* Update the five dynamic digit characters of the percentage value every PERCENTAGE_SAMPLES frames */
+    if (s_history_head % PERCENTAGE_SAMPLES == 0U) {
+
+        // Divide s_history_sum by PERCENTAGE_SAMPLES through 3 right shifts to get the average RMS value over the last PERCENTAGE_SAMPLES samples.
+        // Then reset s_history_sum to 0 for the next PERCENTAGE_SAMPLES samples.
+        uint16_t average_rms_7p2 = (uint16_t)(s_history_sum / PERCENTAGE_SAMPLES);
+        s_history_sum = 0U;
+
+        u8 integer_part = (u8)(average_rms_7p2 >> 2);
+        u8 frac_idx     = (u8)(average_rms_7p2 & 0x3U);
+
+        VIS_WriteChar(InstancePtr,  9, VIS_CORE_ROW_TEXT,
+                    (u8)('0' + integer_part / 100),
+                    VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+        VIS_WriteChar(InstancePtr, 10, VIS_CORE_ROW_TEXT,
+                    (u8)('0' + (integer_part / 10) % 10),
+                    VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+        VIS_WriteChar(InstancePtr, 11, VIS_CORE_ROW_TEXT,
+                    (u8)('0' + integer_part % 10),
+                    VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+        VIS_WriteChar(InstancePtr, 13, VIS_CORE_ROW_TEXT,
+                    (u8)FRAC_TAB[frac_idx][0],
+                    VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+        VIS_WriteChar(InstancePtr, 14, VIS_CORE_ROW_TEXT,
+                    (u8)FRAC_TAB[frac_idx][1],
+                    VIS_CORE_CR_WHITE, VIS_CORE_CG_WHITE, VIS_CORE_CB_WHITE);
+    }
 }
 //end edit Nicolas Lonthoff

@@ -84,7 +84,9 @@ int main()
     VIS_Core_TestRender(VIS_InstPtr);
 
     ///Main loop: RMS polling
+    // BEGIN NEW Nicolas Lonthoff
     VIS_Core_Clear(VIS_InstPtr);
+    // END NEW Nicolas Lonthoff
     AUD_EnableSampling(AUD_InstPtr);
     rms_reset();
 
@@ -105,7 +107,9 @@ int main()
             if (rms_block_full()) {
                 //xil_printf("Block full \n\r");
                 uint16_t loud = rms_value_fp72();
+                // BEGIN NEW (Nicolas Lonthoff)
                 VIS_Core_RenderLoudness(VIS_InstPtr, loud);  /* 7.2-Fixed-Point, 400 = 100% */
+                // END NEW (Nicolas Lonthoff)
                 //xil_printf("Lautstaerke: %u.%02u  (ovr=%u)\n\r",
                 //           loud >> 2, (loud & 3u) * 25u,  block_overruns);
                 block_overruns = 0;
