@@ -65,13 +65,12 @@ docs/*/src/*.nav
 docs/*/src/*.run.xml
 docs/*/src/*.snm
 
+# Abgabe
+!ABGABE/
+!ABGABE/**/*
 
 # Vivado logs
 vivado.jou
 vivado.log
 # Apple Files
 .DS_Store
-
-# Abgabe
-!ABGABE/
-!ABGABE/**/*
