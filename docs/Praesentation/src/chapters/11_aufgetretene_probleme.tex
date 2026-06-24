@@ -1,0 +1,26 @@
+\section{Aufgetretene Probleme}
+\begin{frame}{Aufgetretene Probleme [Remy][Knoll]}
+    \begin{itemize}
+        \item Constraints:
+        \begin{itemize}
+            \item Doppelte Clock Constraints durch automatische von MIG des DDRs generierte und manuell angelegte eigene Constraints
+        \end{itemize}
+        \item Cache:
+        \begin{itemize}
+            \item Cache in HW aktiviert, aber in SW nicht automatisch aktiviert
+            \newline
+            --> DDR Zugriff dauerte sehr lange
+            \newline
+            --> Manuelle Aktivierung notwendig
+        \end{itemize}
+        \item VGA Timing:
+        \begin{itemize}
+            \item Front- und Backporch in der VGA Vorlage vertauscht
+            \newline
+            --> Leicht verschobenes Bild
+            \item Timing in der VGA Vorlage nicht exakt nach den Spezifikationen
+            \newline
+            --> Manche Bildschirme interpretieren das Bild falsch
+        \end{itemize}
+    \end{itemize}
+\end{frame}
