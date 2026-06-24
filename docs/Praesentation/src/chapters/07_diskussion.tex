@@ -1,9 +1,23 @@
 \section{Diskussion}
-\begin{frame}{Diskussion}
-    @Tuch
+\begin{frame}{Diskussion [Tuch]}
     \begin{itemize}
-        \item \textbf{Bedeutung der Ergebnisse:} TODO
-        \item \textbf{Ausblick:} TODO -- mögliche Erweiterungen.
-        \item \textbf{Offene Punkte:} TODO -- bekannte Limitierungen / Bugs.
+        \item \textbf{Bedeutung der Ergebnisse:}
+        \begin{itemize}
+            \item Vollständige Pipeline von der Audioquelle bis zur VGA-Anzeige funktionsfähig
+            \item Eigene AXI IPs und Treiber zeigen das Zusammenspiel von HW und SW auf einem realen FPGA
+            \item Selbsttests sichern die Kernfunktionen automatisch ab
+        \end{itemize}
+        \item \textbf{Ausblick:}
+        \begin{itemize}
+            \item Interrupt-gesteuertes Sampling statt Polling für geringere CPU-Last
+            \item Frequenzanalyse (FFT) für ein Spektrogramm auf dem VGA-Ausgang
+            \item DMA-Anbindung für höhere Datenraten ohne MicroBlaze-Engpass
+        \end{itemize}
+        \item \textbf{Offene Punkte:}
+        \begin{itemize}
+            \item Polling-Schleife druckt bei Timing-Schwankungen \glqq not av\grqq{}-Meldungen
+            \item Kein Overflow-Handling in der RMS-Akkumulation bei Vollaussteuerung über lange Blöcke
+            \item FIFO-Tiefe (CDC-Buffer) begrenzt die Toleranz gegenüber Software-Verzögerungen
+        \end{itemize}
     \end{itemize}
 \end{frame}

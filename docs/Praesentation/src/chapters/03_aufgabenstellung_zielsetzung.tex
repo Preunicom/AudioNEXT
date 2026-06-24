@@ -1,9 +1,17 @@
 \section{Aufgabenstellung / Zielsetzung}
-\begin{frame}{Aufgabenstellung / Zielsetzung}
-    @Tuch
+\begin{frame}{Aufgabenstellung / Zielsetzung [Tuch]}
+    \textbf{Aufgabe:} Echtzeit-Lautstärkemessung eines Audiosignals auf dem Arty A7-100T FPGA mit visueller Ausgabe über VGA.
     \begin{itemize}
-        \item TODO: Präzise Aufgabenstellung formulieren.
-        \item TODO: Konkrete, möglichst messbare Ziele (für die Evaluierung).
-        \item TODO: Abgrenzung / Nicht-Ziele.
+        \item Audiodaten über 3{,}5\,mm Klinke und Pmod I2S2 empfangen (I2S, 96\,kHz/Kanal)
+        \item Zwei eigene AXI Lite Peripherals für Audio und Visualisierung entwerfen
+        \item RMS-Lautstärke auf dem MicroBlaze in Software berechnen
+        \item Ergebnis als Text und Balken auf einem VGA-Monitor darstellen
+    \end{itemize}
+    \vspace{0.4em}
+    \textbf{Abgrenzung:}
+    \begin{itemize}
+        \item Keine Audioausgabe oder -aufnahme, nur Pegelanalyse
+        \item Keine Gleitkomma-Arithmetik, ausschließlich Festkomma (7.2-Format)
+        \item Kein DMA -- Datenübertragung per Register-Polling
     \end{itemize}
 \end{frame}

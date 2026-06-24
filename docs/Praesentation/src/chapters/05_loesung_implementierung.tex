@@ -41,8 +41,39 @@
         \end{column}
     \end{columns}
 \end{frame}
-\begin{frame}{Lösung / Implementierung - TODO - RICHI}
-
+\begin{frame}{Lösung / Implementierung - Audio AXI Hardware [Tuch]}
+    \begin{columns}[T]
+        \begin{column}{0.55\textwidth}
+            \begin{itemize}
+                \item AXI Lite Slave mit 10 Registern (5-Teile-Muster aus den Tutorials)
+                \item IPISR mit W1C Toggle: Schreiben einer 1 kippt das Bit zurück
+                \item Interrupt-Generierung: \texttt{GIE $\wedge$ IPIER $\wedge$ IPISR} pro Kanal
+                \item Acknowledge-Puls beim Lesen von ADATLR/ADATRR löst AXI-Stream Handshake mit FIFO aus
+                \item \texttt{sla\_flag} wird für einen Takt maskiert, damit IPISR nicht sofort erneut gesetzt wird
+                \item Selftest prüft Register, Sampling Enable und beide Kanäle automatisch beim Start
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+            \centering
+            \footnotesize
+            \begin{tabular}{ll}
+                \toprule
+                \textbf{Offset} & \textbf{Register} \\
+                \midrule
+                0x00 & GSCR (Reserved) \\
+                0x04 & GIER (GIE) \\
+                0x08 & IPIER (SLIE, SRIE) \\
+                0x0C & IPISR (SLA, SRA) \\
+                0x10 & IDR (Konstante) \\
+                0x14 & VERR (Konstante) \\
+                0x18 & CTRL (SEN) \\
+                0x1C & STATUS (DOL, DOR, SLA, SRA) \\
+                0x20 & ADATLR (24\,Bit) \\
+                0x24 & ADATRR (24\,Bit) \\
+                \bottomrule
+            \end{tabular}
+        \end{column}
+    \end{columns}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - VIS AXI HW [Lonthoff]}
     \begin{itemize}
