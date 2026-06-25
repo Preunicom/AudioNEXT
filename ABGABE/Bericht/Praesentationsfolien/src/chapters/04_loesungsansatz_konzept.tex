@@ -1,0 +1,19 @@
+\section{Lösungsansatz / Konzept}
+\begin{frame}{Lösungsansatz / Konzept - [Knoll]}
+    \begin{itemize}
+        \item Aufteilung in zwei eigene AXI IPs und den MicroBlaze als zentrale Steuerung
+        \item Audio IP empfängt das I2S Signal, puffert die Samples und stellt sie bereit
+        \item MicroBlaze berechnet die Lautstärke als quadratischen Mittelwert (RMS)
+        \item Visualization IP erzeugt das VGA Bild aus einem Textframebuffer
+        \item Zeitkritische Verarbeitung in Hardware, flexible Berechnung in Software
+        \item Kommunikation einheitlich über AXI Lite mit Interrupts je Kanal
+        \item Feste Registerschnittstellen ermöglichen paralleles Arbeiten im Team
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Lösungsansatz / Konzept -- Blockdiagramm [Tuch]}
+    \begin{figure}
+        \centering
+        \includegraphics[height=0.8\textheight, keepaspectratio]{Aufgabenverteilung}
+    \end{figure}
+\end{frame}

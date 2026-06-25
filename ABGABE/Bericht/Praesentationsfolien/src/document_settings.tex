@@ -1,0 +1,185 @@
+% =====================================================================
+%  Layout source:  pres_template_eng_v05.pptx
+% =====================================================================
+
+% ---------------------------------------------------------------------
+%  Language / Text
+% ---------------------------------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{csquotes}
+\usepackage[scaled=0.9]{DejaVuSans} % Best match to non available font of the Power Point layout source
+\renewcommand{\familydefault}{\sfdefault}
+
+% ---------------------------------------------------------------------
+%  Literature
+% ---------------------------------------------------------------------
+\usepackage[backend=biber, style=numeric, sorting=none]{biblatex}
+\addbibresource{references.bib}
+\setbeamertemplate{bibliography item}[text]
+
+% Make manual entries more readable
+\DeclareFieldFormat{title}{#1}
+\DeclareFieldFormat{revision}{Revision #1}
+\DeclareFieldFormat{version}{Version #1}
+\DeclareFieldFormat{type}{#1}
+\DeclareFieldFormat{urldate}{abgerufen am #1}
+\DeclareBibliographyDriver{manual}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \printnames{author}%
+  \setunit{\labelnamepunct}
+  \printfield[title]{title}%
+  \newunit
+  \printfield{type}%
+  \setunit{\addspace}
+  \printfield{organization}%
+  \newunit
+  \printfield{revision}%
+  \setunit{\addspace}
+  \printfield{version}%
+  \newunit
+  \printdate%
+  \newunit
+  \printfield{url}%
+  \setunit{\addspace}
+  \printurldate%
+  \usebibmacro{finentry}}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=black}
+\setbeamercolor{bibliography item}{fg=black}
+\setbeamercolor{bibliography entry author}{fg=black}
+\setbeamercolor{bibliography entry title}{fg=black}
+\setbeamercolor{bibliography entry location}{fg=black}
+\setbeamercolor{bibliography entry note}{fg=black}
+\setbeamercolor{caption name}{fg=black}
+
+% ---------------------------------------------------------------------
+%  Graphics / tables / diagrams
+% ---------------------------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{files/}}
+
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{array}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, automata, fit}
+
+% Custom arrow shorthand
+\newcommand{\ra}{\ensuremath{\rightarrow}}
+
+% =====================================================================
+%  Basic layout
+% =====================================================================
+\usetheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=white}
+
+% Borders
+\newlength{\othmargin}\setlength{\othmargin}{6mm}
+\setbeamersize{text margin left=\othmargin, text margin right=\othmargin}
+
+% Colors
+\setbeamercolor{normal text}{fg=black, bg=white}
+\setbeamercolor{structure}{fg=black}
+\setbeamercolor{frametitle}{fg=black, bg=white}
+\setbeamercolor{title}{fg=black}
+\setbeamercolor{subtitle}{fg=gray}
+\setbeamercolor{author}{fg=black}
+\setbeamercolor{institute}{fg=gray}
+\setbeamercolor{date}{fg=gray}
+\setbeamercolor{itemize item}{fg=black}
+\setbeamercolor{itemize subitem}{fg=black}
+\setbeamercolor{itemize subsubitem}{fg=gray}
+\setbeamercolor{section in toc}{fg=black}
+\setbeamercolor{block title}{fg=white, bg=black}
+\setbeamercolor{block body}{fg=black, bg=black!8}
+\setbeamercolor{alerted text}{fg=black}
+
+\setbeamerfont{frametitle}{series=\bfseries, size=\large}
+\setbeamerfont{title}{series=\bfseries, size=\LARGE}
+\setbeamerfont{subtitle}{series=\mdseries, size=\large}
+
+% Items
+\setbeamertemplate{itemize item}{\raise0.4ex\hbox{\scalebox{0.4}{$\blacksquare$}}}
+\setbeamertemplate{itemize subitem}{\raise0.4ex\hbox{\scalebox{0.4}{$\blacksquare$}}}
+\setbeamertemplate{itemize subsubitem}{\textcolor{gray}{\textendash}}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{frametitle continuation}{}
+
+% ---------------------------------------------------------------------
+%  Makros
+% ---------------------------------------------------------------------
+% Logo
+\newcommand{\othlogo}[1][6mm]{\includegraphics[height=#1]{OTH_Logo_3line_pos_b.png}}
+
+% Top border line
+\newcommand{\othfullrule}{\rule{\paperwidth}{0.5pt}}
+\newcommand{\othbleedrule}{\par\noindent\hspace*{-\othmargin}\othfullrule\par} % Ignore border
+
+% Footer
+\newcommand{\othfootfont}{\fontsize{4}{5}\selectfont}
+\newcommand{\othfooterrow}{%
+    \hbox to \paperwidth{%
+        \hypersetup{linkcolor=gray}% Needed to have gray title as it is a hyperlink
+        \othfootfont\normalfont\mdseries\color{gray}\strut%
+        \ifnum\insertframenumber=1\else%
+            \hspace*{\othmargin}\insertshorttitle\hfill%
+            \insertshortdate\hfill%
+            \insertframenumber\hspace*{\othmargin}%
+        \fi%
+    }%
+}
+
+% Bottom border line
+\newcommand{\othfootband}{%
+    \othfullrule\par%
+    \vskip2.8mm%
+    \othfooterrow%
+    \vskip2.8mm%
+}
+
+% =====================================================================
+%  Logo in top border as headline
+% =====================================================================
+\setbeamertemplate{headline}{%
+    \vskip2mm%
+    \hspace*{\othmargin}\othlogo\par%
+    \vskip2mm%
+    \othfullrule%
+}
+
+% Title
+\setbeamertemplate{frametitle}{%
+    \ifx\insertframetitle\empty\else%
+        \vskip1.6mm%
+        {\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}%
+        \vskip1mm%
+    \fi%
+}
+
+% =====================================================================
+%  Footer
+% =====================================================================
+\setbeamertemplate{footline}{%
+    \othfootband%
+}
+
+% =====================================================================
+%  Title page
+% =====================================================================
+% HAS TO BE USED AS NORMAL PAGE -> NO PLAIN PAGE (we use same border lines as normal pages)
+\setbeamertemplate{title page}{%
+    \vskip18mm%
+    {\usebeamerfont{title}\usebeamercolor[fg]{title}\inserttitle\par}%
+    \ifx\insertsubtitle\empty\else%
+        \vskip2mm{\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+    \fi%
+    \vskip12mm{\usebeamercolor[fg]{author}\small\insertauthor\par}%
+    \vskip1.5mm{\usebeamercolor[fg]{institute}\footnotesize\insertinstitute\par}%
+    \vskip1.5mm{\usebeamercolor[fg]{date}\footnotesize\insertdate\par}%
+    \vfill
+}
