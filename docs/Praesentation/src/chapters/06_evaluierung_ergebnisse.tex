@@ -1,42 +1,53 @@
 \section{Evaluierung / Ergebnisse}
-\begin{frame}{Evaluierung / Ergebnisse}
-    @Lonthoff
-    % Bezug zur Aufgabenstellung / Zielsetzung -> Erfüllungsgrad
+\begin{frame}{Evaluierung / Ergebnisse [Lonthoff]}
     \begin{itemize}
-        \item TODO: Welche Ziele wurden erreicht? (Erfüllungsgrad)
-        \item TODO: Messergebnisse / Tests / Demonstration.
+        \item System läuft stabil auf dem Arty A7-100T
+        \item VGA-Ausgabe auf 3 verschiedenen Displays verifiziert (Beamer K101, K143, Monitor K143a)
+        \item SW-Selftests automatisch beim Start: 11 Register, Formatierung (7 Grenzwerte), Balkenbreite (6 Fälle), Render (7 Werte), FDP-Protokoll
     \end{itemize}
 
-    \vspace{0.5em}
+    \vspace{0.2em}
     \begin{table}
         \centering
+        \footnotesize
         \begin{tabularx}{\textwidth}{Xcc}
             \toprule
             \textbf{Ziel (aus Zielsetzung)} & \textbf{Erfüllt} & \textbf{Anmerkung} \\
             \midrule
-            TODO: Ziel 1 & ja/teilw./nein & TODO \\
-            TODO: Ziel 2 & ja/teilw./nein & TODO \\
-            TODO: Ziel 3 & ja/teilw./nein & TODO \\
+            I2S-Stereo-Sampling via Pmod I2S2 (96\,kHz/Kanal) & ja & 24-Bit, Async-FIFO \\
+            Zwei eigene AXI Lite IPs (Audio + Visualization) & ja & 10 bzw. 11 Register \\
+            RMS-Lautstärke in Software (Festkomma, kein Float) & ja & 7.2-Format, 533 Samples/Block \\
+            Text- und Balkenanzeige via VGA (640$\times$480@60\,Hz) & ja & 3 Farbzonen, 80 Spalten durchlaufend \\
+            Kein DMA, reines Register-Polling & ja & \texttt{PollWD}/\texttt{PollFDP}/\texttt{L\/R\_Available} \\
             \bottomrule
         \end{tabularx}
     \end{table}
 \end{frame}
 \begin{frame}{Evaluierung / Ergebnisse - Getestete Bildschirme [Remy]}
-    \begin{itemize}
-        \item Beamer in K101
-        \begin{figure}
+    \begin{columns}[t]
+        \begin{column}{0.33\textwidth}
             \centering
-            \includegraphics[height=0.25\textheight, keepaspectratio]{Beamer_K101}
-        \end{figure}
-        \item Beamer in K143
-        \begin{figure}
+            Beamer in K101
+            \begin{figure}
+                \centering
+                \includegraphics[height=0.3\textheight, keepaspectratio]{Beamer_K101}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.33\textwidth}
             \centering
-            \includegraphics[height=0.25\textheight, keepaspectratio]{Beamer_K101}
-        \end{figure}
-        \item VGA Bildschirm aus K143a
-        \begin{figure}
+            Beamer in K143
+            \begin{figure}
+                \centering
+                \includegraphics[height=0.28\textheight, keepaspectratio]{Beamer_K143}
+            \end{figure}
+        \end{column}
+        \begin{column}{0.33\textwidth}
             \centering
-            \includegraphics[height=0.25\textheight, keepaspectratio]{Beamer_K101}
-        \end{figure}
-    \end{itemize}
+            Bildschirm aus K143a
+            \begin{figure}
+                \centering
+                \includegraphics[height=0.3\textheight, keepaspectratio]{Bildschirm_K143a}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
