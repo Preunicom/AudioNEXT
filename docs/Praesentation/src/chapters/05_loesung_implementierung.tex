@@ -1,6 +1,52 @@
 \section{Lösung / Implementierung}
-\begin{frame}{Lösung / Implementierung - TODO - MAX}
-
+\begin{frame}{Lösung / Implementierung - Audio - Aufbau [Hafeneder]}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\textwidth, keepaspectratio]{AUD_architecture}
+    \end{figure}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - Takterzeugung [Hafeneder]}
+    \begin{itemize}
+        \item MCLK = 24,576 MHz 
+        \item Aus MCLK wurden SCLK und LRCK durch Teilung erzeugt:
+        \begin{itemize}
+            \item \textbf{SCLK} = MCLK / 4 = 6,144 MHz \quad (SCLK/LRCK Ratio: 64)
+            \item \textbf{LRCK} = MCLK / 256 = 96 kHz \quad (Double-Speed Mode)
+        \end{itemize}
+        \item Implementierung in \texttt{aud\_i2s\_clk\_gen.vhd}:
+        \begin{itemize}
+            \item SCLK: 1-Bit-Zähler togglet alle 2 MCLK-Takte \ra Periode = 4 MCLK
+            \item LRCK: 7-Bit-Zähler togglet alle 128 MCLK-Takte \ra Periode = 256 MCLK
+        \end{itemize}
+        \item Takte nur aktiv wenn \texttt{i\_sen = '1'} (Sampling ist aktiviert)
+    \end{itemize}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - Einlesen in Shiftregister [Hafeneder]}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.95\textwidth, keepaspectratio]{AUD_state_chart_shreg}
+        \caption{Ablauf der Befüllung des I\textsuperscript{2}S-Schieberegisters (\texttt{aud\_i2s\_shreg.vhd})}
+    \end{figure}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - CDC \& Pufferung [Hafeneder]}
+    \begin{itemize}
+        \item Zwei Taktdomänen müssen überbrückt werden:
+        \begin{itemize}
+            \item \textbf{24,576 MHz} -- Audio (MCLK)
+            \item \textbf{100 MHz} -- AXI Wrapper
+        \end{itemize}
+        \item \texttt{aud\_i2s\_sync}: 2-Flip-Flop Synchronisierer für \texttt{i\_data}
+        \begin{itemize}
+            \item Verhindert metastabile Zustände beim Wechsel der Taktdomäne
+        \end{itemize}
+        \item \texttt{aud\_channel\_buf}: AXI-Stream FIFO (Xilinx FIFO Generator 13.2)
+        \begin{itemize}
+            \item Schreibseite: 24,576 MHz (Audio)
+            \item Leseseite: 100 MHz (AXI)
+            \item Getrennte FIFOs für linken und rechten Kanal
+        \end{itemize}
+        \item Data Overrun Flag (DOL/DOR) wenn FIFO voll
+    \end{itemize}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio Software [Knoll]}
     \begin{columns}[T]
@@ -117,25 +163,5 @@
     \begin{figure}
         \centering
         \includegraphics[height=0.83\textheight, keepaspectratio]{VGA_Textmodus}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Lösung / Implementierung -- State-Chart}
-    @ Hafeneder?
-    % TODO: State-Chart einer relevanten Zustandsmaschine einfügen,
-    %       z.B. VGA-Steuerung oder Audio-Sampling.
-    %       Entweder als Grafik (\includegraphics{...}) oder als TikZ-Automat:
-    \begin{figure}
-        \centering
-        \begin{tikzpicture}[->, >=Stealth, node distance=2.8cm, on grid, auto]
-            \node[state, initial] (s0) {IDLE};
-            \node[state] (s1) [right=of s0] {STATE\,1};
-            \node[state] (s2) [right=of s1] {STATE\,2};
-            \path
-                (s0) edge node {bedingung} (s1)
-                (s1) edge node {bedingung} (s2)
-                (s2) edge [bend left=45] node {reset} (s0);
-        \end{tikzpicture}
-        \caption{Platzhalter -- State-Chart (TODO: durch reale FSM ersetzen).}
     \end{figure}
 \end{frame}

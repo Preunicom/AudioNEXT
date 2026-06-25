@@ -1,8 +1,29 @@
 \section{Notwendige Grundlagen}
-\begin{frame}{Notwendige Grundlagen - I2S [Hafeneder]}
-    % TODO
-    TODO
-
+\begin{frame}{Notwendige Grundlagen - I\textsuperscript{2}S Protokoll~\cite{digilent_pmod_i2s2} [Hafeneder]}
+    \begin{itemize}
+        \item I\textsuperscript{2}S: Protokoll zur Kommunikation mit dem Pmod I2S2
+        \item Drei Clocks:
+        \begin{itemize}
+            \item \textbf{MCLK} (Master Clock): Haupttakt (24,576 MHz)
+            \item \textbf{LRCK} (Left-Right Clock): Kanalauswahl (\texttt{'0'} = links, \texttt{'1'} = rechts)
+            \item \textbf{SCLK} (Serial Clock / Bit Clock): Takt zum Einlesen einzelner Bits
+        \end{itemize}
+        \item MCLK/LRCK Ratio = 256 \ra 24{,}576 MHz / 256 = 96 kHz Samplingrate (Double-Speed Mode)
+        \item SCLK/LRCK Ratio = 64 \ra 96 kHz $\times$ 64 = 6{,}144 MHz
+        \item 24 Bit pro Kanal, MSB zuerst
+        \item Pmod I2S2 im Slave Mode: MCLK, SCLK und LRCK werden vom FPGA erzeugt
+    \end{itemize}
+\end{frame}
+\begin{frame}{Notwendige Grundlagen - I\textsuperscript{2}S Timing~\cite{digilent_pmod_i2s2} [Hafeneder]}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.95\textwidth, height=0.80\textheight, keepaspectratio]{AUD_i2s_diagram}
+        \caption{I\textsuperscript{2}S Timing-Diagramm~\cite{digilent_pmod_i2s2}}
+    \end{figure}
+    \begin{block}{Besonderheit für die Implementierung}
+        Erstes Datenbit (MSB) liegt erst nach einem vollständigen SCLK-Zyklus nach der LRCK-FLanke an
+        \ra\ erster SCLK-Zyklus nach LRCK-Flanke wird übersprungen
+    \end{block}
 \end{frame}
 \begin{frame}{Notwendige Grundlagen - RMS [Knoll]}
     \begin{itemize}

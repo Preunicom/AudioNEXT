@@ -21,40 +21,43 @@
         \end{itemize}
     \end{itemize}
 \end{frame}
-\begin{frame}{Quellcodeübersicht - Maximilian Hafeneder [Hafeneder]}
-    @Hafeneder
+\begin{frame}{Quellcodeübersicht - Maximilian Hafeneder 1/2 [Hafeneder] }
     \begin{itemize}
-        \item Dateien basierend auf dem Axi Timer Demoprojekt:
-        \begin{itemize}
-            \item aud\_axislave\_v1\_0.vhd
-            \item vis\_selftest\_main.c
-            \item vis\_selftest.h
-            \item vis\_selftest.c
-            \item vis\_event.h
-            \item vis\_event.c
-            \item vis\_driver\_sinit.h
-            \item vis\_driver\_sinit.c
-            \item vis\_driver\_l.h
-            \item vis\_driver\_l.c
-            \item vis\_driver\_g.c
-            \item vis\_driver.h
-            \item vis\_driver.c
-            \item (vis\_driver\_int.c)
-            \item (vis\_driver\_int.h)
-            \item (vis\_driver\_i.h)
-        \end{itemize}
+        \item Dateien basierend auf dem Axi Timer Demoprojekt~\cite{at_demoprojekt}:
+            \begin{itemize}
+                \item aud\_db.bd
+                \item aud\_tb.sv
+                \item aud\_axislave\_v1\_0.vhd
+                \item vis\_selftest\_main.c
+                \item vis\_selftest.h, vis\_selftest.c
+                \item vis\_event.h, vis\_event.c
+                \item vis\_driver\_sinit.h, vis\_driver\_sinit.c
+                \item vis\_driver\_l.h, vis\_driver\_l.c
+                \item vis\_driver\_g.c
+                \item vis\_driver.h, vis\_driver.c
+                \item (vis\_driver\_int.c), (vis\_driver\_int.h)
+                \item (vis\_driver\_i.h)
+            \end{itemize}
+    \end{itemize}
+\end{frame}
+\begin{frame}{Quellcodeübersicht - Maximilian Hafeneder 2/2 [Hafeneder]}
+    \begin{itemize}
         \item Dateien basierend auf der Digilent Constraints Vorlage~\cite{digilent_artya7_100_constraints}:
-        \begin{itemize}
-            \item ArtyA7100.xdc
-        \end{itemize}
+            \begin{itemize}
+                \item ArtyA7100.xdc
+            \end{itemize}
         \item Dateien ohne Basis:
-        \begin{itemize}
-            \item aud\_db.bd
-        \end{itemize}
+            \begin{itemize}
+                \item aud\_core.vhd
+                \item aud\_i2s\_clk\_gen.vhd
+                \item aud\_i2s\_sampling.vhd
+                \item aud\_i2s\_shreg.vhd
+                \item aud\_i2s\_sync.vhd
+            \end{itemize}
         \item Mit dem FIFO-Generator 13.2 in Xilinx erstellt:
-        \begin{itemize}
-            \item  aud\_channel\_buf.xci (AXI-Stream FIFO)
-        \end{itemize}
+            \begin{itemize}
+                \item  aud\_channel\_buf.xci (AXI-Stream FIFO)
+            \end{itemize}
     \end{itemize}
 \end{frame}
 \begin{frame}{Quellcodeübersicht - Nicolas Lonthoff [Lonthoff]}
