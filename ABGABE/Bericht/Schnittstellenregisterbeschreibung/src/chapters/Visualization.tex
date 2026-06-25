@@ -1,0 +1,87 @@
+\section{Visualization-IP}
+
+\subsection{Kurzbeschreibung}
+
+Der Visualization-IP stellt eine AXI Lite Schnittstelle zur Verfügung.
+Über diese erhält er den anzuzeigenden Text im ASCII Format sowie die Farbe und die Position.
+Das VGA Signal wird im Format 640x480@60Hz erzeugt.
+Immer wenn der sichtbare Bereich eines Bildes vollständig angezeigt wurde, wird ein Interrupt ausgelöst.
+
+\subsection{I/Os}
+
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{c c c >{\raggedright\arraybackslash}X}
+        Signal Name & I/O & Initial State & Description \\
+        \toprule
+        s00\_axi\_axlk & I & NA & AXI Clock \\
+        \midrule
+        s00\_axi\_aresetn & I & NA & AXI Reset, Active-Low \\
+        \midrule
+        s00\_axi* & NA & NA & AXI4-Lite Slave Interface Signale \\
+        \midrule
+        i\_pixel\_clk & I & NA & Pixel Clock Signal für die VGA Ausgabe (25,175 MHz) \\
+        \midrule
+        o\_interrupt & O & 0x0 & Zeigt, ob ein Interrupt ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_red(3 downto 0) & O & 0x0 & roter 4-Bit-Farbkanal \\
+        \midrule
+        o\_green(3 downto 0) & O & 0x0 & grüner 4-Bit-Farbkanal \\
+        \midrule
+        o\_blue(3 downto 0) & O & 0x0 & blauer 4-Bit-Farbkanal \\
+        \midrule
+        o\_hsync & O & 0x0 & horizontales Synchronisationssignal \glqq HSync\grqq \\
+        \midrule
+        o\_vsync & O & 0x0 & vertikales Synchronisationssignal \glqq VSync\grqq \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Ports des Visualization-IPs}
+\end{table}
+
+\subsection{AXI Lite Schnittstelle}
+
+Die Ports der AXI Lite Schnittstelle entsprechen den Ports des AXI Lite Standards für einen AXI Lite Slave mit 32 Bit Datenbreite und 100 MHz AXI Clock.
+
+Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:visual_register} genauer beschrieben.
+
+Zusammengefasst werden die bereitgestellten Daten, wenn die Visualisierung aktiviert ist, auf dem Bildschirm als Text dargestellt.
+Dies geschieht Zeichen für Zeichen, sobald die Übernahme aktiviert wird.
+
+\subsection{Registerbeschreibungen}\label{subsec:visual_register}
+
+\begin{registerblock}
+     \input{chapters/Visualization/RegisterOverview}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x00_GSCR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x04_GIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x08_IPIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x0C_IPISR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x10_IDR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x14_VERR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x18_CTRL}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x1C_STATUS}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x20_ADDRR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x24_VDATR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Visualization/0x28_COLR}
+\end{registerblock}

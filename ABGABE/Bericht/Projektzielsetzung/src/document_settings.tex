@@ -1,0 +1,35 @@
+\usepackage[ngerman]{babel}
+\usepackage{csquotes}
+\usepackage{float}
+\usepackage{booktabs} % Prettier tables
+\usepackage{setspace}
+\usepackage[format=plain,labelfont=bf]{caption}
+\captionsetup[table]{position=above} % Prettier table and picture naming
+\usepackage{icomma} % For correct comma formating in equations
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{tabularx}
+\usepackage{hyperref} % Clickable URLs
+\hypersetup{
+  colorlinks   = true,
+  urlcolor     = black,
+  linkcolor    = black,
+  citecolor    = black     
+}
+\usepackage[left=3cm, right=3cm, top=3cm, bottom=2.5cm]{geometry}
+\usepackage[headsepline=true, markcase=noupper]{scrlayer-scrpage} % Head and Footnotes
+\pagestyle{scrheadings}
+\headheight 16pt
+\setcounter{secnumdepth}{3}                       
+\setcounter{tocdepth}{3}
+\automark{section}
+\ihead{\headmark}
+\chead{}
+\ohead{\pagemark}
+\cfoot{}
+\setlength{\parindent}{0pt}
+\renewcommand*{\headfont}{\normalfont}
+\usepackage{enumitem}
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Code}
+\onehalfspacing

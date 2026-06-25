@@ -1,0 +1,94 @@
+\section{Audio-IP}
+
+\subsection{Kurzbeschreibung}
+
+Der Audio-IP empfängt das Audio Signal vom Pmod I2S2 via I2S im Master Modus mit einer Samplingrate von 96 kHz pro Kanal.
+Dazu werden die notwendigen Taktsignale für MCLK, LRCK und SCLK erzeugt.
+Das I2S Signal des Pmods wird empfangen, dekodiert und gepuffert.
+Die Daten werden in der empfangenen Reihenfolge über AXI Lite zur Verfügung gestellt.
+Dazu werden Interrupts ausgelöst, wenn ein neuer Wert vorhanden ist.
+
+\subsection{I/Os}
+
+\begin{table}[h]
+    \centering
+    \begin{tabularx}{\textwidth}{c c c >{\raggedright\arraybackslash}X}
+        Signal Name & I/O & Initial State & Description \\
+        \toprule
+        s00\_axi\_axlk & I & NA & AXI Clock \\
+        \midrule
+        s00\_axi\_aresetn & I & NA & AXI Reset, Active-Low \\
+        \midrule
+        s00\_axi* & NA & NA & AXI4-Lite Slave Interface Signale \\
+        \midrule
+        i\_audio\_clk & I & NA & Master Clock Signal für den Pmod I2S2 (24,576 MHz) \\
+        \midrule
+        o\_interrupt\_sla & O & 0x0 & Zeigt, ob ein Interrupt auf dem linken Audio Kanal ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_interrupt\_sra & O & 0x0 & Zeigt, ob ein Interrupt auf dem rechten Audio Kanal ausgelöst wurde \newline 0: Kein Interrupt ausstehend \newline 1: Ein Interrupt steht aus \\
+        \midrule
+        o\_mclk & O & 0x0 & Line In Converter Master Clock \glqq A/D MCLK\grqq \\
+        \midrule
+        o\_lrck & O & 0x0 & Line In Converter Word Select \glqq A/D LRCK\grqq \\
+        \midrule
+        o\_sclk & O & 0x0 & Line In Converter Serial Clock \glqq A/D SCLK\grqq \\
+        \midrule
+        i\_data & I & NA & Line In Converter Serial Data Output \glqq A/D SDOUT\grqq \\
+        \bottomrule
+    \end{tabularx}
+    \caption{Ports des Audio-IPs}
+\end{table}
+
+\subsection{Pmod I2S2}
+
+Der Pmod I2S2 ist im Slave Modus zu betreiben.
+Der Audio-IP nimmt den Master Modus ein.
+
+\subsection{AXI Lite Schnittstelle}
+
+Die Ports der AXI Lite Schnittstelle entsprechen den Ports des AXI Lite Standards für einen AXI Lite Slave mit 32 Bit Datenbreite und 100 MHz AXI Clock.
+
+Die Register der AXI Lite Schnittstelle werden im Abschnitt~\ref{subsec:audio_register} genauer beschrieben.
+
+Zusammengefasst werden die empfangenen Audio Samples, wenn das Sampling aktiviert ist, im FIFO Prinzip je Kanal in einem Register zur Verfügung gestellt.
+Jeder Audiokanal verfügt über seinen eignen Interrupt.
+Nach dem Lesen des Samples wird der nächste Sample zur Verfügung gestellt, sobald er vorhanden ist.
+Die Gültigkeit des anliegenden Samples ist dem entsprechenden SLA/SRA Bit des Registers STATUS zu entnehmen.
+
+Sollten Daten aufgrund eines vollen Puffers verloren gehen wird ein entsprechendes Flag für den jeweiligen Kanal (DOL/DOR) im STATUS Register gesetzt.
+
+\subsection{Registerbeschreibungen}\label{subsec:audio_register}
+
+\begin{registerblock}
+     \input{chapters/Audio/RegisterOverview}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x00_GSCR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x04_GIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x08_IPIER}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x0C_IPISR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x10_IDR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x14_VERR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x18_CTRL}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x1C_STATUS}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x20_ADATLR}
+\end{registerblock}
+\begin{registerblock}
+    \input{chapters/Audio/0x24_ADATRR}
+\end{registerblock}

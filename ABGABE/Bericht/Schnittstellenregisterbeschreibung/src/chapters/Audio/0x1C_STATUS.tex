@@ -1,0 +1,54 @@
+\subsubsection{Status Register (STATUS)}
+
+Address offset: \textbf{0x1C}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{SRA} &
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{SLA} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R} &
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{DOR} &
+        \bitbox{7}{Reserved} &
+        \bitbox{1}{DOL} \\
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R} &
+        \bitbox[]{7}{} &
+        \bitbox[]{1}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:25 - Reserved Bits}
+    \item \textbf{Bit 24 - SRA: Sample Right Available}\\
+    Dieses Bit wird 1 gelesen, wenn die Daten im ADATRR Register gültig sind.
+    Es wird automatisch zurückgesetzt, wenn ein Lesezugriff auf das ADATRR Register ausgeführt wird.
+    Dieses Bit entspricht dem SRA Bit in IPISR.
+    \item \textbf{Bit 23:17 - Reserved Bits}
+    \item \textbf{Bit 16 - SLA: Sample Left Available}\\
+    Dieses Bit wird 1 gelesen, wenn die Daten im ADATLR Register gültig sind.
+    Es wird automatisch zurückgesetzt, wenn ein Lesezugriff auf das ADATLR Register ausgeführt wird.
+    Dieses Bit entspricht dem SLA Bit in IPISR.
+    \item \textbf{Bit 15:9 - Reserved Bits}
+    \item \textbf{Bit 8 - DOR: Data Overrun Right Channel}\\
+    Dieses Bit wird 1 gelesen, wenn seit dem letzten Lesezugriff auf ADATRR Daten des rechten Audio Kanals aufgrund eines vollen Datenpuffers verloren gegangen sind.
+    \item \textbf{Bit 7:1 - Reserved Bits}
+    \item \textbf{Bit 0 - DOL: Data Overrun Left Channel}\\
+    Dieses Bit wird 1 gelesen, wenn seit dem letzten Lesezugriff auf ADATLR Daten des linken Audio Kanals aufgrund eines vollen Datenpuffers verloren gegangen sind.
+\end{itemize}
