@@ -176,7 +176,7 @@
                 \node[box, below=of fdp]  (push) {rms $\to$ Ringpuffer};
                 \node[dec, below=of push] (cond) {x $<$ 80?};
                 \node[box, below=of cond] (wc)   {30$\times$ WriteChar \\ (inkl. PollWD)};
-                \node[box, below=of wc]   (pct)  {Alle vier Zahlen: \\ Wert im Prozenttext aktualisieren};
+                \node[box, below=of wc]   (pct)  {Jede vierte Zahl: \\ Wert im Prozenttext aktualisieren};
 
                 \draw (fdp) -- (push);
                 \draw (push) -- (cond);
@@ -194,7 +194,7 @@
             \textbf{Unit-Tests (kein HW)}
             \begin{itemize}
                 \item \texttt{VIS\_Core\_TestFormat}: 7 Grenzwerte der 7.2-Fest\-komma-Formatierung (0{,}00\,\%\,\dots\,127{,}75\,\%)
-                \item \texttt{VIS\_Core\_TestBarWidth}: Breite bei 0\,\%, 25\,\%, 50\,\%, 100\,\% und Over-Range (Grenze bei Höhe 80)
+                \item \texttt{VIS\_Core\_TestBarWidth}: Höhe bei 0\,\%, 25\,\%, 50\,\%, 100\,\% und Over-Range (Grenze bei Höhe 80)
             \end{itemize}
         \end{column}
         \begin{column}{0.56\textwidth}
@@ -203,7 +203,7 @@
                 \item \texttt{VIS\_TestRegisters}: alle 11 Register mit 0xFF/0x00; prüft Bitmasks, W1C und Konstanten (IDR, VERR)
                 \item \texttt{VIS\_Core\_TestFDP}: STATUS.FDP erscheint $\leq$ 3 Frames; Timeout verhindert Deadlock
                 \item \texttt{VIS\_Core\_TestRender}: 7 Spalten mit steigendem RMS (0\,\%\,\dots\,$>$100\,\%); visuelle Prüfung
-                \item \texttt{VIS\_Core\_TestScrolling}: 80-Spalten-Rampe prüft korrektes Ringpuffer-Wrap
+                \item \texttt{VIS\_Core\_TestScrolling}: Rampe prüft korrektes Ringpuffer-Wrap nach 80 Werten; visuelle Prüfung
             \end{itemize}
         \end{column}
     \end{columns}
