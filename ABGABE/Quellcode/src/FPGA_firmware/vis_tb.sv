@@ -306,7 +306,7 @@ module vis_tb();
     $display("Waiting for begin of third frame");
     @(posedge o_vsync) // End of frame
 
-    // Wait for 33 hsync (Start of first line of the frame)
+    // Wait for  33 hsync (Start of first line of the frame)
     for (int i = 0; i < 33; i++) begin
       @(posedge o_hsync);
     end
@@ -421,8 +421,8 @@ module vis_tb();
     #10
  
     // USER CODE BEGIN Markus Remy
-    //CHECK_REGISTERS();
-    TEST_FRAME_DATA_PROCESSED();
+    CHECK_REGISTERS();
+    //TEST_FRAME_DATA_PROCESSED();
     //TEST_FRAME_DATA_PROCESSED_INT();
     //TEST_WRITE_FRAME();
     // USER CODE END Markus Remy

@@ -1,5 +1,6 @@
 *
 # Allow GitHub related files
+!.gitattributes
 !.gitignore
 !.github
 !.github/**/*
@@ -64,6 +65,9 @@ docs/*/src/*.nav
 docs/*/src/*.run.xml
 docs/*/src/*.snm
 
+# Abgabe
+!ABGABE/
+!ABGABE/**/*
 
 # Vivado logs
 vivado.jou

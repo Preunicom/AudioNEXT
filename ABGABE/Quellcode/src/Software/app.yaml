@@ -1,0 +1,3 @@
+domain_path: /1work/fpgaproc/sw_AudioNEXT/platform/export/platform/sw/standalone_microblaze_0
+app_src_dir: /home/user/Xilinx/Vitis/2023.2/data/embeddedsw/lib/sw_apps/hello_world
+template: hello_world
