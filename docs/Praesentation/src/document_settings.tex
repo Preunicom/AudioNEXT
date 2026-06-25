@@ -19,6 +19,34 @@
 \addbibresource{references.bib}
 \setbeamertemplate{bibliography item}[text]
 
+% Make manual entries more readable
+\DeclareFieldFormat{title}{#1}
+\DeclareFieldFormat{revision}{Revision #1}
+\DeclareFieldFormat{version}{Version #1}
+\DeclareFieldFormat{type}{#1}
+\DeclareFieldFormat{urldate}{abgerufen am #1}
+\DeclareBibliographyDriver{manual}{%
+  \usebibmacro{bibindex}%
+  \usebibmacro{begentry}%
+  \printnames{author}%
+  \setunit{\labelnamepunct}
+  \printfield[title]{title}%
+  \newunit
+  \printfield{type}%
+  \setunit{\addspace}
+  \printfield{organization}%
+  \newunit
+  \printfield{revision}%
+  \setunit{\addspace}
+  \printfield{version}%
+  \newunit
+  \printdate%
+  \newunit
+  \printfield{url}%
+  \setunit{\addspace}
+  \printurldate%
+  \usebibmacro{finentry}}
+
 \hypersetup{colorlinks=true, linkcolor=black, citecolor=black, urlcolor=black}
 \setbeamercolor{bibliography item}{fg=black}
 \setbeamercolor{bibliography entry author}{fg=black}

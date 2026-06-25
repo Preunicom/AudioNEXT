@@ -2,17 +2,16 @@
 \begin{frame}{Lösung / Implementierung - Audio - Aufbau [Hafeneder]}
     \begin{figure}
         \centering
-        \includegraphics[width=0.85\textwidth, keepaspectratio]{AUD_architecture}
+        \includegraphics[width=0.85\textwidth, height=0.8\textheight]{AUD_architecture}
     \end{figure}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio - Takterzeugung [Hafeneder]}
     \begin{itemize}
-        \item MCLK = 24,576 MHz 
-        \item Aus MCLK wurden SCLK und LRCK durch Teilung erzeugt:
-        \begin{itemize}
-            \item \textbf{SCLK} = MCLK / 4 = 6,144 MHz \quad (SCLK/LRCK Ratio: 64)
-            \item \textbf{LRCK} = MCLK / 256 = 96 kHz \quad (Double-Speed Mode)
-        \end{itemize}
+        \item Pmod I2S2 im Slave Mode: MCLK, SCLK und LRCK werden vom FPGA erzeugt
+        \item 24 Bit Nutzungsdaten pro Kanal, Rest '0'
+        \item \textbf{MCLK} = 24{,}576 MHz 
+        \item MCLK/LRCK Ratio = 256 \ra  \textbf{LRCK} = 96 kHz Samplingrate (Double-Speed Mode)
+        \item SCLK/LRCK Ratio = 64 \ra  \textbf{SCLK} = 6{,}144 MHz
         \item Implementierung in \texttt{aud\_i2s\_clk\_gen.vhd}:
         \begin{itemize}
             \item SCLK: 1-Bit-Zähler togglet alle 2 MCLK-Takte \ra Periode = 4 MCLK
@@ -30,22 +29,15 @@
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio - CDC \& Pufferung [Hafeneder]}
     \begin{itemize}
-        \item Zwei Taktdomänen müssen überbrückt werden:
-        \begin{itemize}
-            \item \textbf{24,576 MHz} -- Audio (MCLK)
-            \item \textbf{100 MHz} -- AXI Wrapper
-        \end{itemize}
-        \item \texttt{aud\_i2s\_sync}: 2-Flip-Flop Synchronisierer für \texttt{i\_data}
-        \begin{itemize}
-            \item Verhindert metastabile Zustände beim Wechsel der Taktdomäne
-        \end{itemize}
+        \item Zwei Taktdomänen: \textbf{24{,}576 MHz} (Audio (MCLK)) und \textbf{100 MHz} (AXI Wrapper)
+        \item \texttt{aud\_i2s\_sync}: 2-Flip-Flop Synchronisierer für das externe, asynchrone Signal \texttt{i\_data} \ra verhindert metastabile Zustände
         \item \texttt{aud\_channel\_buf}: AXI-Stream FIFO (Xilinx FIFO Generator 13.2)
         \begin{itemize}
-            \item Schreibseite: 24,576 MHz (Audio)
+            \item Schreibseite: 24{,}576 MHz (Audio)
             \item Leseseite: 100 MHz (AXI)
-            \item Getrennte FIFOs für linken und rechten Kanal
+            \item getrennte FIFOs für linken und rechten Kanal
         \end{itemize}
-        \item Data Overrun Flag (DOL/DOR) wenn FIFO voll
+        \item Data Overrun Flag (DOL/DOR) wenn ein neuer Sample anliegt aber der FIFO voll (nicht bereit) ist
     \end{itemize}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio Software [Knoll]}
