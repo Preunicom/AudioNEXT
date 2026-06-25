@@ -11,13 +11,11 @@
         \begin{itemize}
             \item Interrupt-gesteuertes Sampling statt Polling für geringere CPU-Last
             \item Frequenzanalyse (FFT) für ein Spektrogramm auf dem VGA-Ausgang
-            \item DMA-Anbindung für höhere Datenraten ohne MicroBlaze-Engpass
         \end{itemize}
         \item \textbf{Offene Punkte:}
         \begin{itemize}
-            \item Polling-Schleife druckt bei Timing-Schwankungen \glqq not av\grqq{}-Meldungen
-            \item Kein Overflow-Handling in der RMS-Akkumulation bei Vollaussteuerung über lange Blöcke
-            \item FIFO-Tiefe (CDC-Buffer) begrenzt die Toleranz gegenüber Software-Verzögerungen
+            \item Auslastungsanalyse: Wie viel Puffer bleibt beim Schreiben in den CDC-FIFO, bevor Samples verloren gehen?
+            \item Interrupt-Pfad ist in der Hardware vorbereitet (GIER, IPIER, IPISR), wird in Software aber noch nicht genutzt
         \end{itemize}
     \end{itemize}
 \end{frame}

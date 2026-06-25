@@ -1,6 +1,52 @@
 \section{Lösung / Implementierung}
-\begin{frame}{Lösung / Implementierung - TODO - MAX}
-
+\begin{frame}{Lösung / Implementierung - Audio - Aufbau [Hafeneder]}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\textwidth, keepaspectratio]{AUD_architecture}
+    \end{figure}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - Takterzeugung [Hafeneder]}
+    \begin{itemize}
+        \item MCLK = 24,576 MHz 
+        \item Aus MCLK wurden SCLK und LRCK durch Teilung erzeugt:
+        \begin{itemize}
+            \item \textbf{SCLK} = MCLK / 4 = 6,144 MHz \quad (SCLK/LRCK Ratio: 64)
+            \item \textbf{LRCK} = MCLK / 256 = 96 kHz \quad (Double-Speed Mode)
+        \end{itemize}
+        \item Implementierung in \texttt{aud\_i2s\_clk\_gen.vhd}:
+        \begin{itemize}
+            \item SCLK: 1-Bit-Zähler togglet alle 2 MCLK-Takte \ra Periode = 4 MCLK
+            \item LRCK: 7-Bit-Zähler togglet alle 128 MCLK-Takte \ra Periode = 256 MCLK
+        \end{itemize}
+        \item Takte nur aktiv wenn \texttt{i\_sen = '1'} (Sampling ist aktiviert)
+    \end{itemize}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - Einlesen in Shiftregister [Hafeneder]}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.95\textwidth, keepaspectratio]{AUD_state_chart_shreg}
+        \caption{Ablauf der Befüllung des I\textsuperscript{2}S-Schieberegisters (\texttt{aud\_i2s\_shreg.vhd})}
+    \end{figure}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio - CDC \& Pufferung [Hafeneder]}
+    \begin{itemize}
+        \item Zwei Taktdomänen müssen überbrückt werden:
+        \begin{itemize}
+            \item \textbf{24,576 MHz} -- Audio (MCLK)
+            \item \textbf{100 MHz} -- AXI Wrapper
+        \end{itemize}
+        \item \texttt{aud\_i2s\_sync}: 2-Flip-Flop Synchronisierer für \texttt{i\_data}
+        \begin{itemize}
+            \item Verhindert metastabile Zustände beim Wechsel der Taktdomäne
+        \end{itemize}
+        \item \texttt{aud\_channel\_buf}: AXI-Stream FIFO (Xilinx FIFO Generator 13.2)
+        \begin{itemize}
+            \item Schreibseite: 24,576 MHz (Audio)
+            \item Leseseite: 100 MHz (AXI)
+            \item Getrennte FIFOs für linken und rechten Kanal
+        \end{itemize}
+        \item Data Overrun Flag (DOL/DOR) wenn FIFO voll
+    \end{itemize}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio Software [Knoll]}
     \begin{columns}[T]
@@ -42,60 +88,125 @@
     \end{columns}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Audio AXI Hardware [Tuch]}
+    \begin{itemize}
+        \item AXI Lite Slave mit 10 Registern nach dem 5-Teile-Muster aus den Tutorials
+        \item IPISR nutzt TOW (Toggle On Write): Schreiben einer 1 kippt das Statusbit per XOR zurück
+        \item Interrupt-Ausgabe pro Kanal: GIE~$\wedge$~IPIER~$\wedge$~IPISR
+        \item Lesen von ADATLR/ADATRR erzeugt einen Acknowledge-Puls, der den AXI-Stream Handshake mit dem CDC-FIFO auslöst
+        \item Dabei wird \texttt{sla\_flag} für einen Takt maskiert, damit das IPISR-Bit nicht sofort erneut gesetzt wird
+        \item Selftest prüft Register, Sampling Enable und beide Kanäle beim Programmstart
+    \end{itemize}
+    \vspace{0.3em}
+    \centering
+    \footnotesize
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Offset} & \textbf{Register} & \textbf{Zugriff} \\
+        \midrule
+        0x00 & GSCR & Reserved \\
+        0x04 & GIER (GIE) & R/W \\
+        0x08 & IPIER (SLIE, SRIE) & R/W \\
+        0x0C & IPISR (SLA, SRA) & R/W (TOW) \\
+        0x10 & IDR & R (Konstante) \\
+        0x14 & VERR & R (Konstante) \\
+        0x18 & CTRL (SEN) & R/W \\
+        0x1C & STATUS (DOL, DOR, SLA, SRA) & R \\
+        0x20 & ADATLR (24\,Bit Audio) & R \\
+        0x24 & ADATRR (24\,Bit Audio) & R \\
+        \bottomrule
+    \end{tabular}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Visualization AXI Hardware [Lonthoff]}
     \begin{columns}[T]
-        \begin{column}{0.55\textwidth}
+        \begin{column}{0.65\textwidth}
             \begin{itemize}
-                \item AXI Lite Slave mit 10 Registern (5-Teile-Muster aus den Tutorials)
-                \item IPISR mit W1C Toggle: Schreiben einer 1 kippt das Bit zurück
-                \item Interrupt-Generierung: \texttt{GIE $\wedge$ IPIER $\wedge$ IPISR} pro Kanal
-                \item Acknowledge-Puls beim Lesen von ADATLR/ADATRR löst AXI-Stream Handshake mit FIFO aus
-                \item \texttt{sla\_flag} wird für einen Takt maskiert, damit IPISR nicht sofort erneut gesetzt wird
-                \item Selftest prüft Register, Sampling Enable und beide Kanäle automatisch beim Start
+                \item AXI Lite Slave mit anderen Bits und einem Register (COLR) mehr als Audio AXI
+                \item CTRL.WD wird von vis\_core automatisch gelöscht, sobald der Framebuffer die Übernahme bestätigt (\texttt{buf\_ready = '1'})
+                \item Zeichenschreiben: ADDRR (X/Y) $\to$ VDATR (ASCII) $\to$ COLR (RGB) $\to$ CTRL.WD=1
+                \item STATUS.FDP = 0 zeigt Ende des sichtbaren Frames $\to$ nächster Frame kann übertragen werden
+                \item IPISR.FDP mit W1C Toggle: Schreibe 1 zum 0 setzen
             \end{itemize}
         \end{column}
-        \begin{column}{0.45\textwidth}
+        \begin{column}{0.35\textwidth}
             \centering
             \footnotesize
             \begin{tabular}{ll}
                 \toprule
                 \textbf{Offset} & \textbf{Register} \\
                 \midrule
-                0x00 & GSCR (Reserved) \\
+                0x00 & GCSR (Reserved) \\
                 0x04 & GIER (GIE) \\
-                0x08 & IPIER (SLIE, SRIE) \\
-                0x0C & IPISR (SLA, SRA) \\
+                0x08 & IPIER (FIE) \\
+                0x0C & IPISR (FDP) \\
                 0x10 & IDR (Konstante) \\
                 0x14 & VERR (Konstante) \\
-                0x18 & CTRL (SEN) \\
-                0x1C & STATUS (DOL, DOR, SLA, SRA) \\
-                0x20 & ADATLR (24\,Bit) \\
-                0x24 & ADATRR (24\,Bit) \\
+                0x18 & CTRL (VEN, WD) \\
+                0x1C & STATUS (FDP) \\
+                0x20 & ADDRR (XA, YA) \\
+                0x24 & VDATR (CHAR) \\
+                0x28 & COLR (CR, CG, CB) \\
                 \bottomrule
             \end{tabular}
         \end{column}
     \end{columns}
 \end{frame}
-\begin{frame}{Lösung / Implementierung - VIS AXI HW [Lonthoff]}
-    \begin{itemize}
-        \item AXI4-Lite Slave Interface für Registerzugriff
-        \item AXI4-Stream Master Interface für Datenübertragung an VGA IP
-    \end{itemize}
+\begin{frame}{Lösung / Implementierung - Visualization Core Software [Lonthoff]}
+    \begin{columns}[T]
+        \begin{column}{0.65\textwidth}
+            \begin{itemize}
+                \item Ringpuffer mit 80 Werten: ältester Wert links (Spalte~0), neuester rechts (Spalte~79)
+                \item \texttt{VIS\_PollFDP} wartet auf STATUS.FDP vor Schreiben des nöchsten Frames
+                \item \texttt{VIS\_WriteChar} schreibt ein farbiges (COLR) Zeichen (VDATR) an die aktuelle Position (ADDRR) und setzt CTRL.WD=1, dann \texttt{PollWD} bis zurückgesetzt
+                \item Balkenfarbe nach Zeilenposition: grün (unten $\tfrac{1}{3}$), gelb (Mitte), rot (oben)
+                \item Prozentanzeige: gleitender Mittelwert über die letzten vier 7.2-Festkommazahlen
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.35\textwidth}
+            \centering
+            \begin{tikzpicture}[
+                >=Stealth, ->,
+                node distance=0.42cm,
+                font=\scriptsize,
+                box/.style={rectangle, rounded corners, draw, fill=black!5,
+                            text width=2.6cm, align=center, minimum height=0.5cm, inner sep=2pt},
+                dec/.style={diamond, draw, fill=black!5, aspect=2.2,
+                            align=center, inner sep=1pt}
+            ]
+                \node[box] (fdp)  {VIS\_PollFDP};
+                \node[box, below=of fdp]  (push) {rms $\to$ Ringpuffer};
+                \node[dec, below=of push] (cond) {x $<$ 80?};
+                \node[box, below=of cond] (wc)   {30$\times$ WriteChar \\ (inkl. PollWD)};
+                \node[box, below=of wc]   (pct)  {Jede vierte Zahl: \\ Wert im Prozenttext aktualisieren};
+
+                \draw (fdp) -- (push);
+                \draw (push) -- (cond);
+                \draw (cond) -- node[right] {ja} (wc);
+                \draw (wc.east) -- ++(0.65,0) node[midway, above] {x$++$} |- (cond.east);
+                \draw (cond.west) -- node[above] {nein} ++(-0.65,0) |- (pct.west);
+                \draw (pct.east) -- ++(0.95,0) node[midway, above] {Reset} |- (fdp.east);
+            \end{tikzpicture}
+        \end{column}
+    \end{columns}
 \end{frame}
-\begin{frame}{Lösung / Implementierung - VIS CORE SW  [Lonthoff]}
-   \begin{itemize}
-        \item Software-API für die VIS CORE IP
-        \item Initialisierung der IP und Konfiguration der Register
-        \item Polling der IP-Statusregister (FDP, WD)
-        \item Schreiben von Zeichen in den Textframebuffer
-        \item Berechnung der Farbe für die Lautstärkebalken
-    \end{itemize}
-\end{frame}
-\begin{frame}{Lösung / Implementierung - VIS CORE SW TB [Lonthoff]}
-    \begin{itemize}
-        \item Testbench für die VIS CORE Software-API
-        \item Testet die Initialisierung, Registerkonfiguration und Zeichenanzeige
-        \item Simuliert die Lautstärkebalkenanzeige
-    \end{itemize}
+\begin{frame}{Lösung / Implementierung - Visualization Core Software Tests [Lonthoff]}
+    \begin{columns}[T]
+        \begin{column}{0.44\textwidth}
+            \textbf{Unit-Tests (kein HW)}
+            \begin{itemize}
+                \item \texttt{VIS\_Core\_TestFormat}: 7 Grenzwerte der 7.2-Fest\-komma-Formatierung (0{,}00\,\%\,\dots\,127{,}75\,\%)
+                \item \texttt{VIS\_Core\_TestBarWidth}: Höhe bei 0\,\%, 25\,\%, 50\,\%, 100\,\% und Over-Range (Grenze bei Höhe 80)
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.56\textwidth}
+            \textbf{Integrationstests (HW)}
+            \begin{itemize}
+                \item \texttt{VIS\_TestRegisters}: alle 11 Register mit 0xFF/0x00; prüft Bitmasks, W1C und Konstanten (IDR, VERR)
+                \item \texttt{VIS\_Core\_TestFDP}: STATUS.FDP erscheint $\leq$ 3 Frames; Timeout verhindert Deadlock
+                \item \texttt{VIS\_Core\_TestRender}: 7 Spalten mit steigendem RMS (0\,\%\,\dots\,$>$100\,\%); visuelle Prüfung
+                \item \texttt{VIS\_Core\_TestScrolling}: Rampe prüft korrektes Ringpuffer-Wrap nach 80 Werten; visuelle Prüfung
+            \end{itemize}
+        \end{column}
+    \end{columns}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - VGA - Funktionsübersicht [Remy]}
     \begin{itemize}
@@ -117,25 +228,5 @@
     \begin{figure}
         \centering
         \includegraphics[height=0.83\textheight, keepaspectratio]{VGA_Textmodus}
-    \end{figure}
-\end{frame}
-
-\begin{frame}{Lösung / Implementierung -- State-Chart}
-    @ Hafeneder?
-    % TODO: State-Chart einer relevanten Zustandsmaschine einfügen,
-    %       z.B. VGA-Steuerung oder Audio-Sampling.
-    %       Entweder als Grafik (\includegraphics{...}) oder als TikZ-Automat:
-    \begin{figure}
-        \centering
-        \begin{tikzpicture}[->, >=Stealth, node distance=2.8cm, on grid, auto]
-            \node[state, initial] (s0) {IDLE};
-            \node[state] (s1) [right=of s0] {STATE\,1};
-            \node[state] (s2) [right=of s1] {STATE\,2};
-            \path
-                (s0) edge node {bedingung} (s1)
-                (s1) edge node {bedingung} (s2)
-                (s2) edge [bend left=45] node {reset} (s0);
-        \end{tikzpicture}
-        \caption{Platzhalter -- State-Chart (TODO: durch reale FSM ersetzen).}
     \end{figure}
 \end{frame}
