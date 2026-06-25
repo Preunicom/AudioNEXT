@@ -51,34 +51,44 @@
         \end{column}
     \end{columns}
 \end{frame}
-\begin{frame}{Lösung / Implementierung - Audio AXI Hardware [Tuch]}
+\begin{frame}{Lösung / Implementierung - Audio AXI Hardware 1/2 [Tuch]}
+    \begin{columns}[T]
+        \begin{column}{0.55\textwidth}
+            \begin{itemize}
+                \item AXI Lite Slave mit 10 Registern
+                \item Statusbits (SLA, SRA) zeigen neue Samples an
+                \item Interrupt-Logik: GIER, IPIER und IPISR verknüpft pro Kanal
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.45\textwidth}
+            \centering
+            \footnotesize
+            \begin{tabular}{lll}
+                \toprule
+                \textbf{Offset} & \textbf{Register} & \textbf{Zugriff} \\
+                \midrule
+                0x00 & GSCR & Reserved \\
+                0x04 & GIER (GIE) & R/W \\
+                0x08 & IPIER & R/W \\
+                0x0C & IPISR & R/W \\
+                0x10 & IDR & R \\
+                0x14 & VERR & R \\
+                0x18 & CTRL (SEN) & R/W \\
+                0x1C & STATUS & R \\
+                0x20 & ADATLR & R \\
+                0x24 & ADATRR & R \\
+                \bottomrule
+            \end{tabular}
+        \end{column}
+    \end{columns}
+\end{frame}
+\begin{frame}{Lösung / Implementierung - Audio AXI Hardware 2/2 [Tuch]}
     \begin{itemize}
-        \item AXI Lite Slave mit 10 Registern nach dem 5-Teile-Muster aus den Tutorials
-        \item IPISR nutzt TOW (Toggle On Write): Schreiben einer 1 kippt das Statusbit per XOR zurück
-        \item Interrupt-Ausgabe pro Kanal: GIE~$\wedge$~IPIER~$\wedge$~IPISR
-        \item Lesen von ADATLR/ADATRR erzeugt einen Acknowledge-Puls, der den AXI-Stream Handshake mit dem CDC-FIFO auslöst
-        \item Dabei wird \texttt{sla\_flag} für einen Takt maskiert, damit das IPISR-Bit nicht sofort erneut gesetzt wird
-        \item Selftest prüft Register, Sampling Enable und beide Kanäle beim Programmstart
+        \item IPISR implementiert W1C als W1T: ermöglicht Selbsttest ohne echte Hardware-Events
+        \item Lesen von ADATLR/ADATRR löst Acknowledge-Puls an den CDC-FIFO aus
+        \item \texttt{sla\_flag} maskiert IPISR für einen Takt gegen erneutes Setzen
+        \item Selftest prüft Register, Sampling Enable und beide Kanäle beim Start
     \end{itemize}
-    \vspace{0.3em}
-    \centering
-    \footnotesize
-    \begin{tabular}{lll}
-        \toprule
-        \textbf{Offset} & \textbf{Register} & \textbf{Zugriff} \\
-        \midrule
-        0x00 & GSCR & Reserved \\
-        0x04 & GIER (GIE) & R/W \\
-        0x08 & IPIER (SLIE, SRIE) & R/W \\
-        0x0C & IPISR (SLA, SRA) & R/W (TOW) \\
-        0x10 & IDR & R (Konstante) \\
-        0x14 & VERR & R (Konstante) \\
-        0x18 & CTRL (SEN) & R/W \\
-        0x1C & STATUS (DOL, DOR, SLA, SRA) & R \\
-        0x20 & ADATLR (24\,Bit Audio) & R \\
-        0x24 & ADATRR (24\,Bit Audio) & R \\
-        \bottomrule
-    \end{tabular}
 \end{frame}
 \begin{frame}{Lösung / Implementierung - Visualization AXI Hardware [Lonthoff]}
     \begin{columns}[T]
