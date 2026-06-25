@@ -66,8 +66,8 @@ docs/*/src/*.run.xml
 docs/*/src/*.snm
 
 # Abgabe
-!ABGABE/
-!ABGABE/**/*
+!CSA_Besprechungstermin02_Team05_AudioNEXT_Bericht_HaMa_LoNi_KnFe_ReMa_TuRi/
+!CSA_Besprechungstermin02_Team05_AudioNEXT_Bericht_HaMa_LoNi_KnFe_ReMa_TuRi/**/*
 
 # Vivado logs
 vivado.jou
