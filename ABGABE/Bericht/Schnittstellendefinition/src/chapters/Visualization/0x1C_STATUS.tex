@@ -1,0 +1,31 @@
+\subsubsection{Status Register (STATUS)}
+
+Address offset: \textbf{0x1C}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{15}{Reserved} &
+        \bitbox{1}{FDP} \\
+        \bitbox[]{15}{} &
+        \bitbox[]{1}{R}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:1 - Reserved Bits}
+    \item \textbf{Bit 0 - FDP: Frame Data Processed}\\
+    Dieses Bit wird 1 gesetzt, wenn der sichtbare Bereich des Frame vollständig übertragen wurde.
+    Es wird zurückgesetzt, wenn der sichtbare Bereich des nächsten Frames begonnen wurde.
+\end{itemize}

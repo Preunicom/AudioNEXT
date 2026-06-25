@@ -1,0 +1,30 @@
+\subsubsection{Control Register (CTRL)}
+
+Address offset: \textbf{0x18}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{15}{Reserved} &
+        \bitbox{1}{SEN} \\
+        \bitbox[]{15}{} &
+        \bitbox[]{1}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:1 - Reserved Bits}
+    \item \textbf{Bit 0 - SEN: Sampling Enable}\\
+    Wenn dieses Bit auf 1 gesetzt ist, ist das Sampling von Line In aktiv.
+\end{itemize}

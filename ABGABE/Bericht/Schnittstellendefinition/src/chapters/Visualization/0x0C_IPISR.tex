@@ -1,0 +1,32 @@
+\subsubsection{IP Interrupt Status Register (IPISR)}
+
+Address offset: \textbf{0x0C}
+\newline
+Reset value: 0x0000 0000
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader[lsb=16]{16-31} \\
+        \bitbox{16}{Reserved}
+    \end{bytefield}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \begin{bytefield}[bitwidth=\bflenhalfword, endianness=big]{16}
+        \bitheader{0-15} \\
+        \bitbox{15}{Reserved} &
+        \bitbox{1}{FDP} \\
+        \bitbox[]{15}{} &
+        \bitbox[]{1}{R/W}
+    \end{bytefield}
+\end{figure}
+
+\begin{itemize}
+    \item \textbf{Bit 31:1 - Reserved Bits}
+    \item \textbf{Bit 0 - FDP: Frame Data Processed}\\
+    Dieses Bit wird 1 gesetzt, wenn der sichtbare Bereich des Frame vollständig übertragen wurde.
+    Es wird automatisch zurückgesetzt, wenn ein Schreibzugriff mit 1 auf dieses Bit ausgeführt wird.
+    Dieses Bit löst, wenn das GIE Bit im GIER Register sowie das FIE Bit im IPIER Register gesetzt ist, einen Interrupt aus.
+\end{itemize}
